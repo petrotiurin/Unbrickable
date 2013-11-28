@@ -16,7 +16,7 @@ public class BlockMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (moving && stopwatch.ElapsedMilliseconds > 10*60){
+		if (moving && stopwatch.ElapsedMilliseconds > 15*60){
 			this.transform.Translate(0, -1, 0);
 			stopwatch.Reset();
 			stopwatch.Start();
