@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class BlockControl : MonoBehaviour {
 	
-	private GameObject[] bricks;
+	private GameObject[] blocks;
 	
 	private Board gameBoard = new Board();
 	
@@ -14,7 +14,7 @@ public class BlockControl : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		bricks = new GameObject[gameBoard.nx*gameBoard.ny*gameBoard.nz];
+		blocks = new GameObject[gameBoard.nx*gameBoard.ny*gameBoard.nz];
 		i = 0;
 		j = 0;
 		CreateCube();
@@ -36,22 +36,23 @@ public class BlockControl : MonoBehaviour {
 			j = (j+1)%5;
 		}
 		
-		GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-		cube.name = "block";
-		addToScene(cube);
+		GameObject cube = GameObject.Instantiate(Resources.LoadAssetAtPath("Assets/block.prefab", typeof(GameObject))) as GameObject;
+		cube.name = "block";	
 		
 		//drop a brick on each space on the board in order
 		cube.transform.position = new Vector3(i, 6, j); //TODO: randomize?
 		
-		cube.AddComponent("BlockCollision");
+		
 		Rigidbody cubeRigidBody = cube.AddComponent<Rigidbody>();
 		cubeRigidBody.mass = 1;
 		cubeRigidBody.useGravity = true;
 		
+		cube.AddComponent("BlockCollision");
+		addToScene(cube);
+		
 		//add brick to array representation of board.
 		k = i;
-		addBrick(k, j, cube);
-			
+		addBlocks(k, j, cube);
 		i++;
 	}
 	
@@ -66,25 +67,25 @@ public class BlockControl : MonoBehaviour {
 		t.parent = (Transform)scene.GetComponent("Transform");
 	}
 	
-	private void addBrick(int x, int z, GameObject cube){
-		if (bricks[x + z*gameBoard.nz] == null){
-			print ("brick added to bricks["+(x+z*gameBoard.nz)+"]");
-			bricks[x + z*gameBoard.nz] = cube;
+	private void addBlocks(int x, int z, GameObject cube){
+		if (blocks[x + z*gameBoard.nz] == null){
+			print ("brick added to blocks["+(x+z*gameBoard.nz)+"]");
+			blocks[x + z*gameBoard.nz] = cube;
 		}
 		else{
 			x += gameBoard.nx*gameBoard.nz;
-			addBrick(x, z, cube);
+			addBlocks(x, z, cube);
 		}
 		return;
 	}
 	
-	public void removeBricks(int y){
+	public void removeBlocks(int y){
 		int x = gameBoard.nx;
 		int z = gameBoard.nz;
 		for (int k = y*x*z; k<((y+1)*x*z); k++){
-			if (bricks[k] != null){
-				Destroy (bricks[k]);
-				bricks[k] = null;
+			if (blocks[k] != null){
+				Destroy (blocks[k]);
+				blocks[k] = null;
 			}
 		}
 		return;
