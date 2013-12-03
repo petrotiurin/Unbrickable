@@ -18,9 +18,8 @@ public class BlockCollision : MonoBehaviour {
 	void OnCollisionEnter(Collision collision) {
 		int y;
 		
-		//Only collisions with the base register for now
-		if (collision.collider.gameObject.name == "base"){	/* TODO: collisions register with TOP of   */
-			rigidbody.isKinematic = true;					/* other blocks also (not sides of blocks) */
+		if(collision.contacts[0].normal.y > 0){
+			rigidbody.isKinematic = true;
 			
 			GameObject scene = GameObject.Find("Scene");
 	    	BlockControl script = (BlockControl) scene.GetComponent(typeof(BlockControl));
@@ -33,7 +32,7 @@ public class BlockCollision : MonoBehaviour {
 			//destroy the layer if it is full
 			if(gameBoard.layer[y] == gameBoard.nx*gameBoard.nz){
 				gameBoard.clearLayer(y);
-				script.removeBricks(y);
+				script.removeBlocks(y);
 			}
 			
 			script.CreateCube();
