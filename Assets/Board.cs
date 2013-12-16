@@ -10,6 +10,7 @@ public class Board : MonoBehaviour {
 	
 	public int[] layer = new int[5];
 	
+	
 	void Start () {
 		DrawBoard();
 	}
