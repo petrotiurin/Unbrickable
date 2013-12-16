@@ -11,7 +11,7 @@ public class movement : MonoBehaviour {
 	void Update () {
 		//rotate right
 		if (Input.GetKey("x")){
-			transform.eulerAngles = new Vector3(transform.eulerAngles.x,transform.eulerAngles.y + yRotation, transform.eulerAngles.z);
+		//transform.eulerAngles = new Vector3(transform.eulerAngles.x,transform.eulerAngles.y + yRotation, transform.eulerAngles.z);
 		}	
 		//rotate left
 		if (Input.GetKey("z")){
