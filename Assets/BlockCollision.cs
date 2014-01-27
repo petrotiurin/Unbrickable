@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 
 public class BlockCollision : MonoBehaviour {
@@ -16,27 +17,23 @@ public class BlockCollision : MonoBehaviour {
 	/* On collision - send a request to the
 	 * BlockCreation script to create a new block */
 	void OnCollisionEnter(Collision collision) {
-		int y;
+		int x,y,z;
 		
 		if(collision.contacts[0].normal.y > 0){
 			rigidbody.isKinematic = true;
 			
-			GameObject scene = GameObject.Find("Scene");
-	    	BlockControl script = (BlockControl) scene.GetComponent(typeof(BlockControl));
-			Board gameBoard = script.getBoard();
-			
-			//get height and add to the layer count
-			y = (int) rigidbody.position.y;
-			gameBoard.FillPosition(y);
-			
-			//destroy the layer if it is full
-			if(gameBoard.layer[y] == gameBoard.nx*gameBoard.nz){
-				gameBoard.clearLayer(y);
-				script.removeBlocks(y);
+			if(rigidbody.name == "ActiveBlock"){
+				GameObject scene = GameObject.Find("Scene");
+		    	Board gameBoard = (Board) scene.GetComponent(typeof(Board));
+				
+				//get position and add to the layer count				
+				x = (int) Math.Round(rigidbody.position.x);
+				y = (int) Math.Round(rigidbody.position.y);
+				z = (int) Math.Round(rigidbody.position.z);
+				gameBoard.FillPosition(x,y,z);
 			}
-			
-			script.CreateCube();
 		}
+		else
+			rigidbody.isKinematic = true;
     }
-	
 }
