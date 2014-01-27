@@ -55,7 +55,6 @@ public class Board : MonoBehaviour {
 	//increase the layer count by one
 	public void FillPosition(int i, int j, int k) {
 		layer[j] ++;
-		
 		addBlocks(i, j, k);
 		
 		//destroy the layer if it is full
@@ -75,34 +74,42 @@ public class Board : MonoBehaviour {
 	}
 
 	private void addBlocks(int i, int j, int k){
-		
 		GameObject cube = GameObject.Find("ActiveBlock");
 		cube.name = "Block";
+	    cube.transform.parent = blocksLayer[j].transform;
 		
-		if(blocksLayer[j] == null)
-			blocksLayer[j] = cube;
-		else
-			cube.transform.parent = blocksLayer[j].transform;
-		
-		print("position: Y=" + j + "   X=" + i + "  Z=" + k);
+		//print("position: Y=" + j + "   X=" + i + "  Z=" + k);
 	}
 
 	public void removeBlocks(int y){
 		foreach (Transform childTransform in blocksLayer[y].transform) {
 		    Destroy(childTransform.gameObject);
 		}
-		blocksLayer[y] = null;
+		Destroy(blocksLayer[y]);
+		blocksLayer[y] = null; //probably redundant
 		
+		GameObject cube = GameObject.Find("Block");
+		float blockSize = cube.transform.localScale.x;
+		
+		String layerName;
 		for (int k = y+1; k<ny; k++){
 			if (blocksLayer[k] != null){
 				blocksLayer[k-1] = blocksLayer[k];
-				blocksLayer[k] = null;
-				Rigidbody layerRigidBody = blocksLayer[k-1].AddComponent<Rigidbody>();
-				layerRigidBody.mass = 1;
-				layerRigidBody.useGravity = true;
-				blocksLayer[k].AddComponent("BlockCollision");
+				layer[k-1] = layer[k];
+				//translate down only if blocks present
+				if (blocksLayer[k-1].transform.childCount > 0){
+					blocksLayer[k-1].transform.Translate(new Vector3(0,-blockSize,0)); //easy to make smooth fall
+				}
+				layerName = "Layer" + (k-1);
+				blocksLayer[k-1].name = layerName;
 			}
 		}
+		//add an empty(removed) layer on top
+		blocksLayer[ny-1] = new GameObject();
+		layerName = "Layer" + (ny-1);
+		blocksLayer[ny-1].name = layerName;
+		addToScene(blocksLayer[ny-1]);
+		layer[ny-1] = 0;
 		return;
 	}
 	
