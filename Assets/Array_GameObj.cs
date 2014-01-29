@@ -51,4 +51,11 @@ public class Array_GameObj : MonoBehaviour {
 		
 		Debug.Log("Random nos: " + piece1 + " & " + piece2);
 	}
+
+	// Combine pieces and make it fall on the surface. Used primarily
+	//		for testing during development.
+	void combinePieces () {
+		/* Get index of the 2-3 pieces so you know which pieces to combine.
+		** 
+	}
 }
