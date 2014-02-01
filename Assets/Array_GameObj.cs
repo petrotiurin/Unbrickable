@@ -56,6 +56,7 @@ public class Array_GameObj : MonoBehaviour {
 	//		for testing during development.
 	void combinePieces () {
 		/* Get index of the 2-3 pieces so you know which pieces to combine.
-		** 
+		*/
+
 	}
 }
