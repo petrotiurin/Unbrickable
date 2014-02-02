@@ -15,9 +15,10 @@ public class BlockControl : MonoBehaviour {
 	
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
-	private float pinSize = 0.33f;
+	public float pinSize = 0.33f;
 	
-	private int i, j;
+	//variable to assign pins unique names
+	private int pin = 0;
 	
 	private GameObject FragmentCube;
 
@@ -49,7 +50,8 @@ public class BlockControl : MonoBehaviour {
 			j = (j+1)%5;
 		}
 		
-		GameObject cube = GameObject.Instantiate(Resources.LoadAssetAtPath("Assets/block.prefab", typeof(GameObject))) as GameObject;
+		//GameObject cube = GameObject.Instantiate(Resources.LoadAssetAtPath("Assets/block.prefab", typeof(GameObject))) as GameObject;
+		GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		cube.name = "ActiveBlock";	
 		
 		//drop a brick on each space on the board in order
@@ -72,46 +74,40 @@ public class BlockControl : MonoBehaviour {
 		t.parent = (Transform)scene.GetComponent("Transform");
 	}
 	
-	private void addBlocks(int x, int z, GameObject cube){
-		if (blocks[x + z*gameBoard.nz] == null){
-			print ("brick added to blocks["+(x+z*gameBoard.nz)+"]");
-			blocks[x + z*gameBoard.nz] = cube;
-		}
-		else{
-			x += gameBoard.nx*gameBoard.nz;
-			addBlocks(x, z, cube);
-		}
-		return;
-	}
-	
-	public void removeBlocks(int y){
-		int x = gameBoard.nx;
-		int z = gameBoard.nz;
-		for (int k = y*x*z; k<((y+1)*x*z); k++){
-			if (blocks[k] != null){
-				Destroy (blocks[k]);
-				blocks[k] = null;
-			}
-		}
-		return;
-	}
-	
 	//creates a cube that is a building block of a shape
-	private GameObject createPointCube(int x, int y, int z, int globalx,int globaly){
+	private GameObject createPointCube(float x, float y, float z, float globalx,float globaly){
 		GameObject cube = GameObject.Instantiate(Resources.LoadAssetAtPath("Assets/block.prefab", typeof(GameObject))) as GameObject;
+		string name = "Current pin" + pin.ToString();
+		cube.name = name;
 		cube.transform.position = new Vector3(globalx+x*pinSize, 6+y*pinSize, globaly+z*pinSize);
 		cube.transform.localScale = new Vector3(pinSize,pinSize,pinSize);
+		pin++;
 		return cube;
 	}
 	
 	//creates a shape out of array, consisting of 0s and 1s
 	public void createShape(int[,,] shape){
+		if (pass == 0 && (i + j*5) == 24){
+			i++;
+			pass=1;
+		}
+		
+		//wrap-around
+		if (i == 5){
+			i = 0;
+			j = (j+1)%5;
+		}
+		
+		pin = 0;
+		
 		GameObject shapeObj = new GameObject();
+		shapeObj.transform.position = new Vector3(i,6,j);
+		float halfLength = shape.GetLength(0)/2;
 		for (int x=0; x < shape.GetLength(0); x++)
 			for (int y=0; y < shape.GetLength(0); y++)
 				for (int z=0; z < shape.GetLength(0); z++){
 					if (shape[x,y,z] == 1){
-						GameObject currentCube = createPointCube(x,y,z,i,j);
+						GameObject currentCube = createPointCube(x-halfLength,y-halfLength,z-halfLength,i,j);
 						addToShape(shapeObj, currentCube);
 					}
 				}
@@ -120,7 +116,18 @@ public class BlockControl : MonoBehaviour {
 		cubeRigidBody.useGravity = true;
 		
 		shapeObj.AddComponent("BlockCollision");
+		shapeObj.name = "ActiveBlock";
 		addToScene(shapeObj);
+		
+		i++;
+	}
+	//TODO: get rid of this shit
+	public void createShape(){
+		createShape(shape);
+	}
+	
+	public int getShapeSize(){
+		return shape.GetLength(0);
 	}
 	
 	//Makes given cube a child of the current shape

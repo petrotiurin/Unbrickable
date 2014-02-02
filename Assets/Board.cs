@@ -9,10 +9,14 @@ public class Board : MonoBehaviour {
 	public int nx = 5;	/* width  */
 	public int ny = 5;	/* height */
 	public int nz = 5;	/* depth  */
-	
+	//pins in one dimansion
+	private int pinsPerShape;
 	private BlockControl blockCtrl;
 	
 	void Start () {
+		
+		blockCtrl = new BlockControl();
+		pinsPerShape = blockCtrl.getShapeSize();
 		blocksLayer = new GameObject [ny];
 		
 		for (int i=0; i<ny; i++){
@@ -24,8 +28,9 @@ public class Board : MonoBehaviour {
 		
 		DrawBoard();
 		
-		blockCtrl = new BlockControl();
-		blockCtrl.CreateCube();
+		
+		//blockCtrl.CreateCube();
+		blockCtrl.createShape();
 	}
 	
 	// Update is called once per frame
@@ -54,12 +59,28 @@ public class Board : MonoBehaviour {
 		addBlocks(i, j, k);
 		
 		//destroy the layer if it is full
-		if(blocksLayer[j].transform.childCount == nx*nz){
+		if(blocksLayer[j].transform.childCount == nx*nz*pinsPerShape*pinsPerShape){
 			clearLayer(j);
 		}
 		
 		//release the next cube
-		blockCtrl.CreateCube();
+		//blockCtrl.CreateCube();
+		//blockCtrl.createShape();
+	}
+	public void FillPosition(int i, int j, int k, GameObject cube) {
+		addBlocks(i, j, k, cube);
+		
+		//destroy the layer if it is full
+		if(blocksLayer[j].transform.childCount == nx*nz*pinsPerShape*pinsPerShape){
+			Debug.Log(nx*nz*pinsPerShape*pinsPerShape);
+			clearLayer(j);
+		}
+	}
+	
+	//TODO: get rid of this shit
+	public void createShape(){
+		//release the next shape
+		blockCtrl.createShape();
 	}
 	
 	//clear the layer (i.e. reset the layer count to 0)
@@ -70,8 +91,7 @@ public class Board : MonoBehaviour {
 		Destroy(blocksLayer[y]);
 		blocksLayer[y] = null; //probably redundant
 		
-		GameObject cube = GameObject.Find("Block");
-		float blockSize = cube.transform.localScale.x;
+		float blockSize = blockCtrl.pinSize;
 		
 		String layerName;
 		for (int k = y+1; k<ny; k++){
@@ -79,6 +99,7 @@ public class Board : MonoBehaviour {
 				blocksLayer[k-1] = blocksLayer[k];
 				//translate down only if blocks present
 				if (blocksLayer[k-1].transform.childCount > 0){
+					Debug.Log("Translation hppened!");
 					blocksLayer[k-1].transform.Translate(new Vector3(0,-blockSize,0)); //easy to make smooth fall
 				}
 				layerName = "Layer" + (k-1);
@@ -96,9 +117,13 @@ public class Board : MonoBehaviour {
 	private void addBlocks(int i, int j, int k){
 		GameObject cube = GameObject.Find("ActiveBlock");
 		cube.name = "Block";
+		//Debug.Log(j);
 	    cube.transform.parent = blocksLayer[j].transform;
-		
-		//print("position: Y=" + j + "   X=" + i + "  Z=" + k);
+	}
+	
+	private void addBlocks(int i, int j, int k, GameObject cube){
+		cube.name = "Block";
+	    cube.transform.parent = blocksLayer[j].transform;
 	}
 	
 	private void addToScene(GameObject o){
