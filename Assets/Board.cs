@@ -10,6 +10,9 @@ public class Board : MonoBehaviour {
 	public int ny = 5;	/* height */
 	public int nz = 5;	/* depth  */
 	
+	//for rotating the board
+	private Vector3 centreRotation = new Vector3 (2,1,2);
+	
 	private BlockControl blockCtrl;
 	
 	
@@ -33,6 +36,18 @@ public class Board : MonoBehaviour {
 	void Update ()
 	{
 	
+		//ROTATE right
+		if (Input.GetKeyDown("x")){		
+			//board has been moved (2,0,2) 2in x, 2in z-->> --^
+			transform.RotateAround(centreRotation, Vector3.up, 90);
+			print ("rotated around " + centreRotation);
+		}		
+		//ROTATE left
+		if (Input.GetKeyDown("z")){
+			transform.RotateAround(centreRotation, Vector3.up, -90);
+			print ("rotated around " + centreRotation);
+
+		}	
 	}
 	
 	//create the base of the game board

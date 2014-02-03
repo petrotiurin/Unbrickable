@@ -8,11 +8,11 @@ public class BlockControl : MonoBehaviour {
 	
 	private int i, j, pass;
 	
-	private int i, j, posX=2,posY=1,posZ=2, rotation=0;
-	
-	private Vector3 centreRotation = new Vector3 (2,1,2);
-	
 	private GameObject FragmentCube;
+	
+	//for moving the pieces
+	private int posX=2,posY=1,posZ=2;
+	private Vector3 centreRotation = new Vector3 (2,1,2);
 
 	// Use this for initialization
 	void Start () {
@@ -25,51 +25,47 @@ public class BlockControl : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		//rotate right
-		if (Input.GetKeyDown("x")){	
+		GameObject block = GameObject.Find("ActiveBlock");
+		
+		//ROTATE right
+		if (Input.GetKeyDown("v")){		
 			//board has been moved (2,0,2) 2in x, 2in z-->> --^
-			transform.RotateAround (centreRotation, Vector3.up, 90);
-			rotation += 90;		
+			block.transform.RotateAround (centreRotation, Vector3.up, 90);
 			print ("rotated around " + centreRotation);
 		}		
-		//rotate left
-		if (Input.GetKeyDown("z")){
-			transform.RotateAround (centreRotation, Vector3.up, -90);
-			rotation -= 90;
+		//ROTATE left
+		if (Input.GetKeyDown("c")){
+			block.transform.RotateAround (centreRotation, Vector3.up, -90);
 			print ("rotated around " + centreRotation);
 
 		}	
 		
-			//move forward
+		//MOVE forward
 			if (Input.GetKeyDown("up")){
-				if(transform.position.z < (4258.936))
-				transform.position = new Vector3(transform.position.x,transform.position.y, transform.position.z +1);
-				posZ +=1;
-				centreRotation = new Vector3(posX,posY,posZ);
+					block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,block.transform.position.z +1);
+					posZ +=1;
+					centreRotation = new Vector3(posX,posY,posZ);
 			}
 			//move back
 			if (Input.GetKeyDown("down")){
-				if(transform.position.z > 4249.936)
-				transform.position = new Vector3(transform.position.x,transform.position.y, transform.position.z -1);
-				posZ -=1;
-				centreRotation = new Vector3(posX,posY,posZ);
+					block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,block.transform.position.z -1);
+					posZ -=1;
+					centreRotation = new Vector3(posX,posY,posZ);
 			}
 			//move right
 			if (Input.GetKeyDown("right")){
 				//board starts off at -0.5 in x-direction
-				if(transform.position.x != (gameBoard.nx+0.5))
-				transform.position = new Vector3(transform.position.x + 1,transform.position.y, transform.position.z);
+				block.transform.position = new Vector3(block.transform.position.x + 1,block.transform.position.y,block.transform.position.z);
 				posX +=1;
 				centreRotation = new Vector3(posX,posY,posZ);
 			}
 			//move left
 			if (Input.GetKeyDown("left")){
 				//board starts off at -0.5 in x-direction
-				if(transform.position.x != (-(gameBoard.nx-0.5)))
-				transform.position = new Vector3(transform.position.x - 1,transform.position.y, transform.position.z);
+				block.transform.position = new Vector3(block.transform.position.x - 1,block.transform.position.y,block.transform.position.z);
 				posX -=1;
 				centreRotation = new Vector3(posX,posY,posZ);
-				print("moved left position.x =  " + transform.position.x +"  centre rotation = "+ centreRotation);
+				print("moved left position.x =  " + block.transform.position.x +"  centre rotation = "+ centreRotation);
 		}
 	}	
 	
@@ -93,7 +89,7 @@ public class BlockControl : MonoBehaviour {
 		
 		//drop a brick on each space on the board in order
 		cube.transform.position = new Vector3(i, 6, j); //TODO: randomize?
-		
+
 		Rigidbody cubeRigidBody = cube.AddComponent<Rigidbody>();
 		cubeRigidBody.mass = 1;
 		cubeRigidBody.useGravity = true;
