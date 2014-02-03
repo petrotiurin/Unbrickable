@@ -16,6 +16,7 @@ public class Board : MonoBehaviour {
 	private BlockControl blockCtrl;
 	
 	
+	
 	void Start () {
 		blocksLayer = new GameObject [ny];
 		
