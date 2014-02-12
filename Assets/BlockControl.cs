@@ -8,7 +8,7 @@ public class BlockControl : MonoBehaviour {
 	
 	private int globalX, globalZ, pass;
 	
-	private int maxShapesX,maxShapesY,maxShapesZ;
+	private int maxPinsX,maxPinsY,maxPinsZ;
 	
 	//sample shape, just fo shows
 	private int[,,] shape = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
@@ -17,7 +17,7 @@ public class BlockControl : MonoBehaviour {
 	
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
-	public float pinSize = 0.33f;
+	//public float pinSize = 0.33f;
 	
 	//starting height where shapes are created
 	public float startHeight = 6.0f;
@@ -39,12 +39,12 @@ public class BlockControl : MonoBehaviour {
 	void Start () {
 	}
 	
-	// Set maximum amount of shapes that can fit in each direction.
+	// Set maximum amount of pins that can fit in each direction.
 	public void getBoardValues(){
 		Board b = GetComponent<Board>();
-		maxShapesX = b.nx;
-		maxShapesY = b.ny;
-		maxShapesZ = b.nz;
+		maxPinsX = b.nx;
+		maxPinsY = b.ny;
+		maxPinsZ = b.nz;
 	}
 	
 	// Update is called once per frame.
@@ -64,10 +64,10 @@ public class BlockControl : MonoBehaviour {
 		GameObject cube = GameObject.Instantiate(blockPrefab) as GameObject;
 		cube.name = "Current pin" + pin.ToString();
 		//set starting position
-		cube.transform.position = new Vector3(globalX + x * pinSize,
-											  startHeight + y * pinSize,
-			  								  globalZ + z * pinSize);
-		cube.transform.localScale = new Vector3(pinSize, pinSize, pinSize);
+		cube.transform.position = new Vector3(globalX + x,
+											  startHeight + y,
+			  								  globalZ + z);
+		//cube.transform.localScale = new Vector3(1, 1, 1); //prob redundant
 		pin++;
 		return cube;
 	}
@@ -85,9 +85,9 @@ public class BlockControl : MonoBehaviour {
 			pass=1;
 		}
 		// Wrap-around.
-		if (globalX == maxShapesX){
+		if (globalX >= maxPinsX){
 			globalX = 0;
-			globalZ = (globalZ + 1) % maxShapesZ;
+			globalZ = (globalZ + 1) % maxPinsZ;
 		}
 		
 		pin = 0;
@@ -109,7 +109,7 @@ public class BlockControl : MonoBehaviour {
 		
 		addComponents(shapeObj, shape.GetLength(0));
 		addToScene(shapeObj);
-		globalX++;
+		globalX+=getShapeSize();
 	}
 	
 	// Adds necessary components and initialisation to a shape.
@@ -119,7 +119,6 @@ public class BlockControl : MonoBehaviour {
 		cubeRigidBody.useGravity = true;
 		
 		BlockCollision b = shapeObj.AddComponent<BlockCollision>();
-		b.setPinSize(pinSize);
 		b.setShapeSize(shapeLength);
 		shapeObj.name = "ActiveBlock";
 	}

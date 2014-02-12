@@ -12,7 +12,7 @@ public class Board : MonoBehaviour {
 	public int nz = 5;	// depth 
 	
 	// Pins in one dimansion.
-	private int pinsPerShape;
+	//private int pinsPerShape;
 	
 	private BlockControl blockCtrl;
 	
@@ -20,7 +20,7 @@ public class Board : MonoBehaviour {
 	void Start () {
 		
 		blockCtrl = GetComponent<BlockControl>();
-		pinsPerShape = blockCtrl.getShapeSize();
+		//pinsPerShape = blockCtrl.getShapeSize();
 		blocksLayer = new GameObject [ny];
 		
 		for (int i=0; i<ny; i++){
@@ -60,7 +60,7 @@ public class Board : MonoBehaviour {
 		addBlocks(layer, pin);
 		
 		// Destroy the layer if it is full.
-		if(blocksLayer[layer].transform.childCount == nx*nz*pinsPerShape*pinsPerShape){
+		if(blocksLayer[layer].transform.childCount == nx*nz){
 			clearLayer(layer);
 		}
 	}
@@ -73,7 +73,7 @@ public class Board : MonoBehaviour {
 		Destroy(blocksLayer[y]);
 		blocksLayer[y] = null; //probably redundant
 		
-		float blockSize = blockCtrl.pinSize;
+		//float blockSize = blockCtrl.pinSize;
 		
 		String layerName;
 		for (int k = y + 1; k < ny; k++){
@@ -82,7 +82,7 @@ public class Board : MonoBehaviour {
 				// Translate down only if blocks present.
 				if (blocksLayer[k-1].transform.childCount > 0){
 					// Easy to make smooth fall with "lerp".
-					blocksLayer[k-1].transform.Translate(new Vector3(0, -blockSize, 0)); 
+					blocksLayer[k-1].transform.Translate(new Vector3(0, -1, 0)); //assuming size 1
 				}
 				layerName = "Layer" + (k - 1);
 				blocksLayer[k-1].name = layerName;

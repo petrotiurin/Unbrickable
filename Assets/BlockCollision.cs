@@ -7,8 +7,6 @@ public class BlockCollision : MonoBehaviour {
 	// Avoid script being triggered twice by multiple blocks.
 	bool isTriggered = false;
 	
-	// Size of each individual pin.
-	private float pinSize;
 	// Size of shape in pins.
 	private int shapeSize;
 	Board gameBoard;
@@ -17,10 +15,6 @@ public class BlockCollision : MonoBehaviour {
 	void Start () {
 		GameObject scene = GameObject.Find("Scene");
 		gameBoard = scene.GetComponent<Board>();
-	}
-	
-	public void setPinSize(float size){
-		pinSize = size;
 	}
 	
 	public void setShapeSize(int size){
@@ -59,7 +53,7 @@ public class BlockCollision : MonoBehaviour {
 				Transform childTransform = transform.FindChild("Current pin" + i.ToString());
 				if (childTransform != null){
 					GameObject pin = childTransform.gameObject;
-					int layer = layerPos(contactPoint, pinSize);
+					int layer = layerPos(contactPoint, 1);
 					/* Following code assumes the max height is 3!
 					 * TODO: make more robust
 					 * assumes pin size 0<pin<1. */
