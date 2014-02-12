@@ -7,12 +7,16 @@ public class Board : MonoBehaviour {
 	private GameObject[] blocksLayer;
 	
 	// Dimensions of the board in "shapes".
-	public int nx = 5;	// width
-	public int ny = 5;	// height
-	public int nz = 5;	// depth 
+	public int nx = 15;	// width
+	public int ny = 15;	// height
+	public int nz = 15;	// depth 
 	
 	// Pins in one dimansion.
 	//private int pinsPerShape;
+	
+	//for rotating the board
+	//ricky moved the board initialy so the bottom left == (0,0) so centre is this
+	private Vector3 centreRotation = new Vector3 (2,1,2);
 	
 	private BlockControl blockCtrl;
 	
@@ -38,6 +42,15 @@ public class Board : MonoBehaviour {
 	// Update is called once per frame.
 	void Update ()
 	{
+		//ROTATE right
+		if (Input.GetKeyDown("x")){		
+			//board has been moved (2,0,2) 2in x, 2in z-->> --^
+			transform.RotateAround(centreRotation, Vector3.up, 90);
+		}		
+		//ROTATE left
+		if (Input.GetKeyDown("z")){
+			transform.RotateAround(centreRotation, Vector3.up, -90);
+		}
 	}
 	
 	// Create the base of the game board.
@@ -46,8 +59,8 @@ public class Board : MonoBehaviour {
 		cube.name = "base";
 		
 		// Blocks fall from (0,0) into bottom corner.
-		cube.transform.position = new Vector3(2, -0.1F, 2);
 		cube.transform.localScale = new Vector3(nx, 0.2F, nz);
+		cube.transform.position = new Vector3(2, -0.1F, 2);
 		
 		// Make the base a child of the scene
 		GameObject scene = GameObject.Find("Scene");

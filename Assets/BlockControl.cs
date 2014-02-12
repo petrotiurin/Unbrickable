@@ -13,11 +13,11 @@ public class BlockControl : MonoBehaviour {
 	//sample shape, just fo shows
 	private int[,,] shape = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
 									   	 {{1,1,1},{0,1,0},{0,0,0}},
-									     {{1,1,1},{0,0,0},{0,0,0}}};
+									     {{1,1,1},{0,1,0},{0,0,0}}};
 	
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
-	//public float pinSize = 0.33f;
+	public float pinSize = 1.0f;
 	
 	//starting height where shapes are created
 	public float startHeight = 6.0f;
@@ -26,6 +26,11 @@ public class BlockControl : MonoBehaviour {
 	private int pin = 0;
 	
 	private GameObject FragmentCube;
+
+	//for moving the shapes need to know the centre of shape
+	private float posX=2,posY=1,posZ=2;	
+	private Vector3 centreRotation = new Vector3 (2,1,2);
+
 	
 	// Pre-Initialization.
 	void Awake(){
@@ -47,9 +52,126 @@ public class BlockControl : MonoBehaviour {
 		maxPinsZ = b.nz;
 	}
 	
+	public void PivotTo(GameObject o, Vector3 position){
+	    Vector3 offset = o.transform.position - position;
+	 
+	    foreach (Transform child in o.transform)
+	        child.transform.position += offset;
+	 
+	    o.transform.position = position;
+	}
+	
+	private void getRotationCentre(){
+		//print("shape size = "+getShapeSize());
+		//go throught each part of the array and search for the 1's, keep count and go throught all of th arrays in the z direction
+		//same for the x direction
+		//count the distance between the starting 1 and the last 1
+		//if a 1 is on the edge and nowhere else in the line, this is potentially the furthest edge
+		
+		GameObject active = GameObject.Find("ActiveBlock");
+		
+		double length, width;
+		int[] lengthSize = new int[shape.GetLength(0)];
+		int[] widthSize = new int[shape.GetLength(1)];
+		//to work out the length of the shape.
+		//for the y direction
+		for(int i=0; i<shape.GetLength(1);i++){
+			//for the z direction
+			for(int j = 0; j<shape.GetLength(2);j++){
+				//for the x direction
+				for(int k = 0;k<shape.GetLength(0);k++){
+					if(shape[j,i,k] == 1){
+						lengthSize[k] = 1;
+						widthSize[j] = 1;
+					}
+				}
+			}
+		}
+		//to calulate the length of the longest block of 1's
+		int finalLength,startLength = 0,endLength = 0,found1 = 0;
+		for(int i=0;i<shape.GetLength(2);i++){
+			//get the start position in the array of the shape
+			if(lengthSize[i] == 1&&found1 == 0){
+				found1 = 1;
+				startLength = i;
+			}
+			if(lengthSize[i] == 1){
+				endLength = i;
+			}			
+		}
+		//to calculate the width of the longest blocks of 1's
+		int finalWidth,startWidth = 0,endWidth = 0,foundWidth1 = 0;
+		for(int i=0;i<shape.GetLength(1);i++){
+			//get the start position in the array of the shape
+			if(widthSize[i] == 1&&foundWidth1 == 0){
+				foundWidth1 = 1;
+				startWidth = i;
+			}
+			if(widthSize[i] == 1){
+				endWidth = i;
+			}			
+		}
+		print("______________________________________________");
+		print("active block position = "+active.transform.position);
+		//calculate the final length
+		finalLength = (endLength - startLength) + 1;
+		length = active.transform.position.z + (startLength*pinSize) + ((finalLength * pinSize)/2);
+		print ("globalZ = "+active.transform.position.z + " centre in the z direction = "+length);
+		//calculate the final width
+		finalWidth = (endWidth - startWidth) + 1;
+		width = active.transform.position.x + (startWidth*pinSize) + ((finalWidth * pinSize)/2);
+		print ("globalX = "+active.transform.position.x + " centre in the x direction = "+width);
+		
+		//posX = (float)width;
+		posX = active.transform.position.x;
+		//posZ = (float)length;
+		posZ = active.transform.position.z;
+		centreRotation = new Vector3 (posX,active.transform.position.y,posZ);
+		PivotTo(active,centreRotation);
+		print("final centreRotation = "+centreRotation);
+	}
 	// Update is called once per frame.
 	void Update () {
-	}
+		
+		GameObject block = GameObject.Find("ActiveBlock");
+		//ROTATE right
+		if (Input.GetKeyDown("v")){		
+			//board has been moved (2,0,2) 2in x, 2in z-->> --^
+			//block.transform.RotateAround (centreRotation, Vector3.up, 90);
+			block.transform.Rotate(0,-90,0,Space.Self);
+			//print ("ON KEY PRESS - rotated around: " + centreRotation);
+		}		
+		//ROTATE left
+		if (Input.GetKeyDown("c")){
+			block.transform.Rotate(0,-90,0,Space.Self);
+			//block.transform.RotateAround (centreRotation, Vector3.up, -90);
+		}
+		//MOVE forward
+		if (Input.GetKeyDown("up")){
+			block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,block.transform.position.z +1);
+			posZ +=1;
+			//centreRotation = new Vector3(posX,posY,posZ);
+		}
+		//MOVE back
+		if (Input.GetKeyDown("down")){
+			block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,block.transform.position.z -1);
+			posZ -=1;
+			//centreRotation = new Vector3(posX,posY,posZ);
+		}
+		//move right
+  		if (Input.GetKeyDown("right")){
+			block.transform.position = new Vector3(block.transform.position.x + 1,block.transform.position.y,block.transform.position.z);
+  			posX +=1;
+  			//centreRotation = new Vector3(posX,posY,posZ);
+  		}
+  		//move left
+  		if (Input.GetKeyDown("left")){
+  			//board starts off at -0.5 in x-direction
+			block.transform.position = new Vector3(block.transform.position.x - 1,block.transform.position.y,block.transform.position.z);
+  			posX -=1;
+  			//centreRotation = new Vector3(posX,posY,posZ);
+  		}
+  	}
 	
 	// Makes given object a child of the Scene object.
 	private void addToScene(GameObject o){
@@ -81,13 +203,13 @@ public class BlockControl : MonoBehaviour {
 		/* Skip one shape at the end of the first layer.
 		 * For demonstration purposes. */
 		if (pass == 0 && (globalX + globalZ*5) == 24){
-			globalX++;
+			globalX = globalX + 3;
 			pass=1;
 		}
 		// Wrap-around.
 		if (globalX >= maxPinsX){
 			globalX = 0;
-			globalZ = (globalZ + 1) % maxPinsZ;
+			globalZ = (globalZ + 3) % maxPinsZ;
 		}
 		
 		pin = 0;
@@ -109,7 +231,9 @@ public class BlockControl : MonoBehaviour {
 		
 		addComponents(shapeObj, shape.GetLength(0));
 		addToScene(shapeObj);
-		globalX+=getShapeSize();
+		//change the centre rotation vector for the shape centre
+		getRotationCentre();
+		globalX=globalX+3;
 	}
 	
 	// Adds necessary components and initialisation to a shape.
