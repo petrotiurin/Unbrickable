@@ -16,14 +16,19 @@ public class Array_GameObj : MonoBehaviour {
 		legoPieces = new GameObject[piecesNum];
 		
 		position1 = new Vector3(0,0,0);
-		position2 = new Vector3(5,0,0);
-		position3 = new Vector3(5,0,5);
-		
-        InvokeRepeating("SuggestLegoPiece", 0.5f, 0.5f);
+		position2 = new Vector3(2,0,0);
+		position3 = new Vector3(2,0,2);
+		SuggestLegoPiece();
+	}
+	
+	//Makes given cube a child of the current shape
+	private void addToShape(Transform shape, GameObject cube){
+		Transform t = cube.transform;
+		t.parent = shape;
 	}
 	
 	void InvokePiece(int piece, Vector3 pos){
-		string prefab = "Assets/";
+		string prefab = "Assets/Blocks/";
 		switch(piece){
 		case 0: prefab+="L2x1"; break;
 		case 1: prefab+="L2x2"; break;
@@ -32,10 +37,13 @@ public class Array_GameObj : MonoBehaviour {
 		case 4: prefab+="L6x1"; break;
 		default: throw new System.ArgumentException("Unrecognised piece number.");
 		}
-		prefab += ".fbx";
-		GameObject pieceObject = GameObject.Instantiate(Resources.LoadAssetAtPath(prefab, typeof(GameObject))) as GameObject;	
-		pieceObject.transform.Translate(pos);
-		pieceObject.transform.localScale = new Vector3(34,34,34);
+		prefab += ".prefab";
+		Object obj = Resources.LoadAssetAtPath(prefab, typeof(GameObject));
+		GameObject pieceObject = GameObject.Instantiate(obj) as GameObject;
+		addToShape(transform, pieceObject);
+		pieceObject.transform.LookAt(transform.forward);
+		pieceObject.transform.localPosition = pos;
+		pieceObject.transform.localScale = new Vector3(20,20,20);
 		legoPieces[piece] = pieceObject;
 	}
 	
@@ -44,7 +52,7 @@ public class Array_GameObj : MonoBehaviour {
 	}*/
 	
 	// Update is called once per frame
-	void SuggestLegoPiece () {
+	public void SuggestLegoPiece () {
 
 		int piece1, piece2, piece3; //stores the index of the piece to display
 		int numberOfPieces; //stores if to generate 2 or 3 pieces

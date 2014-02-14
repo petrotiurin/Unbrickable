@@ -63,6 +63,9 @@ public class BlockCollision : MonoBehaviour {
 					gameBoard.FillPosition(layer, pin);
 				}
 			}
+			Array_GameObj showPieceScript;
+			showPieceScript = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
+			showPieceScript.SuggestLegoPiece();
 			nextShape();
 			Destroy(this.gameObject);
 		}
