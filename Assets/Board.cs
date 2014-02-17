@@ -60,7 +60,8 @@ public class Board : MonoBehaviour {
 		
 		// Blocks fall from (0,0) into bottom corner.
 		cube.transform.localScale = new Vector3(nx, 0.2F, nz);
-		cube.transform.position = new Vector3(2, -0.1F, 2);
+		cube.transform.position = new Vector3(6.0F, -0.1F, 6.0F);
+		
 		
 		// Make the base a child of the scene
 		GameObject scene = GameObject.Find("Scene");

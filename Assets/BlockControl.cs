@@ -6,21 +6,31 @@ public class BlockControl : MonoBehaviour {
 	
 	private GameObject[] blocks;
 	
-	private int globalX, globalZ, pass;
+	private int globalX, globalZ;
 	
-	private int maxPinsX,maxPinsY,maxPinsZ;
+	private int maxPinsX,maxPinsZ;
+	
+	private float boundX,boundZ;
 	
 	//sample shape, just fo shows
-	private int[,,] shape = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
-									   	 {{1,1,1},{0,1,0},{0,0,0}},
-									     {{1,1,1},{0,1,0},{0,0,0}}};
+	/*private int[,,] shape1 = new int[,,] {{{1,1,1},{0,1,0},{0,0,0}},
+									   	 {{0,0,0},{0,1,0},{0,0,0}},
+									     {{0,0,0},{0,0,0},{0,0,0}}};
+	
+	private int[,,] shape2 = new int[,,] {{{1,0,0},{0,0,0},{0,0,0}},
+									   	  {{1,0,0},{1,0,0},{0,0,0}},
+									      {{1,0,0},{1,0,0},{1,0,0}}};*/
+	
+	private int[,,] shape = new int[,,] {{{0,0,0},{0,0,0},{0,0,1}},
+									   	  {{0,0,0},{0,0,1},{0,0,1}},
+									      {{0,1,1},{0,0,1},{0,0,0}}};
 	
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
 	public float pinSize = 1.0f;
 	
 	//starting height where shapes are created
-	public float startHeight = 6.0f;
+	public float startHeight = 50.0f;
 	
 	// Variable to assign pins unique names.
 	private int pin = 0;
@@ -28,7 +38,7 @@ public class BlockControl : MonoBehaviour {
 	private GameObject FragmentCube;
 
 	//for moving the shapes need to know the centre of shape
-	private float posX=2,posY=1,posZ=2;	
+	private float posX=2,posZ=2;	
 	private Vector3 centreRotation = new Vector3 (2,1,2);
 
 	
@@ -36,7 +46,6 @@ public class BlockControl : MonoBehaviour {
 	void Awake(){
 		globalX = 0;
 		globalZ = 0;
-		pass = 0;
 		getBoardValues();
 	}
 	
@@ -48,7 +57,6 @@ public class BlockControl : MonoBehaviour {
 	public void getBoardValues(){
 		Board b = GetComponent<Board>();
 		maxPinsX = b.nx;
-		maxPinsY = b.ny;
 		maxPinsZ = b.nz;
 	}
 	
@@ -124,15 +132,18 @@ public class BlockControl : MonoBehaviour {
 		
 		//posX = (float)width;
 		posX = active.transform.position.x;
+		boundX = finalWidth/2;
+		
 		//posZ = (float)length;
 		posZ = active.transform.position.z;
+		boundZ = finalLength/2;
+		
 		centreRotation = new Vector3 (posX,active.transform.position.y,posZ);
 		PivotTo(active,centreRotation);
 		print("final centreRotation = "+centreRotation);
 	}
 	// Update is called once per frame.
 	void Update () {
-		
 		GameObject block = GameObject.Find("ActiveBlock");
 		//ROTATE right
 		if (Input.GetKeyDown("v")){		
@@ -148,26 +159,54 @@ public class BlockControl : MonoBehaviour {
 		}
 		//MOVE forward
 		if (Input.GetKeyDown("up")){
-			block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,block.transform.position.z +1);
+			/*
+			float newPosition;
+			if ((block.transform.position.z + boundZ) + 1 > maxPinsZ)
+				newPosition = block.transform.position.z;
+			else
+				newPosition = block.transform.position.z + 1;*/
+			
+			block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,newPosition);
 			posZ +=1;
 			//centreRotation = new Vector3(posX,posY,posZ);
 		}
 		//MOVE back
 		if (Input.GetKeyDown("down")){
-			block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,block.transform.position.z -1);
+			/*
+			float newPosition;
+			if ((block.transform.position.z - boundZ) - 1 < 0)
+				newPosition = block.transform.position.z;
+			else
+				newPosition = block.transform.position.z - 1;*/
+			
+			block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,newPosition);
 			posZ -=1;
 			//centreRotation = new Vector3(posX,posY,posZ);
 		}
 		//move right
   		if (Input.GetKeyDown("right")){
-			block.transform.position = new Vector3(block.transform.position.x + 1,block.transform.position.y,block.transform.position.z);
+			/*
+			float newPosition;
+			if ((block.transform.position.x + boundX) + 1 > maxPinsX)
+				newPosition = block.transform.position.x;
+			else
+				newPosition = block.transform.position.x + 1;*/
+			
+			block.transform.position = new Vector3(newPosition,block.transform.position.y,block.transform.position.z);
   			posX +=1;
   			//centreRotation = new Vector3(posX,posY,posZ);
   		}
   		//move left
   		if (Input.GetKeyDown("left")){
   			//board starts off at -0.5 in x-direction
-			block.transform.position = new Vector3(block.transform.position.x - 1,block.transform.position.y,block.transform.position.z);
+			/*
+			float newPosition;
+			if ((block.transform.position.x - boundX) - 1 < 0)
+				newPosition = block.transform.position.x;
+			else
+				newPosition = block.transform.position.x - 1;*/
+			
+			block.transform.position = new Vector3(newPosition,block.transform.position.y,block.transform.position.z);
   			posX -=1;
   			//centreRotation = new Vector3(posX,posY,posZ);
   		}
@@ -202,17 +241,19 @@ public class BlockControl : MonoBehaviour {
 		
 		/* Skip one shape at the end of the first layer.
 		 * For demonstration purposes. */
-		if (pass == 0 && (globalX + globalZ*5) == 24){
-			globalX = globalX + 3;
-			pass=1;
-		}
+		/*
+		 * 
+
 		// Wrap-around.
 		if (globalX >= maxPinsX){
 			globalX = 0;
 			globalZ = (globalZ + 3) % maxPinsZ;
-		}
+		}*/
 		
 		pin = 0;
+		
+		globalX = 7;
+		globalZ = 7;
 		
 		GameObject shapeObj = new GameObject();
 		shapeObj.transform.position = new Vector3(globalX, startHeight, globalZ);
@@ -241,6 +282,7 @@ public class BlockControl : MonoBehaviour {
 		Rigidbody cubeRigidBody = shapeObj.AddComponent<Rigidbody>();
 		cubeRigidBody.mass = 1;
 		cubeRigidBody.useGravity = true;
+		cubeRigidBody.drag = 4;
 		
 		BlockCollision b = shapeObj.AddComponent<BlockCollision>();
 		b.setShapeSize(shapeLength);
