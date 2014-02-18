@@ -12,16 +12,18 @@ public class BlockControl : MonoBehaviour {
 	
 	private float boundX,boundZ;
 	
+	private int pass;
+	
 	//sample shape, just fo shows
-	/*private int[,,] shape1 = new int[,,] {{{1,1,1},{0,1,0},{0,0,0}},
+	private int[,,] shape1 = new int[,,] {{{1,1,1},{0,1,0},{0,0,0}},
 									   	 {{0,0,0},{0,1,0},{0,0,0}},
 									     {{0,0,0},{0,0,0},{0,0,0}}};
 	
 	private int[,,] shape2 = new int[,,] {{{1,0,0},{0,0,0},{0,0,0}},
 									   	  {{1,0,0},{1,0,0},{0,0,0}},
-									      {{1,0,0},{1,0,0},{1,0,0}}};*/
+									      {{1,0,0},{1,0,0},{1,0,0}}};
 	
-	private int[,,] shape = new int[,,] {{{0,0,0},{0,0,0},{0,0,1}},
+	private int[,,] shape3 = new int[,,] {{{0,0,0},{0,0,0},{0,0,1}},
 									   	  {{0,0,0},{0,0,1},{0,0,1}},
 									      {{0,1,1},{0,0,1},{0,0,0}}};
 	
@@ -51,12 +53,14 @@ public class BlockControl : MonoBehaviour {
 	
 	// Initialization.
 	void Start () {
+		pass = 0;		
 	}
 	
 	// Set maximum amount of pins that can fit in each direction.
 	public void getBoardValues(){
 		Board b = GetComponent<Board>();
 		maxPinsX = b.nx;
+		//maxPinsY = b.ny;
 		maxPinsZ = b.nz;
 	}
 	
@@ -69,7 +73,7 @@ public class BlockControl : MonoBehaviour {
 	    o.transform.position = position;
 	}
 	
-	private void getRotationCentre(){
+	private void getRotationCentre(int[,,] shape){
 		//print("shape size = "+getShapeSize());
 		//go throught each part of the array and search for the 1's, keep count and go throught all of th arrays in the z direction
 		//same for the x direction
@@ -159,12 +163,12 @@ public class BlockControl : MonoBehaviour {
 		}
 		//MOVE forward
 		if (Input.GetKeyDown("up")){
-			/*
+			
 			float newPosition;
 			if ((block.transform.position.z + boundZ) + 1 > maxPinsZ)
 				newPosition = block.transform.position.z;
 			else
-				newPosition = block.transform.position.z + 1;*/
+				newPosition = block.transform.position.z + 1;
 			
 			block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,newPosition);
 			posZ +=1;
@@ -172,12 +176,12 @@ public class BlockControl : MonoBehaviour {
 		}
 		//MOVE back
 		if (Input.GetKeyDown("down")){
-			/*
+			
 			float newPosition;
 			if ((block.transform.position.z - boundZ) - 1 < 0)
 				newPosition = block.transform.position.z;
 			else
-				newPosition = block.transform.position.z - 1;*/
+				newPosition = block.transform.position.z - 1;
 			
 			block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,newPosition);
 			posZ -=1;
@@ -185,12 +189,12 @@ public class BlockControl : MonoBehaviour {
 		}
 		//move right
   		if (Input.GetKeyDown("right")){
-			/*
+			
 			float newPosition;
 			if ((block.transform.position.x + boundX) + 1 > maxPinsX)
 				newPosition = block.transform.position.x;
 			else
-				newPosition = block.transform.position.x + 1;*/
+				newPosition = block.transform.position.x + 1;
 			
 			block.transform.position = new Vector3(newPosition,block.transform.position.y,block.transform.position.z);
   			posX +=1;
@@ -199,12 +203,12 @@ public class BlockControl : MonoBehaviour {
   		//move left
   		if (Input.GetKeyDown("left")){
   			//board starts off at -0.5 in x-direction
-			/*
+			
 			float newPosition;
 			if ((block.transform.position.x - boundX) - 1 < 0)
 				newPosition = block.transform.position.x;
 			else
-				newPosition = block.transform.position.x - 1;*/
+				newPosition = block.transform.position.x - 1;
 			
 			block.transform.position = new Vector3(newPosition,block.transform.position.y,block.transform.position.z);
   			posX -=1;
@@ -234,7 +238,7 @@ public class BlockControl : MonoBehaviour {
 	}
 	
 	//creates a shape out of array, consisting of 0s and 1s
-	public void createShape(int[,,] shape){
+	public void createShape(int[,,] shape, int colour){
 		if (shape.GetLength(0) != shape.GetLength(1)){
 			throw new System.Exception("Shape x and y dimensions must match");
 		}
@@ -253,7 +257,7 @@ public class BlockControl : MonoBehaviour {
 		pin = 0;
 		
 		globalX = 7;
-		globalZ = 7;
+		globalZ = 7;			
 		
 		GameObject shapeObj = new GameObject();
 		shapeObj.transform.position = new Vector3(globalX, startHeight, globalZ);
@@ -264,6 +268,16 @@ public class BlockControl : MonoBehaviour {
 				for (int z=0; z < shape.GetLength(0); z++){
 					if (shape[x,y,z] == 1){
 						GameObject currentCube = createPointCube(x-halfLength,y-halfLength,z-halfLength);
+						
+						//Apply colour to each block
+						currentCube.GetComponent<MeshRenderer>();
+						if (colour%3==0)
+							currentCube.renderer.material.color = Color.red;
+						else if(colour%3==1)
+							currentCube.renderer.material.color = Color.green;
+						else
+							currentCube.renderer.material.color = Color.blue;
+
 						addToShape(shapeObj, currentCube);
 					}
 				}
@@ -272,8 +286,9 @@ public class BlockControl : MonoBehaviour {
 		
 		addComponents(shapeObj, shape.GetLength(0));
 		addToScene(shapeObj);
+		
 		//change the centre rotation vector for the shape centre
-		getRotationCentre();
+		getRotationCentre(shape);
 		globalX=globalX+3;
 	}
 	
@@ -292,13 +307,24 @@ public class BlockControl : MonoBehaviour {
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
-		createShape(shape);
+		
+		// Cycle through these three shapes for now...
+		if(pass%3==0)
+			createShape(shape1, pass);
+		else if(pass%3==1)
+			createShape(shape2, pass);
+		else
+			createShape(shape3, pass);
+
+		pass++;
 	}
 	
 	//TODO: remove this shit
-	public int getShapeSize(){
+	/*
+	 * public int getShapeSize(){
 		return shape.GetLength(0);
 	}
+	 */
 	
 	//Makes given cube a child of the current shape
 	private void addToShape(GameObject shape, GameObject cube){
