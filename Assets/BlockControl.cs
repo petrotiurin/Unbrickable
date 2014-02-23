@@ -42,6 +42,30 @@ public class BlockControl : MonoBehaviour {
 	//for moving the shapes need to know the centre of shape
 	private float posX=2,posZ=2;	
 	private Vector3 centreRotation = new Vector3 (2,1,2);
+	
+	//rotate the shape array
+	int[,,] rotateShape(int[,,] shape, bool clockwise){
+		
+		int [,,] newShape = new int[,,]{{{0,0,0},{0,0,0},{0,0,0}},
+									   	{{0,0,0},{0,0,0},{0,0,0}},
+									    {{0,0,0},{0,0,0},{0,0,0}}};
+		
+		//loop through shape array
+		for(int i=0; i< shape.GetLength(2); i++){
+			for(int j=0; j< shape.GetLength(1); j++){
+				for(int k = 0;k<shape.GetLength(0);k++){
+					
+					//rotate 90 degrees around centre of bounding box
+					if (clockwise)
+						newShape[j, shape.GetLength(2)-1-i, k] = shape[i,j,k];
+					else
+						newShape[shape.GetLength(1)-1-j, i, k] = 1;
+				}
+			}
+		}
+		
+		return newShape;
+	}
 
 	
 	// Pre-Initialization.
