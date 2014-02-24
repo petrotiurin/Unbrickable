@@ -10,18 +10,18 @@ public class BlockControl : MonoBehaviour {
 	
 	private int maxPinsX,maxPinsZ;
 	
-	private float boundX,boundZ;
+	private float boundX,boundZ,boundingBox;
 	
 	private int pass;
 	
 	//sample shape, just fo shows
-	private int[,,] shape1 = new int[,,] {{{1,1,1},{0,1,0},{0,0,0}},
-									   	 {{0,0,0},{0,1,0},{0,0,0}},
-									     {{0,0,0},{0,0,0},{0,0,0}}};
+	private int[,,] shape1 = new int[,,] {{{0,1,0},{0,0,0},{0,0,0}},
+									   	 {{1,1,1},{0,0,0},{0,0,0}},
+									     {{0,1,0},{0,0,0},{0,0,0}}};
 	
-	private int[,,] shape2 = new int[,,] {{{1,0,0},{0,0,0},{0,0,0}},
-									   	  {{1,0,0},{1,0,0},{0,0,0}},
-									      {{1,0,0},{1,0,0},{1,0,0}}};
+	private int[,,] shape2 = new int[,,] {{{0,1,0},{0,0,0},{0,0,0}},
+									   	  {{0,1,0},{0,0,0},{0,0,0}},
+									      {{0,1,0},{0,0,0},{0,0,0}}};
 	
 	private int[,,] shape3 = new int[,,] {{{0,0,0},{0,0,0},{0,0,1}},
 									   	  {{0,0,0},{0,0,1},{0,0,1}},
@@ -147,28 +147,37 @@ public class BlockControl : MonoBehaviour {
 				endWidth = i;
 			}			
 		}
-		print("______________________________________________");
-		print("active block position = "+active.transform.position);
-		//calculate the final length
+		//calculate the final length from the start 1 to the last 1
 		finalLength = (endLength - startLength) + 1;
+		//gets the centre of the length
 		length = active.transform.position.z + (startLength*pinSize) + ((finalLength * pinSize)/2);
-		print ("globalZ = "+active.transform.position.z + " centre in the z direction = "+length);
-		//calculate the final width
+		//calculate the final width from the start 1 to the last 1
 		finalWidth = (endWidth - startWidth) + 1;
+		//gets the centre of the width
 		width = active.transform.position.x + (startWidth*pinSize) + ((finalWidth * pinSize)/2);
-		print ("globalX = "+active.transform.position.x + " centre in the x direction = "+width);
 		
-		//posX = (float)width;
-		posX = active.transform.position.x;
+		
+		//if length and width is the same size then rotate around the center of gravity
+		//else rotate around the nearest corner
+		if(finalLength == finalWidth){
+			posX = active.transform.position.x;
+			posZ = active.transform.position.z;
+		}else{
+			posX = (float)(int)active.transform.position.x;
+			posZ = (float)(int)active.transform.position.z;
+		}
+		//calculate the bounding box
 		boundX = finalWidth/2;
-		
-		//posZ = (float)length;
-		posZ = active.transform.position.z;
 		boundZ = finalLength/2;
 		
+		
+		//calculate the size of the bounding box
+		if(finalWidth > finalLength)boundingBox=finalWidth*finalWidth;
+		else boundingBox=finalLength*finalLength;
+		
+		//get centre and set the pivot
 		centreRotation = new Vector3 (posX,active.transform.position.y,posZ);
 		PivotTo(active,centreRotation);
-		print("final centreRotation = "+centreRotation);
 	}
 	// Update is called once per frame.
 	void Update () {
