@@ -39,6 +39,8 @@ public class BlockControl : MonoBehaviour {
 	
 	private float timer;
 	
+	private int shapeMove;
+	
 	private GameObject FragmentCube;
 
 	//for moving the shapes need to know the centre of shape
@@ -81,6 +83,7 @@ public class BlockControl : MonoBehaviour {
 	void Start () {
 		pass = 0;	
 		timer = 1;
+		shapeMove=0;
 	}
 	
 	// Set maximum amount of pins that can fit in each direction.
@@ -205,16 +208,20 @@ public class BlockControl : MonoBehaviour {
 			//block.transform.RotateAround (centreRotation, Vector3.up, -90);
 		}
 		//MOVE forward
-		if (Input.GetKeyDown("up")){
+		if (Input.GetKey("up")){
+			//every 3 frames
+			if(shapeMove%4 == 0){
+				float newPosition;
+				if ((block.transform.position.z + boundZ) + 1 > maxPinsZ)
+					newPosition = block.transform.position.z;
+				else
+					newPosition = block.transform.position.z + 1;
+				
+				block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,newPosition);
+				posZ +=1;
+			}
 			
-			float newPosition;
-			if ((block.transform.position.z + boundZ) + 1 > maxPinsZ)
-				newPosition = block.transform.position.z;
-			else
-				newPosition = block.transform.position.z + 1;
-			
-			block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,newPosition);
-			posZ +=1;
+			shapeMove++;
 			//centreRotation = new Vector3(posX,posY,posZ);
 		}
 		//MOVE back
