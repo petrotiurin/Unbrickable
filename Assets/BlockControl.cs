@@ -16,12 +16,12 @@ public class BlockControl : MonoBehaviour {
 	
 	//sample shape, just fo shows
 	private int[,,] shape1 = new int[,,] {{{0,1,0},{0,0,0},{0,0,0}},
-									   	 {{1,1,1},{0,0,0},{0,0,0}},
-									     {{0,1,0},{0,0,0},{0,0,0}}};
+									   	  {{1,1,1},{0,0,0},{0,0,0}},
+									      {{0,1,0},{0,0,0},{0,0,0}}};
 	
 	private int[,,] shape2 = new int[,,] {{{0,1,0},{0,0,0},{0,0,0}},
-									   	  {{0,1,0},{0,0,0},{0,0,0}},
-									      {{0,1,0},{0,0,0},{0,0,0}}};
+									   	  {{0,1,0},{0,2,0},{0,0,0}},
+									      {{0,1,0},{0,2,0},{0,3,0}}};
 	
 	private int[,,] shape3 = new int[,,] {{{0,0,0},{0,0,0},{0,0,1}},
 									   	  {{0,0,0},{0,0,1},{0,0,1}},
@@ -36,6 +36,8 @@ public class BlockControl : MonoBehaviour {
 	
 	// Variable to assign pins unique names.
 	private int pin = 0;
+	
+	private float timer;
 	
 	private GameObject FragmentCube;
 
@@ -77,7 +79,8 @@ public class BlockControl : MonoBehaviour {
 	
 	// Initialization.
 	void Start () {
-		pass = 0;		
+		pass = 0;	
+		timer = 1;
 	}
 	
 	// Set maximum amount of pins that can fit in each direction.
@@ -98,7 +101,6 @@ public class BlockControl : MonoBehaviour {
 	}
 	
 	private void getRotationCentre(int[,,] shape){
-		//print("shape size = "+getShapeSize());
 		//go throught each part of the array and search for the 1's, keep count and go throught all of th arrays in the z direction
 		//same for the x direction
 		//count the distance between the starting 1 and the last 1
@@ -116,7 +118,7 @@ public class BlockControl : MonoBehaviour {
 			for(int j = 0; j<shape.GetLength(2);j++){
 				//for the x direction
 				for(int k = 0;k<shape.GetLength(0);k++){
-					if(shape[j,i,k] == 1){
+					if(shape[j,i,k] != 0){
 						lengthSize[k] = 1;
 						widthSize[j] = 1;
 					}
@@ -127,7 +129,7 @@ public class BlockControl : MonoBehaviour {
 		int finalLength,startLength = 0,endLength = 0,found1 = 0;
 		for(int i=0;i<shape.GetLength(2);i++){
 			//get the start position in the array of the shape
-			if(lengthSize[i] == 1&&found1 == 0){
+			if(lengthSize[i] != 1&&found1 == 0){
 				found1 = 1;
 				startLength = i;
 			}
@@ -156,6 +158,8 @@ public class BlockControl : MonoBehaviour {
 		//gets the centre of the width
 		width = active.transform.position.x + (startWidth*pinSize) + ((finalWidth * pinSize)/2);
 		
+		/*final length and width = the actual longest lengths
+		  length and width = the centre of gravityin relation to the origin corner*/
 		
 		//if length and width is the same size then rotate around the center of gravity
 		//else rotate around the nearest corner
@@ -182,6 +186,12 @@ public class BlockControl : MonoBehaviour {
 	// Update is called once per frame.
 	void Update () {
 		GameObject block = GameObject.Find("ActiveBlock");
+		 
+		timer -= Time.deltaTime;
+		if(timer<=0){
+			timer=1;
+			block.transform.Translate(0,-1,0);
+		}		
 		//ROTATE right
 		if (Input.GetKeyDown("v")){		
 			//board has been moved (2,0,2) 2in x, 2in z-->> --^
@@ -299,18 +309,25 @@ public class BlockControl : MonoBehaviour {
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(0); y++){
 				for (int z=0; z < shape.GetLength(0); z++){
-					if (shape[x,y,z] == 1){
+					if (shape[x,y,z] != 0){
 						GameObject currentCube = createPointCube(x-halfLength,y-halfLength,z-halfLength);
+						currentCube.GetComponent<MeshRenderer>();
 						
 						//Apply colour to each block
-						currentCube.GetComponent<MeshRenderer>();
-						if (colour%3==0)
-							currentCube.renderer.material.color = Color.red;
-						else if(colour%3==1)
-							currentCube.renderer.material.color = Color.green;
-						else
-							currentCube.renderer.material.color = Color.blue;
-
+						switch (shape[x,y,z]){
+						
+							case 1: currentCube.renderer.material.color = Color.red;
+									break;
+								
+							case 2: currentCube.renderer.material.color = Color.green;
+									break;
+								
+							case 3: currentCube.renderer.material.color = Color.blue;
+									break;
+								
+							default : break;
+						}
+						
 						addToShape(shapeObj, currentCube);
 					}
 				}
@@ -329,7 +346,7 @@ public class BlockControl : MonoBehaviour {
 	private void addComponents(GameObject shapeObj, int shapeLength){
 		Rigidbody cubeRigidBody = shapeObj.AddComponent<Rigidbody>();
 		cubeRigidBody.mass = 1;
-		cubeRigidBody.useGravity = true;
+		cubeRigidBody.useGravity = false;
 		cubeRigidBody.drag = 4;
 		
 		BlockCollision b = shapeObj.AddComponent<BlockCollision>();
