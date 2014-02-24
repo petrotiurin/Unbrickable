@@ -6,6 +6,9 @@ public class BlockControl : MonoBehaviour {
 	
 	private GameObject[] blocks;
 	
+	private GameObject shadow;
+	private ShadowCollision sh;
+	
 	private int globalX, globalZ;
 	
 	private int maxPinsX,maxPinsZ;
@@ -170,74 +173,57 @@ public class BlockControl : MonoBehaviour {
 		PivotTo(active,centreRotation);
 		print("final centreRotation = "+centreRotation);
 	}
+	
 	// Update is called once per frame.
 	void Update () {
 		GameObject block = GameObject.Find("ActiveBlock");
+		Vector3 translation = Vector3.zero;
+		Vector3 rotation = Vector3.zero;
 		//ROTATE right
 		if (Input.GetKeyDown("v")){		
 			//board has been moved (2,0,2) 2in x, 2in z-->> --^
-			//block.transform.RotateAround (centreRotation, Vector3.up, 90);
-			block.transform.Rotate(0,-90,0,Space.Self);
-			//print ("ON KEY PRESS - rotated around: " + centreRotation);
+			rotation = new Vector3(0,90,0);
 		}		
 		//ROTATE left
 		if (Input.GetKeyDown("c")){
-			block.transform.Rotate(0,-90,0,Space.Self);
-			//block.transform.RotateAround (centreRotation, Vector3.up, -90);
+			rotation = new Vector3(0,90,0);
 		}
 		//MOVE forward
 		if (Input.GetKeyDown("up")){
-			
-			float newPosition;
-			if ((block.transform.position.z + boundZ) + 1 > maxPinsZ)
-				newPosition = block.transform.position.z;
-			else
-				newPosition = block.transform.position.z + 1;
-			
-			block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,newPosition);
-			posZ +=1;
-			//centreRotation = new Vector3(posX,posY,posZ);
+			if ((block.transform.position.z + boundZ) + 1 <= maxPinsZ){
+				translation = new Vector3(0,0,1);
+			}
 		}
 		//MOVE back
 		if (Input.GetKeyDown("down")){
-			
-			float newPosition;
-			if ((block.transform.position.z - boundZ) - 1 < 0)
-				newPosition = block.transform.position.z;
-			else
-				newPosition = block.transform.position.z - 1;
-			
-			block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,newPosition);
-			posZ -=1;
-			//centreRotation = new Vector3(posX,posY,posZ);
+			if ((block.transform.position.z - boundZ) - 1 >= 0){
+				translation = new Vector3(0,0,-1);
+			}
 		}
-		//move right
+		//MOVE right
   		if (Input.GetKeyDown("right")){
-			
-			float newPosition;
-			if ((block.transform.position.x + boundX) + 1 > maxPinsX)
-				newPosition = block.transform.position.x;
-			else
-				newPosition = block.transform.position.x + 1;
-			
-			block.transform.position = new Vector3(newPosition,block.transform.position.y,block.transform.position.z);
-  			posX +=1;
-  			//centreRotation = new Vector3(posX,posY,posZ);
+			if ((block.transform.position.x + boundX) + 1 <= maxPinsX){
+				translation = new Vector3(1,0,0);
+			}
   		}
-  		//move left
+  		//MOVE left
   		if (Input.GetKeyDown("left")){
-  			//board starts off at -0.5 in x-direction
-			
-			float newPosition;
-			if ((block.transform.position.x - boundX) - 1 < 0)
-				newPosition = block.transform.position.x;
-			else
-				newPosition = block.transform.position.x - 1;
-			
-			block.transform.position = new Vector3(newPosition,block.transform.position.y,block.transform.position.z);
-  			posX -=1;
-  			//centreRotation = new Vector3(posX,posY,posZ);
-  		}
+			if ((block.transform.position.x - boundX) - 1 >= 0){
+				translation = new Vector3(-1,0,0);
+			}
+		}
+		
+		shadow.transform.Rotate(rotation,Space.Self);
+		shadow.transform.Translate(translation);
+		if (sh.isCollided()){
+			sh.reset(block.transform.position, block.transform.rotation);
+		} else {
+			//block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,newPosition);
+			block.transform.Rotate(rotation,Space.Self);
+			block.transform.Translate(translation);
+			posX += translation.x;
+			posZ += translation.z;
+		}
   	}
 	
 	// Makes given object a child of the Scene object.
@@ -309,8 +295,17 @@ public class BlockControl : MonoBehaviour {
 		}
 		
 		addComponents(shapeObj, shape.GetLength(0));
+	
+		shadow = Instantiate(shapeObj, shapeObj.transform.position, shapeObj.transform.rotation) as GameObject;
+		shadow.name = "ActiveShadow";
+		foreach (Transform child in shadow.transform){
+			child.gameObject.renderer.enabled = false;
+			child.gameObject.collider.isTrigger = true;
+		}
+		Destroy(shadow.GetComponent<BlockCollision>());
+		sh = shadow.AddComponent<ShadowCollision>();
+		addToScene(shadow);
 		addToScene(shapeObj);
-		
 		//change the centre rotation vector for the shape centre
 		getRotationCentre(shape);
 		globalX=globalX+3;
