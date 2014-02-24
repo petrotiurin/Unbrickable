@@ -189,7 +189,9 @@ public class BlockControl : MonoBehaviour {
 	// Update is called once per frame.
 	void Update () {
 		GameObject block = GameObject.Find("ActiveBlock");
-		 
+		Vector3 translation = Vector3.zero;
+		Vector3 rotation = Vector3.zero;
+		
 		timer -= Time.deltaTime;
 		if(timer<=0){
 			timer=1;
