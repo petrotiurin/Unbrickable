@@ -40,7 +40,11 @@ public class BlockCollision : MonoBehaviour {
 	/* On collision - send a request to the
 	 * BlockCreation script to create a new block */
 	void OnCollisionEnter(Collision collision) {
+
+		if (collision.gameObject.name == "ActiveShadow") return;
+		GameObject shadowBlock = GameObject.Find("ActiveShadow");
 		rigidbody.isKinematic = true;
+		shadowBlock.rigidbody.isKinematic = true;
 		
 		if(collision.contacts[0].normal.y > 0 &&
 			rigidbody.name == "ActiveBlock" && !isTriggered){
@@ -68,6 +72,11 @@ public class BlockCollision : MonoBehaviour {
 			showPieceScript.SuggestLegoPiece();
 			nextShape();
 			Destroy(this.gameObject);
+			Destroy(shadowBlock);
+		}
+		
+		if (!isTriggered){
+			Debug.Log("Its a fucking collision, bby!");
 		}
     }
 }
