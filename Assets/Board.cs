@@ -39,6 +39,15 @@ public class Board : MonoBehaviour {
 		blockCtrl.createShape();
 	}
 	
+	public void PivotTo(GameObject o, Vector3 position){
+	    Vector3 offset = o.transform.position - position;
+	 
+	    foreach (Transform child in o.transform)
+	        child.transform.position += offset;
+	 
+	    o.transform.position = position;
+	}
+	
 	// Update is called once per frame.
 	void Update ()
 	{
@@ -61,7 +70,10 @@ public class Board : MonoBehaviour {
 		// Blocks fall from (0,0) into bottom corner.
 		cube.transform.localScale = new Vector3(nx, 0.2F, nz);
 		cube.transform.position = new Vector3(6.0F, -0.1F, 6.0F);
-		
+	
+		//set the center to be the pivot
+		centreRotation = new Vector3 ((float)cube.transform.position.x,cube.transform.position.y,(float)cube.transform.position.z);
+		PivotTo(cube,centreRotation);
 		
 		// Make the base a child of the scene
 		GameObject scene = GameObject.Find("Scene");
