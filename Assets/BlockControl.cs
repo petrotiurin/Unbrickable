@@ -186,6 +186,7 @@ public class BlockControl : MonoBehaviour {
 		centreRotation = new Vector3 (posX,active.transform.position.y,posZ);
 		PivotTo(active,centreRotation);
 	}
+	
 	// Update is called once per frame.
 	void Update () {
 		GameObject block = GameObject.Find("ActiveBlock");
@@ -196,6 +197,7 @@ public class BlockControl : MonoBehaviour {
 		if(timer<=0){
 			timer=1;
 			block.transform.Translate(0,-1,0);
+			shadow.transform.Translate(0,-1,0);
 		}		
 		//ROTATE right
 		if (Input.GetKeyDown("v")){		
@@ -230,19 +232,29 @@ public class BlockControl : MonoBehaviour {
 				translation = new Vector3(-1,0,0);
 			}
 		}
-		
+		StartCoroutine(movementWithShadow(block,translation,rotation));
+  	}
+	
+	IEnumerator movementWithShadow(GameObject block, Vector3 translation, Vector3 rotation){
 		shadow.transform.Rotate(rotation,Space.Self);
 		shadow.transform.Translate(translation);
+		Debug.Log(sh.isCollided());
+		yield return new WaitForSeconds(0.80f);
 		if (sh.isCollided()){
+			Debug.Log("Potato collided!");
+			Debug.Log(sh.isCollided());
 			sh.reset(block.transform.position, block.transform.rotation);
+			
 		} else {
 			//block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,newPosition);
 			block.transform.Rotate(rotation,Space.Self);
 			block.transform.Translate(translation);
 			posX += translation.x;
 			posZ += translation.z;
+			translation = Vector3.zero;
+			rotation = Vector3.zero;
 		}
-  	}
+	}
 	
 	// Makes given object a child of the Scene object.
 	private void addToScene(GameObject o){

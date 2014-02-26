@@ -18,14 +18,21 @@ public class ShadowCollision : MonoBehaviour {
 	}
 	
 	public void reset(Vector3 pos, Quaternion rotation){
-		collided = false;
 		transform.position = pos;
 		transform.rotation = rotation;
+		collided = false;
 	}
 	
-	void OnTriggerEnter(Collider other){
-		if (other.gameObject.transform.parent.name == "ActiveBlock") return;
+	void OnTriggerStay(Collider other){
+		Debug.Log("Any shadow collision!");
+		if (other.gameObject.transform.parent.gameObject.name == "ActiveBlock"||
+			other.gameObject.name == "ActiveBlock"||
+			other.gameObject.name == "base"){
+			Debug.Log("Active block collision!");
+			return;
+		}
 		collided = true;
+		Debug.Log("True shadow collision!");
 	}
 }
 
