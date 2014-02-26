@@ -11,8 +11,7 @@ public class Board : MonoBehaviour {
 	public int ny = 15;	// height
 	public int nz = 15;	// depth 
 	
-	// Pins in one dimansion.
-	//private int pinsPerShape;
+	private bool[,,] boardArray;
 	
 	//for rotating the board
 	//ricky moved the board initialy so the bottom left == (0,0) so centre is this
@@ -23,6 +22,8 @@ public class Board : MonoBehaviour {
 	// Initialization.
 	void Start () {
 		
+		boardArray = new bool[nx,ny,nz];
+		Array.Clear(boardArray, 0, boardArray.Length);
 		blockCtrl = GetComponent<BlockControl>();
 		//pinsPerShape = blockCtrl.getShapeSize();
 		blocksLayer = new GameObject [ny];
@@ -33,6 +34,12 @@ public class Board : MonoBehaviour {
 			blocksLayer[i].name = layerName;
 			addToScene(blocksLayer[i]);
 		}
+		
+		//shadow layer
+		GameObject slayer = new GameObject();
+		String lName = "ShadowLayer";
+		slayer.name = lName;
+		addToScene(slayer);
 		
 		DrawBoard();
 		
@@ -79,12 +86,13 @@ public class Board : MonoBehaviour {
 		GameObject scene = GameObject.Find("Scene");
 		Transform t = cube.transform;
 		t.parent = scene.GetComponent<Transform>();
+		cube.transform.Translate(0,-0.4f,0);
+		//cube.transform.localPosition = new Vector3(cube.transform.position.x, -0.1f, cube.transform.position.z);
 	}
 	
 	// Add a pin object to its respective layer.
 	public void FillPosition(int layer, GameObject pin) {
 		addBlocks(layer, pin);
-		
 		// Destroy the layer if it is full.
 		if(blocksLayer[layer].transform.childCount == nx*nz){
 			clearLayer(layer);
@@ -126,6 +134,21 @@ public class Board : MonoBehaviour {
 	private void addBlocks(int layer, GameObject cube){
 		cube.name = "Block";
 	    cube.transform.parent = blocksLayer[layer].transform;
+		int x = (int)Math.Round(cube.transform.position.x) + 1;
+		int z = (int)Math.Round(cube.transform.position.z) + 1;
+		boardArray[x,layer,z] = true;
+		//Debug.Log(x+" "+layer+" "+z);
+	}
+	
+	public bool checkPosition(int x, int y, int z){
+		if (y < 15)	return boardArray[x,y,z];
+		return false;
+	}
+	
+	public void printArray(){
+		Debug.Log(boardArray[8,1,9]);
+		Debug.Log(boardArray[8,1,10]);
+		Debug.Log(boardArray[8,1,7]);
 	}
 	
 	// Make an object a child of the Scene.
