@@ -45,6 +45,8 @@ public class BlockControl : MonoBehaviour {
 	
 	private float timer;
 	
+	private int shapeMove;
+	
 	private GameObject FragmentCube;
 
 	//for moving the shapes need to know the centre of shape
@@ -89,6 +91,7 @@ public class BlockControl : MonoBehaviour {
 	void Start () {
 		pass = 0;	
 		timer = 1;
+		shapeMove=0;
 	}
 	
 	// Set maximum amount of pins that can fit in each direction.
