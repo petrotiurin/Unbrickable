@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class BlockControl : MonoBehaviour {
 	
@@ -22,8 +23,6 @@ public class BlockControl : MonoBehaviour {
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
 									      {{0,1,0},{0,0,0},{0,0,0}}};
 	
-	
-	
 	private int[,,] shape2 = new int[,,] {{{0,1,0},{0,0,0},{0,0,0}},
 									   	  {{0,1,0},{0,2,0},{0,0,0}},
 									      {{0,1,0},{0,2,0},{0,3,0}}};
@@ -35,6 +34,8 @@ public class BlockControl : MonoBehaviour {
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
 	public float pinSize = 1.0f;
+	
+	Board gameBoard;
 	
 	//starting height where shapes are created
 	public float startHeight = 50.0f;
@@ -51,6 +52,7 @@ public class BlockControl : MonoBehaviour {
 	//for moving the shapes need to know the centre of shape
 	private float posX=2,posZ=2;	
 	private Vector3 centreRotation = new Vector3 (2,1,2);
+	private int currentShapeLength;
 	
 	//rotate the shape array
 	int[,,] rotateShape(int[,,] shape, bool clockwise){
@@ -78,6 +80,7 @@ public class BlockControl : MonoBehaviour {
 	void Awake(){
 		globalX = 0;
 		globalZ = 0;
+		gameBoard = GetComponent<Board>();
 		getBoardValues();
 	}
 	
@@ -90,10 +93,8 @@ public class BlockControl : MonoBehaviour {
 	
 	// Set maximum amount of pins that can fit in each direction.
 	public void getBoardValues(){
-		Board b = GetComponent<Board>();
-		maxPinsX = b.nx;
-		//maxPinsY = b.ny;
-		maxPinsZ = b.nz;
+		maxPinsX = gameBoard.nx;
+		maxPinsZ = gameBoard.nz;
 	}
 	
 	public void PivotTo(GameObject o, Vector3 position){
@@ -188,7 +189,62 @@ public class BlockControl : MonoBehaviour {
 		centreRotation = new Vector3 (posX,active.transform.position.y,posZ);
 		PivotTo(active,centreRotation);
 	}
-	
+	private bool checkMoveAllowed(){
+		//first, get all block coordinates
+		List<int> xs = new List<int>();
+		List<int> ys = new List<int>();
+		List<int> zs = new List<int>();
+		foreach (Transform child in shadow.transform){
+			xs.Add((int)Math.Round(child.position.x) + 1);
+			ys.Add((int)Math.Round(child.position.y - 0.38));
+			zs.Add((int)Math.Round(child.position.z) + 1);
+		};
+		for (int i = 0; i < xs.Count; i++){
+			if (ys[i] < 0) return false;
+			if (gameBoard.checkPosition(xs[i],ys[i],zs[i])){
+				return false;
+			}
+		}
+		return true;
+	}
+	private bool checkArrayCollisions(){
+		//first, get all block coordinates
+		List<int> xs = new List<int>();
+		List<int> ys = new List<int>();
+		List<int> zs = new List<int>();
+		foreach (Transform child in shadow.transform){
+			xs.Add((int)Math.Round(child.position.x) + 1);
+			ys.Add((int)Math.Round(child.position.y - 0.38));
+			zs.Add((int)Math.Round(child.position.z) + 1);
+		};
+		for (int i = 0; i < xs.Count; i++){
+			if (gameBoard.checkPosition(xs[i],ys[i],zs[i])){
+				//Debug.Log("collision!"+xs[i]+":"+ys[i]+":" +zs[i]);
+				return true;
+			}
+		}
+		return false;
+	}
+	private void triggerNextShape(GameObject block){
+		for (int i = 0; i < Math.Pow(currentShapeLength, 3); i++){
+			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
+			if (childTransform != null){
+				int layer = (int)Math.Round(childTransform.position.y - 0.38);
+				Debug.Log("Layer: " + layer);
+				gameBoard.FillPosition(layer, childTransform.gameObject); 
+			}
+		}
+		//show next suggested piece
+		Array_GameObj showPieceScript;
+		showPieceScript = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
+		showPieceScript.SuggestLegoPiece();
+		block.rigidbody.isKinematic = true;
+		shadow.rigidbody.isKinematic = true;
+		//create new shape and destroy the old empty container
+		Destroy(block);
+		Destroy(shadow);
+		createShape();
+	}
 	// Update is called once per frame.
 	void Update () {
 		GameObject block = GameObject.Find("ActiveBlock");
@@ -199,9 +255,17 @@ public class BlockControl : MonoBehaviour {
 		timer -= Time.deltaTime;
 		if(timer<=0){
 			timer=1;
-			block.transform.Translate(0,-1,0);
+			shadow.transform.Translate(0,-1,0);
+			if (checkMoveAllowed()){
+				block.transform.Translate(0,-1,0);
+			} else {
+				triggerNextShape(block);
+				block = GameObject.Find("ActiveBlock");
+			}
+			
+			Debug.Log(block.transform.position);
+			Debug.Log(block.transform.localPosition);
 		}		
-		
 		//ROTATE right
 		if (Input.GetKeyDown("v")){		
 			rotation = new Vector3(0,90,0);
@@ -212,8 +276,6 @@ public class BlockControl : MonoBehaviour {
 			rotation = new Vector3(0,-90,0);
 			hasMoved = 1;
 		}
-		
-		
 		//MOVE forward
 		if (Input.GetKey("up")){
 			//check every 4 frames
@@ -223,7 +285,7 @@ public class BlockControl : MonoBehaviour {
 					hasMoved = 1;
 				}
 			}
-		}	
+		}
 		//MOVE back
 		if (Input.GetKey("down")){
 			//check every 4 frames
@@ -254,15 +316,16 @@ public class BlockControl : MonoBehaviour {
 				}
 			}
 		}
-		
+		Vector3 backupPos = shadow.transform.position;
+		Quaternion backupRot = shadow.transform.rotation;
 		shadow.transform.Rotate(rotation,Space.Self);
 		shadow.transform.Translate(translation);
-		if (sh.isCollided()){
-			sh.reset(block.transform.position, block.transform.rotation);
-		} else {
-			//block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,newPosition);
+		if (checkArrayCollisions()){
+			shadow.transform.position = backupPos;
+			shadow.transform.rotation = backupRot;
+		}else{
 			block.transform.Rotate(rotation,Space.Self);
-			block.transform.Translate(translation,Space.World);
+			block.transform.Translate(translation);
 			posX += translation.x;
 			posZ += translation.z;
 		}
@@ -308,7 +371,7 @@ public class BlockControl : MonoBehaviour {
 	
 	// Creates a cube that is a building block of a shape
 	private GameObject createPointCube(float x, float y, float z){
-		Object blockPrefab = Resources.LoadAssetAtPath("Assets/block.prefab", typeof(GameObject));
+		UnityEngine.Object blockPrefab = Resources.LoadAssetAtPath("Assets/block.prefab", typeof(GameObject));
 		GameObject cube = GameObject.Instantiate(blockPrefab) as GameObject;
 		cube.name = "Current pin" + pin.ToString();
 		//set starting position
@@ -343,7 +406,7 @@ public class BlockControl : MonoBehaviour {
 		globalZ = 7;			
 		
 		GameObject shapeObj = new GameObject();
-		shapeObj.transform.position = new Vector3(globalX, startHeight, globalZ);
+		shapeObj.transform.localPosition = new Vector3(globalX, startHeight, globalZ);
 		float halfLength = shape.GetLength(0)/2;
 		
 		for (int x=0; x < shape.GetLength(0); x++){
@@ -351,6 +414,7 @@ public class BlockControl : MonoBehaviour {
 				for (int z=0; z < shape.GetLength(0); z++){
 					if (shape[x,y,z] != 0){
 						GameObject currentCube = createPointCube(x-halfLength,y-halfLength,z-halfLength);
+						
 						currentCube.GetComponent<MeshRenderer>();
 						
 						//Apply colour to each block
@@ -367,25 +431,29 @@ public class BlockControl : MonoBehaviour {
 								
 							default : break;
 						}
-						
 						addToShape(shapeObj, currentCube);
+						
 					}
 				}
 			}
 		}
 		
 		addComponents(shapeObj, shape.GetLength(0));
-	
+		currentShapeLength = shape.GetLength(0);
 		shadow = Instantiate(shapeObj, shapeObj.transform.position, shapeObj.transform.rotation) as GameObject;
 		shadow.name = "ActiveShadow";
 		foreach (Transform child in shadow.transform){
 			child.gameObject.renderer.enabled = false;
 			child.gameObject.collider.isTrigger = true;
 		}
-		Destroy(shadow.GetComponent<BlockCollision>());
-		sh = shadow.AddComponent<ShadowCollision>();
-		addToScene(shadow);
+		//addToScene(shadow);
 		addToScene(shapeObj);
+		//Debug.Log(shapeObj.transform.position);
+		//Debug.Log(shapeObj.transform.localPosition);
+		//shapeObj.transform.Translate(0,20,0);
+		GameObject shadowLayer = GameObject.Find("ShadowLayer");
+		Transform t = shadow.transform;
+		t.parent = shadowLayer.GetComponent<Transform>();
 		//change the centre rotation vector for the shape centre
 		getRotationCentre(shape);
 		globalX=globalX+3;
@@ -398,8 +466,8 @@ public class BlockControl : MonoBehaviour {
 		cubeRigidBody.useGravity = false;
 		cubeRigidBody.drag = 4;
 		
-		BlockCollision b = shapeObj.AddComponent<BlockCollision>();
-		b.setShapeSize(shapeLength);
+		//BlockCollision b = shapeObj.AddComponent<BlockCollision>();
+		//b.setShapeSize(shapeLength);
 		shapeObj.name = "ActiveBlock";
 	}
 	
