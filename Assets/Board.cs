@@ -11,6 +11,9 @@ public class Board : MonoBehaviour {
 	public int ny = 15;	// height
 	public int nz = 15;	// depth 
 	
+										//x,y,z
+	public int[,,] boardArray = new int[15,15,15];
+	
 	// Pins in one dimansion.
 	//private int pinsPerShape;
 	
@@ -33,7 +36,7 @@ public class Board : MonoBehaviour {
 			blocksLayer[i].name = layerName;
 			addToScene(blocksLayer[i]);
 		}
-		
+				
 		DrawBoard();
 		
 		blockCtrl.createShape();

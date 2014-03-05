@@ -6,7 +6,7 @@ public class BlockControl : MonoBehaviour {
 	
 	private GameObject[] blocks;
 	
-	private GameObject shadow;
+	private GameObject shadow, highlight;
 	private ShadowCollision sh;
 	
 	private int globalX, globalZ;
@@ -21,6 +21,8 @@ public class BlockControl : MonoBehaviour {
 	private int[,,] shape1 = new int[,,] {{{0,1,0},{0,0,0},{0,0,0}},
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
 									      {{0,1,0},{0,0,0},{0,0,0}}};
+	
+	
 	
 	private int[,,] shape2 = new int[,,] {{{0,1,0},{0,0,0},{0,0,0}},
 									   	  {{0,1,0},{0,2,0},{0,0,0}},
@@ -61,7 +63,6 @@ public class BlockControl : MonoBehaviour {
 		for(int i=0; i< shape.GetLength(2); i++){
 			for(int j=0; j< shape.GetLength(1); j++){
 				for(int k = 0;k<shape.GetLength(0);k++){
-					
 					//rotate 90 degrees around centre of bounding box
 					if (clockwise)
 						newShape[j, shape.GetLength(2)-1-i, k] = shape[i,j,k];
@@ -70,10 +71,8 @@ public class BlockControl : MonoBehaviour {
 				}
 			}
 		}
-		
 		return newShape;
 	}
-
 	
 	// Pre-Initialization.
 	void Awake(){
@@ -189,48 +188,70 @@ public class BlockControl : MonoBehaviour {
 		centreRotation = new Vector3 (posX,active.transform.position.y,posZ);
 		PivotTo(active,centreRotation);
 	}
+	
 	// Update is called once per frame.
 	void Update () {
 		GameObject block = GameObject.Find("ActiveBlock");
 		Vector3 translation = Vector3.zero;
 		Vector3 rotation = Vector3.zero;
+		int hasMoved = 0;
 		
 		timer -= Time.deltaTime;
 		if(timer<=0){
 			timer=1;
 			block.transform.Translate(0,-1,0);
 		}		
+		
 		//ROTATE right
 		if (Input.GetKeyDown("v")){		
-			//board has been moved (2,0,2) 2in x, 2in z-->> --^
 			rotation = new Vector3(0,90,0);
+			hasMoved = 1;
 		}		
 		//ROTATE left
 		if (Input.GetKeyDown("c")){
-			rotation = new Vector3(0,90,0);
+			rotation = new Vector3(0,-90,0);
+			hasMoved = 1;
 		}
+		
+		
 		//MOVE forward
-		if (Input.GetKeyDown("up")){
-			if ((block.transform.position.z + boundZ) + 1 <= maxPinsZ){
-				translation = new Vector3(0,0,1);
+		if (Input.GetKey("up")){
+			//check every 4 frames
+			if(shapeMove%4 == 0){
+				if ((block.transform.position.z + boundZ) + 1 <= maxPinsZ){
+					translation = new Vector3(0,0,1);
+					hasMoved = 1;
+				}
 			}
-		}
+		}	
 		//MOVE back
-		if (Input.GetKeyDown("down")){
-			if ((block.transform.position.z - boundZ) - 1 >= 0){
-				translation = new Vector3(0,0,-1);
+		if (Input.GetKey("down")){
+			//check every 4 frames
+			if(shapeMove%4 == 0){
+				if ((block.transform.position.z - boundZ) - 1 >= 0){
+					translation = new Vector3(0,0,-1);
+					hasMoved = 1;
+				}
 			}
 		}
 		//MOVE right
-  		if (Input.GetKeyDown("right")){
-			if ((block.transform.position.x + boundX) + 1 <= maxPinsX){
-				translation = new Vector3(1,0,0);
+  		if (Input.GetKey("right")){
+			//check every 4 frames
+			if(shapeMove%4 == 0){
+				if ((block.transform.position.x + boundX) + 1 <= maxPinsX){
+					translation = new Vector3(1,0,0);
+					hasMoved = 1;
+				}
 			}
   		}
   		//MOVE left
-  		if (Input.GetKeyDown("left")){
-			if ((block.transform.position.x - boundX) - 1 >= 0){
-				translation = new Vector3(-1,0,0);
+  		if (Input.GetKey("left")){
+			//check every 4 frames
+			if(shapeMove%4 == 0){
+				if ((block.transform.position.x - boundX) - 1 >= 0){
+					translation = new Vector3(-1,0,0);
+					hasMoved = 1;
+				}
 			}
 		}
 		
@@ -241,11 +262,42 @@ public class BlockControl : MonoBehaviour {
 		} else {
 			//block.transform.position = new Vector3(block.transform.position.x,block.transform.position.y,newPosition);
 			block.transform.Rotate(rotation,Space.Self);
-			block.transform.Translate(translation);
+			block.transform.Translate(translation,Space.World);
 			posX += translation.x;
 			posZ += translation.z;
 		}
+		
+		if(hasMoved==1){
+			//highlightLanding(block);
+			hasMoved = 0;
+		}
+		shapeMove++;
   	}
+	
+	/*
+	private void highlightLanding(GameObject block){
+		int landingFound=0;
+		highlight = Instantiate(block,block.transform.position,block.transform.rotation) as GameObject;
+		highlight.name = "landing";
+		foreach (Transform child in highlight.transform){
+			child.gameObject.renderer.enabled = false;
+			child.gameObject.collider.isTrigger = true;
+		}
+		
+		highlight.addComponent<BlockCollision>();
+		addToScene(highlight);
+		
+		while(!landingFound){
+			
+			//check for collision
+			if (collision HashSet been detected)
+				landingFound = 1;
+			else
+				highlight.transform.Translate(0,-1,0);
+		}	
+
+	}
+	*/
 	
 	// Makes given object a child of the Scene object.
 	private void addToScene(GameObject o){
