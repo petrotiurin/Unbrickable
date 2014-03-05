@@ -317,13 +317,13 @@ public class BlockControl : MonoBehaviour {
 		Vector3 backupPos = shadow.transform.position;
 		Quaternion backupRot = shadow.transform.rotation;
 		shadow.transform.Rotate(rotation,Space.Self);
-		shadow.transform.Translate(translation);
+		shadow.transform.Translate(translation, Space.World);
 		if (checkArrayCollisions()){
 			shadow.transform.position = backupPos;
 			shadow.transform.rotation = backupRot;
 		}else{
 			block.transform.Rotate(rotation,Space.Self);
-			block.transform.Translate(translation);
+			block.transform.Translate(translation, Space.World);
 			posX += translation.x;
 			posZ += translation.z;
 		}
