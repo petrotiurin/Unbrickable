@@ -201,7 +201,9 @@ public class BlockControl : MonoBehaviour {
 		};
 		for (int i = 0; i < xs.Count; i++){
 			if (ys[i] < 0) return false;
-			if (gameBoard.checkPosition(xs[i],ys[i],zs[i])){
+			//Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
+			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
+				//Debug.Log("collision!"+xs[i]+":"+ys[i]+":" +zs[i]);
 				return false;
 			}
 		}
@@ -218,8 +220,9 @@ public class BlockControl : MonoBehaviour {
 			zs.Add((int)Math.Round(child.position.z) + 1);
 		};
 		for (int i = 0; i < xs.Count; i++){
-			if (gameBoard.checkPosition(xs[i],ys[i],zs[i])){
-				//Debug.Log("collision!"+xs[i]+":"+ys[i]+":" +zs[i]);
+			Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
+			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
+				Debug.Log("collision!"+xs[i]+":"+ys[i]+":" +zs[i]);
 				return true;
 			}
 		}
@@ -262,9 +265,6 @@ public class BlockControl : MonoBehaviour {
 				triggerNextShape(block);
 				block = GameObject.Find("ActiveBlock");
 			}
-			
-			Debug.Log(block.transform.position);
-			Debug.Log(block.transform.localPosition);
 		}		
 		//ROTATE right
 		if (Input.GetKeyDown("v")){		
@@ -280,40 +280,38 @@ public class BlockControl : MonoBehaviour {
 		if (Input.GetKey("up")){
 			//check every 4 frames
 			if(shapeMove%4 == 0){
-				if ((block.transform.position.z + boundZ) + 1 <= maxPinsZ){
+				
 					translation = new Vector3(0,0,1);
 					hasMoved = 1;
-				}
+				
 			}
 		}
 		//MOVE back
 		if (Input.GetKey("down")){
 			//check every 4 frames
 			if(shapeMove%4 == 0){
-				if ((block.transform.position.z - boundZ) - 1 >= 0){
+				
 					translation = new Vector3(0,0,-1);
 					hasMoved = 1;
-				}
+				
 			}
 		}
 		//MOVE right
   		if (Input.GetKey("right")){
 			//check every 4 frames
 			if(shapeMove%4 == 0){
-				if ((block.transform.position.x + boundX) + 1 <= maxPinsX){
 					translation = new Vector3(1,0,0);
 					hasMoved = 1;
-				}
+				
 			}
   		}
   		//MOVE left
   		if (Input.GetKey("left")){
 			//check every 4 frames
 			if(shapeMove%4 == 0){
-				if ((block.transform.position.x - boundX) - 1 >= 0){
 					translation = new Vector3(-1,0,0);
 					hasMoved = 1;
-				}
+				
 			}
 		}
 		Vector3 backupPos = shadow.transform.position;

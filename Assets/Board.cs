@@ -7,9 +7,9 @@ public class Board : MonoBehaviour {
 	private GameObject[] blocksLayer;
 	
 	// Dimensions of the board in "shapes".
-	public int nx = 15;	// width
+	public int nx = 17;	// width
 	public int ny = 15;	// height
-	public int nz = 15;	// depth 
+	public int nz = 17;	// depth 
 	
 	private bool[,,] boardArray;
 	
@@ -28,6 +28,18 @@ public class Board : MonoBehaviour {
 		//pinsPerShape = blockCtrl.getShapeSize();
 		blocksLayer = new GameObject [ny];
 		
+		//creating the bounding walls in the array
+		for(int i=0; i< ny;i++){
+			for(int j=0;j < nx;j++){
+				boardArray[j,i,0] = true;
+				boardArray[j,i,nz-1] = true;
+				boardArray[0,i,j] = true;
+				boardArray[nx-1,i,j] = true;
+				//print (boardArray[j,i,0]);
+			}
+		}
+		Debug.Log(boardArray[0,0,0]);
+		Debug.Log(boardArray[1,0,1]);
 		for (int i=0; i<ny; i++){
 			blocksLayer[i] = new GameObject();
 			String layerName = "Layer" + i;
@@ -66,7 +78,7 @@ public class Board : MonoBehaviour {
 		cube.name = "base";
 		
 		// Blocks fall from (0,0) into bottom corner.
-		cube.transform.localScale = new Vector3(nx, 0.2F, nz);
+		cube.transform.localScale = new Vector3(nx-2, 0.2F, nz-2);
 		cube.transform.position = new Vector3(6.0F, -0.1F, 6.0F);
 	
 		//set the center to be the pivot
@@ -125,8 +137,8 @@ public class Board : MonoBehaviour {
 	private void addBlocks(int layer, GameObject cube){
 		cube.name = "Block";
 	    cube.transform.parent = blocksLayer[layer].transform;
-		int x = (int)Math.Round(cube.transform.position.x) + 1;
-		int z = (int)Math.Round(cube.transform.position.z) + 1;
+		int x = (int)Math.Round(cube.transform.position.x) + 2;
+		int z = (int)Math.Round(cube.transform.position.z) + 2;
 		boardArray[x,layer,z] = true;
 		//Debug.Log(x+" "+layer+" "+z);
 	}
