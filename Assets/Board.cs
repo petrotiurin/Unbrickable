@@ -21,7 +21,7 @@ public class Board : MonoBehaviour {
 	private BlockControl blockCtrl;
 	
 	// Initialization.
-	void Start () {
+	void Awake () {
 		
 		blockCtrl = GetComponent<BlockControl>();
 		//pinsPerShape = blockCtrl.getShapeSize();
@@ -49,17 +49,8 @@ public class Board : MonoBehaviour {
 	}
 	
 	// Update is called once per frame.
-	void Update ()
-	{
-		//ROTATE right
-		if (Input.GetKeyDown("x")){		
-			//board has been moved (2,0,2) 2in x, 2in z-->> --^
-			transform.RotateAround(centreRotation, Vector3.up, 90);
-		}		
-		//ROTATE left
-		if (Input.GetKeyDown("z")){
-			transform.RotateAround(centreRotation, Vector3.up, -90);
-		}
+	void Update (){
+		
 	}
 	
 	// Create the base of the game board.
