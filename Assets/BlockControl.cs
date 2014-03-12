@@ -220,6 +220,7 @@ public class BlockControl : MonoBehaviour {
 			zs.Add((int)Math.Round(child.position.z) + 1);
 		};
 		for (int i = 0; i < xs.Count; i++){
+			if (ys[i] < 0) return true;
 			//Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
 			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
 				Debug.Log("collision!"+xs[i]+":"+ys[i]+":" +zs[i]);
@@ -265,7 +266,9 @@ public class BlockControl : MonoBehaviour {
 				triggerNextShape(block);
 				block = GameObject.Find("ActiveBlock");
 			}
-		}		
+		}	
+		
+		
 		//ROTATE right
 		if (Input.GetKeyDown("v")){		
 			rotation = new Vector3(0,90,0);
@@ -276,6 +279,16 @@ public class BlockControl : MonoBehaviour {
 			rotation = new Vector3(0,-90,0);
 			hasMoved = 1;
 		}
+		
+		//piece falls down further with space bar
+		if(Input.GetKey("space")){
+			//check every 4 frames
+			if(shapeMove%4 == 0){
+				translation = new Vector3(0,-1,0);
+				hasMoved = 1;
+			}
+		}
+		
 		//MOVE forward
 		if (Input.GetKey("up")){
 			//check every 4 frames
