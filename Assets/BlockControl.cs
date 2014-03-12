@@ -19,17 +19,17 @@ public class BlockControl : MonoBehaviour {
 	private int pass;
 	
 	//sample shape, just fo shows
-	private int[,,] shape1 = new int[,,] {{{0,1,0},{0,0,0},{0,0,0}},
+	private int[,,] shape1 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
-									      {{0,1,0},{0,0,0},{0,0,0}}};
+									      {{1,1,1},{0,0,0},{0,0,0}}};
 	
-	private int[,,] shape2 = new int[,,] {{{0,1,0},{0,0,0},{0,0,0}},
-									   	  {{0,1,0},{0,2,0},{0,0,0}},
-									      {{0,1,0},{0,2,0},{0,3,0}}};
+	private int[,,] shape2 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
+									   	  {{1,1,1},{0,0,0},{0,0,0}},
+									      {{1,1,1},{0,0,0},{0,0,0}}};
 	
-	private int[,,] shape3 = new int[,,] {{{0,0,0},{0,0,0},{0,0,1}},
-									   	  {{0,0,0},{0,0,1},{0,0,1}},
-									      {{0,1,1},{0,0,1},{0,0,0}}};
+	private int[,,] shape3 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
+									   	  {{1,1,1},{0,0,0},{0,0,0}},
+									      {{1,1,1},{0,0,0},{0,0,0}}};
 	
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
@@ -220,7 +220,7 @@ public class BlockControl : MonoBehaviour {
 			zs.Add((int)Math.Round(child.position.z) + 1);
 		};
 		for (int i = 0; i < xs.Count; i++){
-			Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
+			//Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
 			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
 				Debug.Log("collision!"+xs[i]+":"+ys[i]+":" +zs[i]);
 				return true;

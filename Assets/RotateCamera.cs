@@ -42,7 +42,8 @@ public class RotateCamera : MonoBehaviour
 			
 			//Make the position change
 			if(rotLeft){
-				transform.RotateAround( target.transform.position, Vector3.up, Time.deltaTime * rotSpeed );
+				transform.RotateAround( target.transform.position, Vector3.up, Time.deltaTime * rotSpeed);
+				print("the rotation is: "+Time.deltaTime * rotSpeed);
 			}
 			else if (rotRight){
 				transform.RotateAround( target.transform.position, Vector3.down, Time.deltaTime * rotSpeed );

@@ -97,7 +97,7 @@ public class Board : MonoBehaviour {
 	public void FillPosition(int layer, GameObject pin) {
 		addBlocks(layer, pin);
 		// Destroy the layer if it is full.
-		if(blocksLayer[layer].transform.childCount == nx*nz){
+		if(blocksLayer[layer].transform.childCount == (nx-2)*(nz-2)){
 			clearLayer(layer);
 		}
 	}
