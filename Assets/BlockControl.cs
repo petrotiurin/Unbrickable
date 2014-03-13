@@ -255,6 +255,7 @@ public class BlockControl : MonoBehaviour {
 		Vector3 translation = Vector3.zero;
 		Vector3 rotation = Vector3.zero;
 		int hasMoved = 0;
+		int newblock = 0;
 		
 		timer -= Time.deltaTime;
 		if(timer<=0){
@@ -265,6 +266,7 @@ public class BlockControl : MonoBehaviour {
 			} else {
 				triggerNextShape(block);
 				block = GameObject.Find("ActiveBlock");
+				newblock = 1;
 			}
 		}	
 		
@@ -341,37 +343,45 @@ public class BlockControl : MonoBehaviour {
 			posZ += translation.z;
 		}
 		
-		if(hasMoved==1){
-			//highlightLanding(block);
+		if(hasMoved==1 || newblock==1){
+			Destroy(highlight);
+			
+			highlightLanding();
 			hasMoved = 0;
+			newblock = 0;
 		}
 		shapeMove++;
   	}
 	
-	/*
-	private void highlightLanding(GameObject block){
-		int landingFound=0;
-		highlight = Instantiate(block,block.transform.position,block.transform.rotation) as GameObject;
-		highlight.name = "landing";
-		foreach (Transform child in highlight.transform){
-			child.gameObject.renderer.enabled = false;
-			child.gameObject.collider.isTrigger = true;
-		}
+	
+	private void highlightLanding(){
+		int k = 0;
+		bool flag = checkMoveAllowed();
 		
-		highlight.addComponent<BlockCollision>();
-		addToScene(highlight);
-		
-		while(!landingFound){
+		if (flag)
+		{
 			
-			//check for collision
-			if (collision HashSet been detected)
-				landingFound = 1;
-			else
-				highlight.transform.Translate(0,-1,0);
-		}	
-
+			while(flag){
+				shadow.transform.Translate(0,-1,0);
+				k++;
+				flag = checkMoveAllowed();
+			}
+			
+			Vector3 highlightPos = new Vector3(shadow.transform.position.x, shadow.transform.position.y+1, shadow.transform.position.z);
+			
+			//copy shadow
+			highlight = Instantiate(shadow, highlightPos, shadow.transform.rotation) as GameObject;
+			highlight.name = "activeHighlight";
+			
+			foreach (Transform child in highlight.transform){
+				//50% opacity on highlight pins
+				child.renderer.material.color = Color.green;
+				child.gameObject.renderer.enabled = true;
+			}
+			shadow.transform.Translate(0,k,0);
+		}
 	}
-	*/
+	
 	
 	// Makes given object a child of the Scene object.
 	private void addToScene(GameObject o){
