@@ -7,7 +7,7 @@ public class RotateCamera : MonoBehaviour
 	private bool rotRight;
 	private bool rotLeft;
 	private float rotToGo = 0;
-	private int rotSpeed = 100;
+	private int rotSpeed = 200;
 	
 	//Initialise starting values and find the base of the gameboard
 	void Start ()
@@ -42,11 +42,13 @@ public class RotateCamera : MonoBehaviour
 			
 			//Make the position change
 			if (rotToGo >= 0){
+				float rot = Time.deltaTime * rotSpeed;
+				if (rotToGo < rot) rot = rotToGo;
 				if(rotLeft){
-					transform.RotateAround( target.transform.position, Vector3.up, Time.deltaTime * rotSpeed);
+					transform.RotateAround( target.transform.position, Vector3.up, rot);
 				}
 				else if (rotRight){
-					transform.RotateAround( target.transform.position, Vector3.down, Time.deltaTime * rotSpeed );
+					transform.RotateAround( target.transform.position, Vector3.down, rot);
 				}
 				rotToGo -= Time.deltaTime * rotSpeed;
 			} else {
