@@ -9,7 +9,7 @@ public class BlockControl : MonoBehaviour {
 	
 	private GameObject shadow, highlight;
 	private ShadowCollision sh;
-	
+	RotateCamera cameraScript;
 	private int globalX, globalZ;
 	
 	private int maxPinsX,maxPinsZ;
@@ -89,6 +89,7 @@ public class BlockControl : MonoBehaviour {
 		pass = 0;	
 		timer = 1;
 		shapeMove=0;
+		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
 	}
 	
 	// Set maximum amount of pins that can fit in each direction.
@@ -305,32 +306,78 @@ public class BlockControl : MonoBehaviour {
 		if (Input.GetKey("up")){
 			//check every 4 frames
 			if(shapeMove%4 == 0){
+				if (cameraScript.rotationDir == 0){
 					translation = new Vector3(0,0,1);
-					hasMoved = 1;
+				}
+				if (cameraScript.rotationDir == 1){
+					translation = new Vector3(-1,0,0);
+				}
+				if (cameraScript.rotationDir == 2){
+					translation = new Vector3(0,0,-1);
+				}
+				if (cameraScript.rotationDir == 3){
+					translation = new Vector3(1,0,0);
+				}
+				
+				hasMoved = 1;
 			}
 		}
 		//MOVE back
 		if (Input.GetKey("down")){
 			//check every 4 frames
 			if(shapeMove%4 == 0){
+				if (cameraScript.rotationDir == 0){
 					translation = new Vector3(0,0,-1);
-					hasMoved = 1;
+				}
+				if (cameraScript.rotationDir == 1){
+					translation = new Vector3(1,0,0);
+				}
+				if (cameraScript.rotationDir == 2){
+					translation = new Vector3(0,0,1);
+				}
+				if (cameraScript.rotationDir == 3){
+					translation = new Vector3(-1,0,0);
+				}
+				
+				hasMoved = 1;
 			}
 		}
 		//MOVE right
   		if (Input.GetKey("right")){
 			//check every 4 frames
 			if(shapeMove%4 == 0){
+				if (cameraScript.rotationDir == 0){
 					translation = new Vector3(1,0,0);
-					hasMoved = 1;
+				}
+				if (cameraScript.rotationDir == 1){
+					translation = new Vector3(0,0,1);
+				}
+				if (cameraScript.rotationDir == 2){
+					translation = new Vector3(-1,0,0);
+				}
+				if (cameraScript.rotationDir == 3){
+					translation = new Vector3(0,0,-1);
+				}
+				hasMoved = 1;
 			}
   		}
   		//MOVE left
   		if (Input.GetKey("left")){
 			//check every 4 frames
 			if(shapeMove%4 == 0){
+				if (cameraScript.rotationDir == 0){
 					translation = new Vector3(-1,0,0);
-					hasMoved = 1;
+				}
+				if (cameraScript.rotationDir == 1){
+					translation = new Vector3(0,0,-1);
+				}
+				if (cameraScript.rotationDir == 2){
+					translation = new Vector3(1,0,0);
+				}
+				if (cameraScript.rotationDir == 3){
+					translation = new Vector3(0,0,1);
+				}
+				hasMoved = 1;
 			}
 		}
 		if (newblock != 1){

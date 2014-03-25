@@ -8,6 +8,7 @@ public class RotateCamera : MonoBehaviour
 	private bool rotLeft;
 	private float rotToGo = 0;
 	private int rotSpeed = 200;
+	public int rotationDir=0;
 	
 	//Initialise starting values and find the base of the gameboard
 	void Start ()
@@ -31,12 +32,22 @@ public class RotateCamera : MonoBehaviour
 					rotRight = true;
 					rotLeft = false;
 					rotToGo = 90;
+					if(rotationDir==3){
+						rotationDir = 0;
+					}else{
+						rotationDir++;
+					}
 				}
 				//Press "z" to rotate the board CCW
 				else if( Input.GetKey("z") ){
 					rotRight = false;
 					rotLeft = true;
 					rotToGo = 90;
+					if(rotationDir==0){
+						rotationDir = 3;
+					}else{
+						rotationDir--;
+					}
 				}
 			}
 			
