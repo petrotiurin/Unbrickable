@@ -223,7 +223,7 @@ public class BlockControl : MonoBehaviour {
 			if (ys[i] < 0) return true;
 			//Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
 			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
-				Debug.Log("collision!"+xs[i]+":"+ys[i]+":" +zs[i]);
+				//Debug.Log("collision!"+xs[i]+":"+ys[i]+":" +zs[i]);
 				return true;
 			}
 		}
@@ -234,7 +234,7 @@ public class BlockControl : MonoBehaviour {
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
 			if (childTransform != null){
 				int layer = (int)Math.Round(childTransform.position.y - 0.38);
-				Debug.Log("Layer: " + layer);
+				//Debug.Log("Layer: " + layer);
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
 		}
@@ -249,6 +249,18 @@ public class BlockControl : MonoBehaviour {
 		Destroy(shadow);
 		createShape();
 	}
+	
+	private void printShadow(GameObject shadow){
+		//first, get all block coordinates
+		//List<int> xs = new List<int>();
+		//List<int> ys = new List<int>();
+		//List<int> zs = new List<int>();
+		foreach (Transform child in shadow.transform){
+			Debug.Log("" + ((int)Math.Round(child.position.x) + 1) + " : " +
+			((int)Math.Round(child.position.y - 0.38)) + " : " +
+			((int)Math.Round(child.position.z) + 1));
+		};	
+	}
 	// Update is called once per frame.
 	void Update () {
 		GameObject block = GameObject.Find("ActiveBlock");
@@ -256,7 +268,6 @@ public class BlockControl : MonoBehaviour {
 		Vector3 rotation = Vector3.zero;
 		int hasMoved = 0;
 		int newblock = 0;
-		
 		timer -= Time.deltaTime;
 		if(timer<=0){
 			timer=1;
@@ -264,6 +275,11 @@ public class BlockControl : MonoBehaviour {
 			if (checkMoveAllowed()){
 				block.transform.Translate(0,-1,0);
 			} else {
+				Debug.Log("board collision");
+				Debug.Log("shadow");
+				printShadow(shadow);
+				Debug.Log("block");
+				printShadow(block);
 				triggerNextShape(block);
 				block = GameObject.Find("ActiveBlock");
 				newblock = 1;
@@ -329,20 +345,26 @@ public class BlockControl : MonoBehaviour {
 				
 			}
 		}
-		Vector3 backupPos = shadow.transform.position;
-		Quaternion backupRot = shadow.transform.rotation;
-		shadow.transform.Rotate(rotation,Space.Self);
-		shadow.transform.Translate(translation, Space.World);
-		if (checkArrayCollisions()){
-			shadow.transform.position = backupPos;
-			shadow.transform.rotation = backupRot;
-		}else{
-			block.transform.Rotate(rotation,Space.Self);
-			block.transform.Translate(translation, Space.World);
-			posX += translation.x;
-			posZ += translation.z;
+		if (newblock != 1){
+			Vector3 backupPos = shadow.transform.position;
+			Quaternion backupRot = shadow.transform.rotation;
+			shadow.transform.Rotate(rotation,Space.Self);
+			shadow.transform.Translate(translation, Space.World);
+			if (checkArrayCollisions()){
+				Debug.Log("Array collision");
+				Debug.Log("shadow");
+				printShadow(shadow);
+				Debug.Log("block");
+				printShadow(block);
+				shadow.transform.position = backupPos;
+				shadow.transform.rotation = backupRot;
+			}else{
+				block.transform.Rotate(rotation,Space.Self);
+				block.transform.Translate(translation, Space.World);
+				posX += translation.x;
+				posZ += translation.z;
+			}
 		}
-		
 		if(hasMoved==1 || newblock==1){
 			Destroy(highlight);
 			
