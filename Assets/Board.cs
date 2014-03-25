@@ -38,8 +38,6 @@ public class Board : MonoBehaviour {
 				//print (boardArray[j,i,0]);
 			}
 		}
-		Debug.Log(boardArray[0,0,0]);
-		Debug.Log(boardArray[1,0,1]);
 		for (int i=0; i<ny; i++){
 			blocksLayer[i] = new GameObject();
 			String layerName = "Layer" + i;
@@ -110,8 +108,36 @@ public class Board : MonoBehaviour {
 		Destroy(blocksLayer[y]);
 		blocksLayer[y] = null; //probably redundant
 		
+			
+		//remove the layer from the board array
+		//TODO: change so that it can delete multiple layers
+		//nx=17    x,y,z
+		for(int i=1; i< nx-1;i++){
+			for(int j=1;j < nz-1;j++){
+				boardArray[i,y,j] = false;
+			}
+		}
+		
+		//from where the layer has been deleted, move all of the layers down one IN THE ARRAY
+		for(int k = y;k<ny-1;k++){
+			for(int i=1; i< nx-1;i++){
+				for(int j=1;j < nz-1;j++){
+					boardArray[i,k,j] =boardArray[i,k+1,j] ;
+				}
+			}
+		}
+		//clearing the top layer
+		for(int i=1; i< nx-1;i++){
+			for(int j=1;j < nz-1;j++){
+				boardArray[i,ny-1,j] =false ;
+			}
+		}
+		
+		
+		
 		//float blockSize = blockCtrl.pinSize;
 		
+		//for moving the rest of the board down
 		String layerName;
 		for (int k = y + 1; k < ny; k++){
 			if (blocksLayer[k] != null){
@@ -149,9 +175,15 @@ public class Board : MonoBehaviour {
 	}
 	
 	public void printArray(){
-		Debug.Log(boardArray[8,1,9]);
-		Debug.Log(boardArray[8,1,10]);
-		Debug.Log(boardArray[8,1,7]);
+		print("******A collision has happened,,,,,,,the board array looks like this ------->>>>>>");
+		for(int k=0;k<ny;k++){
+			for(int i=1; i< nx-2;i++){
+				for(int j=1;j < nz-2;j++){
+					if(boardArray[i,k,j]==true) print("x="+i+" y="+k+" z="+j);
+						//Debug.Log(boardArray[i,k,j]);
+				}
+			}
+		}
 	}
 	
 	// Make an object a child of the Scene.

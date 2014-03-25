@@ -223,7 +223,8 @@ public class BlockControl : MonoBehaviour {
 			if (ys[i] < 0) return true;
 			//Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
 			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
-				//Debug.Log("collision!"+xs[i]+":"+ys[i]+":" +zs[i]);
+				Debug.Log("A collision has happened!"+xs[i]+1+":"+ys[i]+":" +zs[i]+1);
+				gameBoard.printArray();
 				return true;
 			}
 		}
@@ -234,7 +235,6 @@ public class BlockControl : MonoBehaviour {
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
 			if (childTransform != null){
 				int layer = (int)Math.Round(childTransform.position.y - 0.38);
-				//Debug.Log("Layer: " + layer);
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
 		}
@@ -275,17 +275,11 @@ public class BlockControl : MonoBehaviour {
 			if (checkMoveAllowed()){
 				block.transform.Translate(0,-1,0);
 			} else {
-				Debug.Log("board collision");
-				Debug.Log("shadow");
-				printShadow(shadow);
-				Debug.Log("block");
-				printShadow(block);
 				triggerNextShape(block);
 				block = GameObject.Find("ActiveBlock");
 				newblock = 1;
 			}
 		}	
-		
 		
 		//ROTATE right
 		if (Input.GetKeyDown("v")){		
@@ -311,20 +305,16 @@ public class BlockControl : MonoBehaviour {
 		if (Input.GetKey("up")){
 			//check every 4 frames
 			if(shapeMove%4 == 0){
-				
 					translation = new Vector3(0,0,1);
 					hasMoved = 1;
-				
 			}
 		}
 		//MOVE back
 		if (Input.GetKey("down")){
 			//check every 4 frames
 			if(shapeMove%4 == 0){
-				
 					translation = new Vector3(0,0,-1);
 					hasMoved = 1;
-				
 			}
 		}
 		//MOVE right
@@ -333,7 +323,6 @@ public class BlockControl : MonoBehaviour {
 			if(shapeMove%4 == 0){
 					translation = new Vector3(1,0,0);
 					hasMoved = 1;
-				
 			}
   		}
   		//MOVE left
@@ -342,7 +331,6 @@ public class BlockControl : MonoBehaviour {
 			if(shapeMove%4 == 0){
 					translation = new Vector3(-1,0,0);
 					hasMoved = 1;
-				
 			}
 		}
 		if (newblock != 1){
