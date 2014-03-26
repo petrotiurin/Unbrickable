@@ -5,8 +5,8 @@ public class RotateCamera : MonoBehaviour
 {	
 	private GameObject target = null;
 	private bool rotRight;
-	private bool rotLeft;
-	private float rotToGo = 0;
+	private float XrotToGo = 0;
+	private float YrotToGo = 0;
 	private int rotSpeed = 200;
 	public int rotationDir=0;
 	
@@ -14,7 +14,6 @@ public class RotateCamera : MonoBehaviour
 	void Start ()
 	{
 		rotRight = false;
-		rotLeft = false;
 		target = GameObject.Find("base");
 	}
 	
@@ -26,12 +25,16 @@ public class RotateCamera : MonoBehaviour
 			//Always focus on the centre of the gameboard base
 			transform.LookAt(target.transform);
 			
-			if (rotToGo <= 0) {
-				//Press "x" to rotate the board CW
+			if (XrotToGo <= 0) {
+				//Press "w" to rotate the board CW
+				/*if( Input.GetKey("w") ){
+					
+				} else if ( Input.GetKey("s") ) {
+					
+				}*/
 				if( Input.GetKey("x") ){
 					rotRight = true;
-					rotLeft = false;
-					rotToGo = 90;
+					XrotToGo = 90;
 					if(rotationDir==3){
 						rotationDir = 0;
 					}else{
@@ -41,8 +44,7 @@ public class RotateCamera : MonoBehaviour
 				//Press "z" to rotate the board CCW
 				else if( Input.GetKey("z") ){
 					rotRight = false;
-					rotLeft = true;
-					rotToGo = 90;
+					XrotToGo = 90;
 					if(rotationDir==0){
 						rotationDir = 3;
 					}else{
@@ -52,19 +54,15 @@ public class RotateCamera : MonoBehaviour
 			}
 			
 			//Make the position change
-			if (rotToGo >= 0){
+			if (XrotToGo >= 0){
 				float rot = Time.deltaTime * rotSpeed;
-				if (rotToGo < rot) rot = rotToGo;
-				if(rotLeft){
+				if (XrotToGo < rot) rot = XrotToGo;
+				if(rotRight){
+					transform.RotateAround( target.transform.position, Vector3.down, rot);
+				} else {
 					transform.RotateAround( target.transform.position, Vector3.up, rot);
 				}
-				else if (rotRight){
-					transform.RotateAround( target.transform.position, Vector3.down, rot);
-				}
-				rotToGo -= Time.deltaTime * rotSpeed;
-			} else {
-				rotRight = false;
-				rotLeft = false;
+				XrotToGo -= rot;
 			}
 		}
 	}
