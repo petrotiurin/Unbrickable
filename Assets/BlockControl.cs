@@ -250,6 +250,18 @@ public class BlockControl : MonoBehaviour {
 		Destroy(shadow);
 		createShape();
 	}
+	
+	private void printShadow(GameObject shadow){
+		//first, get all block coordinates
+		//List<int> xs = new List<int>();
+		//List<int> ys = new List<int>();
+		//List<int> zs = new List<int>();
+		foreach (Transform child in shadow.transform){
+			Debug.Log("" + ((int)Math.Round(child.position.x) + 1) + " : " +
+			((int)Math.Round(child.position.y - 0.38)) + " : " +
+			((int)Math.Round(child.position.z) + 1));
+		};	
+	}
 	// Update is called once per frame.
 	void Update () {
 		GameObject block = GameObject.Find("ActiveBlock");
@@ -369,20 +381,26 @@ public class BlockControl : MonoBehaviour {
 				hasMoved = 1;
 			}
 		}
-		Vector3 backupPos = shadow.transform.position;
-		Quaternion backupRot = shadow.transform.rotation;
-		shadow.transform.Rotate(rotation,Space.Self);
-		shadow.transform.Translate(translation, Space.World);
-		if (checkArrayCollisions()){
-			shadow.transform.position = backupPos;
-			shadow.transform.rotation = backupRot;
-		}else{
-			block.transform.Rotate(rotation,Space.Self);
-			block.transform.Translate(translation, Space.World);
-			posX += translation.x;
-			posZ += translation.z;
+		if (newblock != 1){
+			Vector3 backupPos = shadow.transform.position;
+			Quaternion backupRot = shadow.transform.rotation;
+			shadow.transform.Rotate(rotation,Space.Self);
+			shadow.transform.Translate(translation, Space.World);
+			if (checkArrayCollisions()){
+				Debug.Log("Array collision");
+				Debug.Log("shadow");
+				printShadow(shadow);
+				Debug.Log("block");
+				printShadow(block);
+				shadow.transform.position = backupPos;
+				shadow.transform.rotation = backupRot;
+			}else{
+				block.transform.Rotate(rotation,Space.Self);
+				block.transform.Translate(translation, Space.World);
+				posX += translation.x;
+				posZ += translation.z;
+			}
 		}
-		
 		if(hasMoved==1 || newblock==1){
 			Destroy(highlight);
 			
