@@ -18,6 +18,8 @@ public class BlockControl : MonoBehaviour {
 	
 	private int pass;
 	
+	private bool firstBlock = true;
+	
 	//sample shape, just fo shows
 	private int[,,] shape1 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
@@ -268,8 +270,13 @@ public class BlockControl : MonoBehaviour {
 		Vector3 translation = Vector3.zero;
 		Vector3 rotation = Vector3.zero;
 		int hasMoved = 0;
-		int newblock = 1;
+		int newblock = 0;
 		
+		if (firstBlock){
+			Destroy(highlight);
+			highlightLanding();
+			firstBlock = false;
+		}
 		timer -= Time.deltaTime;
 		if(timer<=0){
 			timer=1;
@@ -403,7 +410,6 @@ public class BlockControl : MonoBehaviour {
 		}
 		if(hasMoved==1 || newblock==1){
 			Destroy(highlight);
-			
 			highlightLanding();
 			hasMoved = 0;
 			newblock = 0;
