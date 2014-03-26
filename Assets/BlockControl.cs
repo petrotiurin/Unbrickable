@@ -18,6 +18,8 @@ public class BlockControl : MonoBehaviour {
 	
 	private int pass;
 	
+	private bool firstBlock = true;
+	
 	//sample shape, just fo shows
 	private int[,,] shape1 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
@@ -269,6 +271,12 @@ public class BlockControl : MonoBehaviour {
 		Vector3 rotation = Vector3.zero;
 		int hasMoved = 0;
 		int newblock = 0;
+		
+		if (firstBlock){
+			Destroy(highlight);
+			highlightLanding();
+			firstBlock = false;
+		}
 		timer -= Time.deltaTime;
 		if(timer<=0){
 			timer=1;
@@ -402,7 +410,6 @@ public class BlockControl : MonoBehaviour {
 		}
 		if(hasMoved==1 || newblock==1){
 			Destroy(highlight);
-			
 			highlightLanding();
 			hasMoved = 0;
 			newblock = 0;
@@ -410,7 +417,7 @@ public class BlockControl : MonoBehaviour {
 		shapeMove++;
   	}
 	
-	
+	//creates and positions the highlighted landing for the shape
 	private void highlightLanding(){
 		int k = 0;
 		bool flag = checkMoveAllowed();
@@ -432,7 +439,13 @@ public class BlockControl : MonoBehaviour {
 			
 			foreach (Transform child in highlight.transform){
 				//50% opacity on highlight pins
-				child.renderer.material.color = Color.green;
+				
+				
+				child.renderer.material = new Material(Shader.Find("Transparent/Diffuse"));
+		        child.renderer.material.color =  new Color(0.2F, 0.3F, 0.4F, 0.5F);;
+				
+
+				//child.renderer.material.color = Color.green;
 				child.gameObject.renderer.enabled = true;
 			}
 			shadow.transform.Translate(0,k,0);
