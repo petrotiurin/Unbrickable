@@ -22,6 +22,7 @@ public class Board : MonoBehaviour {
 	// Initialization.
 	void Awake () {
 		
+		GameObject.Find("Main Camera").AddComponent<AudioListener>();
 		boardArray = new bool[nx,ny,nz];
 		Array.Clear(boardArray, 0, boardArray.Length);
 		blockCtrl = GetComponent<BlockControl>();
@@ -54,6 +55,13 @@ public class Board : MonoBehaviour {
 		DrawBoard();
 		
 		blockCtrl.createShape();
+		startMusic("Theme1");
+	}
+	
+	private void startMusic(String track){
+		AudioSource source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
+		source.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/" + track + ".wav", typeof(AudioClip));
+		source.Play();
 	}
 	
 	public void PivotTo(GameObject o, Vector3 position){
