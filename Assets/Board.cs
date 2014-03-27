@@ -7,9 +7,9 @@ public class Board : MonoBehaviour {
 	private GameObject[] blocksLayer;
 	
 	// Dimensions of the board in "shapes".
-	public int nx = 17;	// width
+	public int nx = 7;	// width
 	public int ny = 15;	// height
-	public int nz = 17;	// depth 
+	public int nz = 7;	// depth 
 	
 	private bool[,,] boardArray;
 	

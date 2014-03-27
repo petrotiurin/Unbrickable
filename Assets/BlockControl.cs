@@ -29,9 +29,12 @@ public class BlockControl : MonoBehaviour {
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
 									      {{1,1,1},{0,0,0},{0,0,0}}};
 	
+	//[,,]full outer number, middle inner, inside the smallest
 	private int[,,] shape3 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
 									      {{1,1,1},{0,0,0},{0,0,0}}};
+	private int[,,] shape4 = new int[6,6,6];
+	
 	
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
@@ -92,12 +95,28 @@ public class BlockControl : MonoBehaviour {
 		timer = 1;
 		shapeMove=0;
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
+		//initialise the shape array to 0
+		Array.Clear(shape4, 0, shape4.Length);
+		getShapeArray();
 	}
 	
 	// Set maximum amount of pins that can fit in each direction.
 	public void getBoardValues(){
 		maxPinsX = gameBoard.nx;
 		maxPinsZ = gameBoard.nz;
+	}
+	
+	//get the shape from the computer vision stuff and puts in to the shape array
+	public void getShapeArray(){
+		List<int[]> list = new List<int[]>();
+		list.Add(new int[]{1,1,1,1});
+		list.Add(new int[]{1,2,1,1});
+		list.Add(new int[]{1,3,1,1});
+		list.Add(new int[]{2,2,1,1});
+		foreach (int[] i in list){ // Loop through List with foreach
+			//getting array [x,y,z,c]
+			shape4[i[0],i[1],i[2]] = i[3];
+		}		
 	}
 	
 	public void PivotTo(GameObject o, Vector3 position){
@@ -568,7 +587,7 @@ public class BlockControl : MonoBehaviour {
 		
 		// Cycle through these three shapes for now...
 		if(pass%3==0)
-			createShape(shape1, pass);
+			createShape(shape4, pass);
 		else if(pass%3==1)
 			createShape(shape2, pass);
 		else
