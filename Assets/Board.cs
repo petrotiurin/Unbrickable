@@ -1,27 +1,38 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using System.Runtime.InteropServices;
 
 public class Board : MonoBehaviour {
 	
 	private GameObject[] blocksLayer;
 	
 	// Dimensions of the board in "shapes".
-	public int nx = 7;	// width
+	public int nx = 17;	// width
 	public int ny = 15;	// height
-	public int nz = 7;	// depth 
+	public int nz = 17;	// depth 
 	
 	private bool[,,] boardArray;
 	
 	//for rotating the board
 	//ricky moved the board initialy so the bottom left == (0,0) so centre is this
 	private Vector3 centreRotation = new Vector3 (2,1,2);
-	
+
+	/*[DllImport ("make2")]
+	private static extern int main();
+
+	[DllImport ("make2")]
+	private static extern int lego();
+	*/
+
 	private BlockControl blockCtrl;
 	
 	// Initialization.
 	void Awake () {
-		
+		/*
+		print(main());
+		print(lego());*/
+
 		boardArray = new bool[nx,ny,nz];
 		Array.Clear(boardArray, 0, boardArray.Length);
 		blockCtrl = GetComponent<BlockControl>();
@@ -52,8 +63,13 @@ public class Board : MonoBehaviour {
 		addToScene(slayer);
 		
 		DrawBoard();
+	
+	}
+
+	void Start(){
 		
 		blockCtrl.createShape();
+
 	}
 	
 	public void PivotTo(GameObject o, Vector3 position){

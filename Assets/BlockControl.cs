@@ -21,9 +21,9 @@ public class BlockControl : MonoBehaviour {
 	private bool firstBlock = true;
 	
 	//sample shape, just fo shows
-	private int[,,] shape1 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
-									   	  {{1,1,1},{0,0,0},{0,0,0}},
-									      {{1,1,1},{0,0,0},{0,0,0}}};
+	private int[,,] shape1 = new int[,,] {{{1,1,1},{0,1,1},{0,0,1}},
+									   	  {{0,0,0},{0,0,0},{0,0,0}},
+									      {{0,0,0},{0,0,0},{0,0,0}}};
 	
 	private int[,,] shape2 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
@@ -33,7 +33,8 @@ public class BlockControl : MonoBehaviour {
 	private int[,,] shape3 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
 									      {{1,1,1},{0,0,0},{0,0,0}}};
-	private int[,,] shape4 = new int[6,6,6];
+
+	//private int[,,] shape4 = new int[6,6,6];
 	
 	
 	/* size of a single "pin", i.e. a cube 
@@ -91,12 +92,13 @@ public class BlockControl : MonoBehaviour {
 	
 	// Initialization.
 	void Start () {
+		Debug.Log("hi");
 		pass = 0;	
 		timer = 1;
 		shapeMove=0;
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
 		//initialise the shape array to 0
-		Array.Clear(shape4, 0, shape4.Length);
+		//Array.Clear(shape4, 0, shape4.Length);
 		getShapeArray();
 	}
 	
@@ -113,9 +115,10 @@ public class BlockControl : MonoBehaviour {
 		list.Add(new int[]{1,2,1,1});
 		list.Add(new int[]{1,3,1,1});
 		list.Add(new int[]{2,2,1,1});
+		Debug.Log("hi");
 		foreach (int[] i in list){ // Loop through List with foreach
-			//getting array [x,y,z,c]
-			shape4[i[0],i[1],i[2]] = i[3];
+			//getting array [x,y,z,c];
+			//shape4[i[0],i[1],i[2]] = i[3];
 		}		
 	}
 	
@@ -462,9 +465,7 @@ public class BlockControl : MonoBehaviour {
 				
 				child.renderer.material = new Material(Shader.Find("Transparent/Diffuse"));
 		        child.renderer.material.color =  new Color(0.2F, 0.3F, 0.4F, 0.5F);;
-				
 
-				//child.renderer.material.color = Color.green;
 				child.gameObject.renderer.enabled = true;
 			}
 			shadow.transform.Translate(0,k,0);
@@ -587,7 +588,7 @@ public class BlockControl : MonoBehaviour {
 		
 		// Cycle through these three shapes for now...
 		if(pass%3==0)
-			createShape(shape4, pass);
+			createShape(shape1, pass);
 		else if(pass%3==1)
 			createShape(shape2, pass);
 		else

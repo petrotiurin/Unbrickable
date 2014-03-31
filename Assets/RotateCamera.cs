@@ -17,6 +17,7 @@ public class RotateCamera : MonoBehaviour
 	//Initialise starting values and find the base of the gameboard
 	void Start ()
 	{
+		Debug.Log("hi");
 		rotRight = false;
 		target = GameObject.Find("base");
 	}
