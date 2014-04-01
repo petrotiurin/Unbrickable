@@ -19,19 +19,24 @@ public class Board : MonoBehaviour {
 	private Vector3 centreRotation = new Vector3 (2,1,2);
 
 	/*[DllImport ("make2")]
-	private static extern int main();
+	private static extern int main();*/
 
 	[DllImport ("make2")]
-	private static extern int lego();
-	*/
+	private static extern IntPtr lego();
+
+	[DllImport ("make2")]
+	private static extern int main();
+
 
 	private BlockControl blockCtrl;
 	
 	// Initialization.
 	void Awake () {
-		/*
+
+
 		print(main());
-		print(lego());*/
+		print(Marshal.PtrToStringAnsi(lego()));
+		print ("HIERHIEHRIE");
 
 		boardArray = new bool[nx,ny,nz];
 		Array.Clear(boardArray, 0, boardArray.Length);

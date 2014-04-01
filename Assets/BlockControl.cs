@@ -21,7 +21,7 @@ public class BlockControl : MonoBehaviour {
 	private bool firstBlock = true;
 	
 	//sample shape, just fo shows
-	private int[,,] shape1 = new int[,,] {{{1,1,1},{0,1,1},{0,0,1}},
+	private int[,,] shape1 = new int[,,] {{{1,1,1},{1,1,0},{1,0,0}},
 									   	  {{0,0,0},{0,0,0},{0,0,0}},
 									      {{0,0,0},{0,0,0},{0,0,0}}};
 	
@@ -92,13 +92,10 @@ public class BlockControl : MonoBehaviour {
 	
 	// Initialization.
 	void Start () {
-		Debug.Log("hi");
 		pass = 0;	
 		timer = 1;
 		shapeMove=0;
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
-		//initialise the shape array to 0
-		//Array.Clear(shape4, 0, shape4.Length);
 		getShapeArray();
 	}
 	
@@ -115,7 +112,7 @@ public class BlockControl : MonoBehaviour {
 		list.Add(new int[]{1,2,1,1});
 		list.Add(new int[]{1,3,1,1});
 		list.Add(new int[]{2,2,1,1});
-		Debug.Log("hi");
+		//Debug.Log("hi");
 		foreach (int[] i in list){ // Loop through List with foreach
 			//getting array [x,y,z,c];
 			//shape4[i[0],i[1],i[2]] = i[3];
@@ -150,17 +147,19 @@ public class BlockControl : MonoBehaviour {
 				//for the x direction
 				for(int k = 0;k<shape.GetLength(0);k++){
 					if(shape[j,i,k] != 0){
+						//finds the longest by overwriting the array with a 1
 						lengthSize[k] = 1;
 						widthSize[j] = 1;
 					}
 				}
 			}
 		}
+
 		//to calulate the length of the longest block of 1's
 		int finalLength,startLength = 0,endLength = 0,found1 = 0;
 		for(int i=0;i<shape.GetLength(2);i++){
 			//get the start position in the array of the shape
-			if(lengthSize[i] != 1&&found1 == 0){
+			if(lengthSize[i] == 1&&found1 == 0){
 				found1 = 1;
 				startLength = i;
 			}
@@ -180,6 +179,7 @@ public class BlockControl : MonoBehaviour {
 				endWidth = i;
 			}			
 		}
+
 		//calculate the final length from the start 1 to the last 1
 		finalLength = (endLength - startLength) + 1;
 		//gets the centre of the length
@@ -194,22 +194,14 @@ public class BlockControl : MonoBehaviour {
 		
 		//if length and width is the same size then rotate around the center of gravity
 		//else rotate around the nearest corner
-		if(finalLength == finalWidth){
-			posX = active.transform.position.x;
-			posZ = active.transform.position.z;
-		}else{
-			posX = (float)(int)active.transform.position.x;
-			posZ = (float)(int)active.transform.position.z;
-		}
-		//calculate the bounding box
-		boundX = finalWidth/2;
-		boundZ = finalLength/2;
+
+		print ("final length = "+finalLength+"final width = "+finalWidth);
+		print("[X]origin coordinate = "+ active.transform.position.x + "[Z]origin coordinate = "+active.transform.position.z);
+		posX = (float)(int)active.transform.position.x;
+		posZ = (float)(int)active.transform.position.z;
+
 		
-		
-		//calculate the size of the bounding box
-		if(finalWidth > finalLength)boundingBox=finalWidth*finalWidth;
-		else boundingBox=finalLength*finalLength;
-		
+
 		//get centre and set the pivot
 		centreRotation = new Vector3 (posX,active.transform.position.y,posZ);
 		PivotTo(active,centreRotation);
