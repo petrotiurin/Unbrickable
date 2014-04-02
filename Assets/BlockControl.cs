@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Runtime.InteropServices;
 
 public class BlockControl : MonoBehaviour {
 	
@@ -54,6 +55,9 @@ public class BlockControl : MonoBehaviour {
 	private int shapeMove;
 	
 	private GameObject FragmentCube;
+
+	[DllImport ("make2")]
+	private static extern IntPtr lego();
 
 	//for moving the shapes need to know the centre of shape
 	private float posX=2,posZ=2;	
@@ -538,7 +542,7 @@ public class BlockControl : MonoBehaviour {
 			for (int y=0; y < shape.GetLength(0); y++){
 				for (int z=0; z < shape.GetLength(0); z++){
 					if (shape[x,y,z] != 0){
-						GameObject currentCube = createPointCube(x-halfLength,y-halfLength,z-halfLength);
+						GameObject currentCube = createPointCube(x-halfLength,y-1.5f,z-halfLength);
 						
 						currentCube.GetComponent<MeshRenderer>();
 						
@@ -602,8 +606,8 @@ public class BlockControl : MonoBehaviour {
 		
 		// Cycle through these three shapes for now...
 		if(pass%3==0){
-			getShapeArray();
-			createShape(shape1, pass);
+			getShapeArray(Marshal.PtrToStringAnsi(lego()));
+			createShape(shape4, pass);
 		} else if(pass%3==1){
 			createShape(shape2, pass);
 		} else {
