@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Runtime.InteropServices;
 
 public class BlockControl : MonoBehaviour {
 	
@@ -34,8 +35,12 @@ public class BlockControl : MonoBehaviour {
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
 									      {{1,1,1},{0,0,0},{0,0,0}}};
 
-	private int[,,] shape4 = new int[20,20,20];
-	
+	private int[,,] shapeTemp = new int[20,20,20];
+
+	private int[,,] shape4;
+	[DllImport ("make2")]
+	private static extern IntPtr lego();
+
 	
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
@@ -108,25 +113,54 @@ public class BlockControl : MonoBehaviour {
 
 	// For testing purposes
 	public void getShapeArray(){
-		string data = "1.1.1.1.1.2.1.1.1.3.1.1.2.2.1.1";
+		string data = "1.1.1.1.1.2.1.1.1.3.1.1.2.2.1.1.";
 		string[] dA = data.Split('.');
-		for (int i = 0; i < dA.Length; i+=4){
+		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
 			int y = Int32.Parse(dA[i+1]);
 			int z = Int32.Parse(dA[i+2]);
-			shape4[x,y,z] = Int32.Parse(dA[i+3]);
+			shapeTemp[x,y,z] = Int32.Parse(dA[i+3]);
 		}
+		transformShape(shapeTemp);
 	}
 
 	// Get the shape from the computer vision stuff and puts in to the shape array
 	public void getShapeArray(string data){
 		string[] dA = data.Split('.');
-		for (int i = 0; i < dA.Length; i+=4){
+		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
 			int y = Int32.Parse(dA[i+1]);
 			int z = Int32.Parse(dA[i+2]);
-			shape4[x,y,z] = Int32.Parse(dA[i+3]);
+			shapeTemp[x,y,z] = Int32.Parse(dA[i+3]);
 		}
+		transformShape(shapeTemp);
+	}
+
+	private void transformShape(int[,,] shape){
+		int minY = shape.GetLength(0), maxY = 0;
+		for (int x=0; x < shape.GetLength(0); x++){
+			for (int y=0; y < shape.GetLength(1); y++){
+				for (int z=0; z < shape.GetLength(2); z++){
+					if (shape[x,y,z] != 0){
+						if (y < minY) minY=y;
+						if (y > maxY) maxY=y;
+					}
+				}
+			}
+		}
+
+		shape4 = new int[20,maxY-minY+1,20];
+		for (int x=0; x < shape.GetLength(0); x++){
+			for (int y=0; y < shape.GetLength(1); y++){
+				for (int z=0; z < shape.GetLength(2); z++){
+					if (shape[x,y,z] != 0){
+						shape4[x,y-minY,z]=shape[x,y,z];				
+					}
+				}
+			}
+		}
+
+
 	}
 	/*public void getShapeArray(){
 		List<int[]> list = new List<int[]>();
@@ -294,6 +328,7 @@ public class BlockControl : MonoBehaviour {
 		//List<int> xs = new List<int>();
 		//List<int> ys = new List<int>();
 		//List<int> zs = new List<int>();
+		return;
 		foreach (Transform child in shadow.transform){
 			Debug.Log("" + ((int)Math.Round(child.position.x) + 1) + " : " +
 			((int)Math.Round(child.position.y - 0.38)) + " : " +
@@ -430,11 +465,11 @@ public class BlockControl : MonoBehaviour {
 			shadow.transform.Rotate(rotation,Space.Self);
 			shadow.transform.Translate(translation, Space.World);
 			if (checkArrayCollisions()){
-				Debug.Log("Array collision");
-				Debug.Log("shadow");
-				printShadow(shadow);
-				Debug.Log("block");
-				printShadow(block);
+//				Debug.Log("Array collision");
+//				Debug.Log("shadow");
+//				printShadow(shadow);
+//				Debug.Log("block");
+//				printShadow(block);
 				shadow.transform.position = backupPos;
 				shadow.transform.rotation = backupRot;
 			}else{
@@ -504,14 +539,16 @@ public class BlockControl : MonoBehaviour {
 											  startHeight + y,
 			  								  globalZ + z);
 		//cube.transform.localScale = new Vector3(1, 1, 1); //prob redundant
+		Debug.Log(cube.transform.position);
 		pin++;
 		return cube;
 	}
 	
 	//creates a shape out of array, consisting of 0s and 1s
 	public void createShape(int[,,] shape, int colour){
-		if (shape.GetLength(0) != shape.GetLength(1)){
-			throw new System.Exception("Shape x and y dimensions must match");
+		while (shape == null);
+		if (shape.GetLength(0) != shape.GetLength(2)){
+			throw new System.Exception("Shape x and z dimensions must match");
 		}
 		
 		/* Skip one shape at the end of the first layer.
@@ -535,8 +572,8 @@ public class BlockControl : MonoBehaviour {
 		float halfLength = shape.GetLength(0)/2;
 		
 		for (int x=0; x < shape.GetLength(0); x++){
-			for (int y=0; y < shape.GetLength(0); y++){
-				for (int z=0; z < shape.GetLength(0); z++){
+			for (int y=0; y < shape.GetLength(1); y++){
+				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
 						GameObject currentCube = createPointCube(x-halfLength,y-halfLength,z-halfLength);
 						
@@ -602,8 +639,9 @@ public class BlockControl : MonoBehaviour {
 		
 		// Cycle through these three shapes for now...
 		if(pass%3==0){
-			getShapeArray();
-			createShape(shape1, pass);
+			getShapeArray(Marshal.PtrToStringAnsi(lego()));
+			//getShapeArray();
+			createShape(shape4, pass);
 		} else if(pass%3==1){
 			createShape(shape2, pass);
 		} else {
