@@ -33,7 +33,6 @@ public class Board : MonoBehaviour {
 	// Initialization.
 	void Awake () {
 
-
 		print(main());
 		print(Marshal.PtrToStringAnsi(lego()));
 		print ("HIERHIEHRIE");

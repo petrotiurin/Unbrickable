@@ -34,7 +34,7 @@ public class BlockControl : MonoBehaviour {
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
 									      {{1,1,1},{0,0,0},{0,0,0}}};
 
-	//private int[,,] shape4 = new int[6,6,6];
+	private int[,,] shape4 = new int[20,20,20];
 	
 	
 	/* size of a single "pin", i.e. a cube 
@@ -104,9 +104,31 @@ public class BlockControl : MonoBehaviour {
 		maxPinsX = gameBoard.nx;
 		maxPinsZ = gameBoard.nz;
 	}
-	
-	//get the shape from the computer vision stuff and puts in to the shape array
+
+
+	// For testing purposes
 	public void getShapeArray(){
+		string data = "1.1.1.1.1.2.1.1.1.3.1.1.2.2.1.1";
+		string[] dA = data.Split('.');
+		for (int i = 0; i < dA.Length; i+=4){
+			int x = Int32.Parse(dA[i]);
+			int y = Int32.Parse(dA[i+1]);
+			int z = Int32.Parse(dA[i+2]);
+			shape4[x,y,z] = Int32.Parse(dA[i+3]);
+		}
+	}
+
+	// Get the shape from the computer vision stuff and puts in to the shape array
+	public void getShapeArray(string data){
+		string[] dA = data.Split('.');
+		for (int i = 0; i < dA.Length; i+=4){
+			int x = Int32.Parse(dA[i]);
+			int y = Int32.Parse(dA[i+1]);
+			int z = Int32.Parse(dA[i+2]);
+			shape4[x,y,z] = Int32.Parse(dA[i+3]);
+		}
+	}
+	/*public void getShapeArray(){
 		List<int[]> list = new List<int[]>();
 		list.Add(new int[]{1,1,1,1});
 		list.Add(new int[]{1,2,1,1});
@@ -117,7 +139,7 @@ public class BlockControl : MonoBehaviour {
 			//getting array [x,y,z,c];
 			//shape4[i[0],i[1],i[2]] = i[3];
 		}		
-	}
+	}*/
 	
 	public void PivotTo(GameObject o, Vector3 position){
 	    Vector3 offset = o.transform.position - position;
@@ -579,12 +601,14 @@ public class BlockControl : MonoBehaviour {
 		// Add here shape creation code.
 		
 		// Cycle through these three shapes for now...
-		if(pass%3==0)
+		if(pass%3==0){
+			getShapeArray();
 			createShape(shape1, pass);
-		else if(pass%3==1)
+		} else if(pass%3==1){
 			createShape(shape2, pass);
-		else
+		} else {
 			createShape(shape3, pass);
+		}
 
 		pass++;
 	}
