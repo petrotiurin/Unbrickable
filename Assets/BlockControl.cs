@@ -17,8 +17,12 @@ public class BlockControl : MonoBehaviour {
 	private float boundX,boundZ,boundingBox;
 	
 	private int pass;
+
+	private int timeGap = 0;
 	
 	private bool firstBlock = true;
+
+	private bool waitActive = false;
 	
 	//sample shape, just fo shows
 	private int[,,] shape1 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
@@ -233,6 +237,30 @@ public class BlockControl : MonoBehaviour {
 		}
 		return false;
 	}
+
+
+	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
+	**	 before next shape is triggered.
+	** The game is "paused" -- the shape doesn't descend but you can still
+	**   rotate the board, if you need to see where you'd place the blocks.
+	*/
+	IEnumerator Wait(GameObject block){
+		gameBoard.pauseGame(Time.realtimeSinceStartup);
+        Debug.Log("Wait for " + timeGap + "s");
+        waitActive = true;
+        yield return new WaitForSeconds(timeGap);
+        waitActive = false;
+        Debug.Log("After waiting for " + timeGap + "s");
+
+        if(block == null)
+        	Debug.Log("Block is null :S !!");
+
+        triggerNextShape(block);
+		block = GameObject.Find("ActiveBlock");
+		gameBoard.unpauseGame();
+    }
+
+
 	private void triggerNextShape(GameObject block){
 		for (int i = 0; i < Math.Pow(currentShapeLength, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
@@ -241,10 +269,16 @@ public class BlockControl : MonoBehaviour {
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
 		}
+
 		//show next suggested piece
+		//This piece of code will be moved soon so we can display them
+		// in the boxes - Aankhi.
+		/*
 		Array_GameObj showPieceScript;
 		showPieceScript = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
 		showPieceScript.SuggestLegoPiece();
+		*/
+		//-------------------------------------------
 		block.rigidbody.isKinematic = true;
 		shadow.rigidbody.isKinematic = true;
 		//create new shape and destroy the old empty container
@@ -271,6 +305,9 @@ public class BlockControl : MonoBehaviour {
 		Vector3 rotation = Vector3.zero;
 		int hasMoved = 0;
 		int newblock = 0;
+
+		//This keeps track of how many seconds we wait between two pieces.
+		int x = 10;
 		
 		if (firstBlock){
 			Destroy(highlight);
@@ -284,8 +321,16 @@ public class BlockControl : MonoBehaviour {
 			if (checkMoveAllowed()){
 				block.transform.Translate(0,-1,0);
 			} else {
-				triggerNextShape(block);
-				block = GameObject.Find("ActiveBlock");
+				//Pauses game for 10 secs before the next piece is triggered
+				/* We first check if it's currently waiting or not, as
+				** Update() is called several times in the 10s period.
+				** We don't just wait for a value to be returned after the 10s
+				** as we still need to move the board.
+				*/
+				if(!waitActive)
+					StartCoroutine(Wait(block));
+				/*triggerNextShape(block);
+				block = GameObject.Find("ActiveBlock");*/
 				newblock = 1;
 			}
 		}	
@@ -562,6 +607,10 @@ public class BlockControl : MonoBehaviour {
 		shapeObj.name = "ActiveBlock";
 	}
 	
+	public void assignTimeGap(int gap){
+		timeGap = gap;
+	}
+
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.

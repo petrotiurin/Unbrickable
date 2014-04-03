@@ -11,6 +11,13 @@ public class Board : MonoBehaviour {
 	public int ny = 15;	// height
 	public int nz = 17;	// depth 
 	
+	int timeGap = 10; //default value. Change gap here!
+    int timer = 0;
+    int score = 0;
+    float starttimer = 0.0f;
+    bool countdown = false;
+    bool pieceSuggestor = false;
+
 	private bool[,,] boardArray;
 	
 	//for rotating the board
@@ -53,10 +60,25 @@ public class Board : MonoBehaviour {
 		addToScene(slayer);
 		
 		DrawBoard();
-		
-		blockCtrl.createShape();
 		startMusic("Theme1");
+		blockCtrl.assignTimeGap(timeGap);
+		StartCoroutine(Wait());
+		//blockCtrl.createShape();
 	}
+
+	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
+	**	 before the first shape is triggered.
+	** The game is "paused" -- the shape doesn't descend but you can still
+	**   rotate the board, if you need to see where you'd place the blocks.
+	*/
+	IEnumerator Wait(){
+		pauseGame(0);//Time.realtimeSinceStartup);
+        Debug.Log("Wait for " + timeGap + "s");
+        yield return new WaitForSeconds(timeGap);
+        Debug.Log("After waiting for " + timeGap + "s");
+		unpauseGame();
+		blockCtrl.createShape();
+    }
 	
 	private void startMusic(String track){
 		AudioSource source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
@@ -113,6 +135,13 @@ public class Board : MonoBehaviour {
 		foreach (Transform childTransform in blocksLayer[y].transform) {
 		    Destroy(childTransform.gameObject);
 		}
+
+		/* We currently have a very basic scoring system in which
+		** the point increases by 10 every time a row is cleared.
+		** 10 is a rather arbitrary number but gives a bigger sense of
+		** achievement than getting 1 point after so much effort :P
+		*/
+		score += 10;
 		Destroy(blocksLayer[y]);
 		blocksLayer[y] = null; //probably redundant
 		
@@ -200,5 +229,67 @@ public class Board : MonoBehaviour {
 		Transform t = o.transform;
 		t.parent = scene.GetComponent<Transform>();
 	}
+
+
+	public void pauseGame(float start){
+        if(!countdown){
+            starttimer = start;
+            //Debug.Log("Start Time = " + starttimer);
+            countdown = true;
+            pieceSuggestor = true;
+        }
+    }
+
+    //At 1, the passage of time is at real time.
+    public void unpauseGame(){
+        //Time.timeScale = 1;
+        timer = 0;
+        countdown = false;
+    }
+
+    /* The GUI contains of 3 main objects - the score board, the timer and
+    ** the piece suggestions.
+    */
+    void OnGUI () {
+
+    	// The following line of code displays the current score.
+        GUI.Box(new Rect (50,10,150,100), "Score " + score);
+
+        // The following lines of code deals with the countdown timers.
+        if(countdown){
+
+            float timediff = Time.realtimeSinceStartup - starttimer;
+            if(timediff < timeGap){
+                //Debug.Log("timediff = " + timediff);
+                timer = (int)timediff;
+                Debug.Log("Timer = " + timer);
+                timer = timeGap - timer;
+            }
+        }else{
+                timer = 0;
+        }
+
+        GUI.Box(new Rect((Screen.width - 200), 10, 150, 100), timer + "s left.");
+        
+        // The next bit of the code deals with piece suggestions and displaying them.
+        /* DEVELOPMENT: Currently (as of 03/04/14), the boxes are empty and
+        ** the pieces are being suggested on the side. - Aankhi
+        */
+        if(pieceSuggestor){
+            Debug.Log("Piece suggestions...");
+           	//This is where piece suggestions will be made to display them
+           	//	in the following boxes.
+
+           	Array_GameObj showPieceScript;
+			showPieceScript = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
+			showPieceScript.SuggestLegoPiece();
+
+			pieceSuggestor = false;
+        }
+
+        GUI.Box(new Rect((Screen.width/2 - 250), 10, 150, 100), "Piece 1");
+        GUI.Box(new Rect((Screen.width/2 - 75), 10, 150, 100), "Piece 2");
+        GUI.Box(new Rect((Screen.width/2 + 100), 10, 150, 100), "Piece 3");
+    }
 }
 
