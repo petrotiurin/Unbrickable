@@ -183,7 +183,9 @@ public class Board : MonoBehaviour {
 	}
 	
 	public bool checkPosition(int x, int y, int z){
-		if (y < 15)	return boardArray[x,y,z];
+		if (x < boardArray.GetLength(0) &&
+			y < boardArray.GetLength(1) &&
+		    z < boardArray.GetLength(2))	return boardArray[x,y,z];
 		return false;
 	}
 	

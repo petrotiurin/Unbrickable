@@ -116,9 +116,13 @@ public class BlockControl : MonoBehaviour {
 
 	// For testing purposes
 	public void getShapeArray(){
-		string data = "11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
+		//string data = "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
+		string data = "7.1.10.1.7.1.11.1.8.1.10.1.8.1.11.1.9.1.10.1." + 
+					  "9.1.11.1.9.2.9.3.9.2.10.3.9.2.11.3.10.0.10.2." +
+					  "10.0.11.2.10.1.10.1.10.1.11.1.10.2.9.3.10.2."  +
+					  "10.3.10.2.11.3.11.0.10.2.11.0.11.2.";
 		string[] dA = data.Split('.');
-		doAFlip(dA);
+		//doAFlip(dA); TODO: fix this for bigger shapes
 		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
 			int y = Int32.Parse(dA[i+1]);
