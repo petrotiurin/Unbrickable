@@ -60,8 +60,8 @@ public class BlockControl : MonoBehaviour {
 	
 	private GameObject FragmentCube;
 
-	[DllImport ("make2")]
-	private static extern IntPtr lego();
+	//[DllImport ("make2")]
+	//private static extern IntPtr lego();
 
 	//for moving the shapes need to know the centre of shape
 	private float posX=2,posZ=2;	
@@ -116,8 +116,9 @@ public class BlockControl : MonoBehaviour {
 
 	// For testing purposes
 	public void getShapeArray(){
-		string data = "1.1.1.1.1.2.1.1.1.3.1.1.2.2.1.1.";
+		string data = "11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
 		string[] dA = data.Split('.');
+		doAFlip(dA);
 		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
 			int y = Int32.Parse(dA[i+1]);
@@ -130,6 +131,7 @@ public class BlockControl : MonoBehaviour {
 	// Get the shape from the computer vision stuff and puts in to the shape array
 	public void getShapeArray(string data){
 		string[] dA = data.Split('.');
+		doAFlip(dA);
 		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
 			int y = Int32.Parse(dA[i+1]);
@@ -137,6 +139,12 @@ public class BlockControl : MonoBehaviour {
 			shapeTemp[x,y,z] = Int32.Parse(dA[i+3]);
 		}
 		transformShape(shapeTemp);
+	}
+
+	private void doAFlip(string[] data){
+		for (int i = 1; i < data.Length; i+=4){
+			data[i] = Convert.ToString(20 - Int32.Parse(data[i]));
+		}
 	}
 
 	private void transformShape(int[,,] shape){
@@ -197,7 +205,7 @@ public class BlockControl : MonoBehaviour {
 		
 		double length, width;
 		int[] lengthSize = new int[shape.GetLength(0)];
-		int[] widthSize = new int[shape.GetLength(1)];
+		int[] widthSize = new int[shape.GetLength(2)];
 		//to work out the length of the shape.
 		//for the y direction
 		for(int i=0; i<shape.GetLength(1);i++){
@@ -641,8 +649,8 @@ public class BlockControl : MonoBehaviour {
 		
 		// Cycle through these three shapes for now...
 		if(pass%3==0){
-			getShapeArray(Marshal.PtrToStringAnsi(lego()));
-			//getShapeArray();
+			//getShapeArray(Marshal.PtrToStringAnsi(lego()));
+			getShapeArray();
 			createShape(shape4, pass);
 		} else if(pass%3==1){
 			createShape(shape2, pass);

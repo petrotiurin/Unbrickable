@@ -21,21 +21,14 @@ public class Board : MonoBehaviour {
 	/*[DllImport ("make2")]
 	private static extern int main();*/
 
-	[DllImport ("make2")]
-	private static extern IntPtr lego();
-
-	[DllImport ("make2")]
-	private static extern int main();
-
-
 	private BlockControl blockCtrl;
 	
 	// Initialization.
 	void Awake () {
 
-		print(main());
-		print(Marshal.PtrToStringAnsi(lego()));
-		print ("HIERHIEHRIE");
+		//print(main());
+		//print(Marshal.PtrToStringAnsi(lego()));
+		//print ("HIERHIEHRIE");
 
 		boardArray = new bool[nx,ny,nz];
 		Array.Clear(boardArray, 0, boardArray.Length);
