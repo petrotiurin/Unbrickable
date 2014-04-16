@@ -653,8 +653,8 @@ public class BlockControl : MonoBehaviour {
 		
 		// Cycle through these three shapes for now...
 		if(pass%3==0){
-			//getShapeArray(Marshal.PtrToStringAnsi(lego()));
-			getShapeArray();
+			getShapeArray(Marshal.PtrToStringAnsi(lego()));
+			//getShapeArray();
 			createShape(shape4, pass);
 		} else if(pass%3==1){
 			createShape(shape2, pass);
