@@ -8,16 +8,19 @@ public class setUpWebcam : MonoBehaviour {
 	WebCamPhoto webcam2;
 	WebCamPhoto webcam3;
 	WebCamPhoto webcam4;
+
 	void Start () {
-		setUpCams();
+
 		
 	}
 
 	
 	public void takeSnap()
 	{
+		print ("1");
 		if(setup)
 		{
+			print ("actually taking a photo");
 			//      cam_texture.Pause();
 			/*      webcam1.pause();
                         webcam2.pause();
@@ -37,6 +40,7 @@ public class setUpWebcam : MonoBehaviour {
 	}
 	
 	public void setUpCams(){
+		print ("setting new webcame");
 		webcam1 = new WebCamPhoto(2, 30);
 		webcam2 = new WebCamPhoto(1, 70);
 		webcam3 = new WebCamPhoto(4, 30);
@@ -47,7 +51,7 @@ public class setUpWebcam : MonoBehaviour {
 		webcam2.go();
 		webcam3.go();
 		webcam4.go();
-		setup = true;
+		this.setup = true;
 		//webcam2.go();
 		
 		

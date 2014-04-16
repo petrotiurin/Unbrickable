@@ -60,8 +60,7 @@ public class Board : MonoBehaviour {
 	}
 
 	void Start(){
-		
-		blockCtrl.createShape();
+			blockCtrl.createShape();
 
 	}
 	

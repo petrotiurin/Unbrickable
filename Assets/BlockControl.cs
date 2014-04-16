@@ -18,7 +18,7 @@ public class BlockControl : MonoBehaviour {
 	private float boundX,boundZ,boundingBox;
 	
 	private int pass;
-	
+
 	private bool firstBlock = true;
 
 	public bool cPPCodeRunning = false;
@@ -94,15 +94,21 @@ public class BlockControl : MonoBehaviour {
 		}
 		return newShape;
 	}
-	
+
+
 	// Pre-Initialization.
 	void Awake(){
+
 		Debug.Log("initialise cam");
-		cam = GetComponent<setUpWebcam>();
+	//	cam = new setUpWebcam();
+//		cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
+
 		gameBoard = GetComponent<Board>();
 		getBoardValues();
+
+	
 	}
 	
 	// Initialization.
@@ -113,6 +119,7 @@ public class BlockControl : MonoBehaviour {
 		shapeMove=0;
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
 		getShapeArray();
+
 	}
 	
 	// Set maximum amount of pins that can fit in each direction.
@@ -125,7 +132,7 @@ public class BlockControl : MonoBehaviour {
 	// For testing purposes
 	public int[,,] getShapeArray(){
 		int[,,] shapeTemp = new int[20,20,20];
-		string data = "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
+		string data = "13.1.11.1.";//13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
 		string[] dA = data.Split('.');
 		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
@@ -503,7 +510,8 @@ public class BlockControl : MonoBehaviour {
 			}
 			shapeMove++;
 			
-	  	}
+	  	
+	}
 		
 		//creates and positions the highlighted landing for the shape
 		private void highlightLanding(){
@@ -664,7 +672,7 @@ public class BlockControl : MonoBehaviour {
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
-		Debug.Log("cam being used");
+		//Debug.Log("cam being used");
 		//cam.takeSnap();
 	
 	//	System.Threading.Thread.Sleep(3000);	
@@ -673,7 +681,7 @@ public class BlockControl : MonoBehaviour {
 		cPPCodeRunning = true;
 		//int hello = main ();
 		//print ("main = " + hello);
-	//	string legoCode = Marshal.PtrToStringAnsi(lego());
+	//string legoCode = Marshal.PtrToStringAnsi(lego());
 //				System.Threading.Thread.Sleep(3000);
 		cPPCodeRunning = false;
 // 		print ("lego code = "+ legoCode);
