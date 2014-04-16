@@ -4,6 +4,7 @@ using System.Collections;
 public class Array_GameObj : MonoBehaviour {
 	
 	public GameObject[] legoPieces;
+	public int[] suggestedPieces;
 	
 	public int piecesNum = 5;
 	public int noOfSuggestedPieces = 3;
@@ -15,7 +16,8 @@ public class Array_GameObj : MonoBehaviour {
 	void Start () {
 		
 		legoPieces = new GameObject[noOfSuggestedPieces];
-		
+		suggestedPieces = new int[noOfSuggestedPieces];
+
 		position = new Vector3[noOfSuggestedPieces];
 		position[0] = new Vector3(-8.7f,3,3f);
 		position[1] = new Vector3(-6.2f,3,3f);
@@ -47,6 +49,7 @@ public class Array_GameObj : MonoBehaviour {
 		pieceObject.transform.localPosition = pos;
 		pieceObject.transform.localScale = new Vector3(20,20,20);
 		legoPieces[pieceno] = pieceObject;
+		suggestedPieces[pieceno] = piece;
 	}
 	
 	/*void Update(){
