@@ -11,31 +11,20 @@ public class Board : MonoBehaviour {
 	public int nx = 17;	// width
 	public int ny = 15;	// height
 	public int nz = 17;	// depth 
-	
 	private bool[,,] boardArray;
 	
 	//for rotating the board
 	//ricky moved the board initialy so the bottom left == (0,0) so centre is this
 	private Vector3 centreRotation = new Vector3 (2,1,2);
 
-	/*[DllImport ("make2")]
-	private static extern int main();*/
-
 	[DllImport ("make2")]
 	private static extern IntPtr lego();
-
-	[DllImport ("make2")]
-	private static extern int main();
 
 
 	private BlockControl blockCtrl;
 	
 	// Initialization.
 	void Awake () {
-
-		print(main());
-		print(Marshal.PtrToStringAnsi(lego()));
-		print ("HIERHIEHRIE");
 
 		boardArray = new bool[nx,ny,nz];
 		Array.Clear(boardArray, 0, boardArray.Length);
