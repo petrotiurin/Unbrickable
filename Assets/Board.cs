@@ -23,7 +23,11 @@ public class Board : MonoBehaviour {
 	//for rotating the board
 	//ricky moved the board initialy so the bottom left == (0,0) so centre is this
 	private Vector3 centreRotation = new Vector3 (2,1,2);
-	
+
+	//Audio stuff
+	public AudioSource audio_source;
+	public AudioSource layer_clear_sound;
+
 	private BlockControl blockCtrl;
 	
 	// Initialization.
@@ -60,6 +64,9 @@ public class Board : MonoBehaviour {
 		addToScene(slayer);
 		
 		DrawBoard();
+		audio_source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
+		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
+		layer_clear_sound.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/Triumph.wav", typeof(AudioClip));
 		startMusic("Theme1");
 		blockCtrl.assignTimeGap(timeGap);
 		StartCoroutine(Wait());
@@ -81,11 +88,21 @@ public class Board : MonoBehaviour {
     }
 	
 	private void startMusic(String track){
-		AudioSource source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
-		source.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/" + track + ".wav", typeof(AudioClip));
-		source.Play();
+		if (audio_source.isPlaying) audio_source.Stop();
+		audio_source.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/" + track + ".wav", typeof(AudioClip));
+		audio_source.Play();
 	}
-	
+
+	private void setMaxVolume(){
+		audio_source.volume = 1.0f;
+	}
+
+	public void playLayerClearSound(){
+		audio_source.volume = 0.1f;
+		layer_clear_sound.Play();
+		Invoke( "setMaxVolume", layer_clear_sound.clip.length );
+	}
+
 	public void PivotTo(GameObject o, Vector3 position){
 	    Vector3 offset = o.transform.position - position;
 	 
@@ -132,6 +149,8 @@ public class Board : MonoBehaviour {
 	
 	// Clear the layer (i.e. reset the layer count to 0).
 	public void clearLayer(int y) {
+		playLayerClearSound();
+
 		foreach (Transform childTransform in blocksLayer[y].transform) {
 		    Destroy(childTransform.gameObject);
 		}
