@@ -180,7 +180,8 @@ public class Board : MonoBehaviour {
 		if (y < 15)	return boardArray[x,y,z];
 		return false;
 	}
-	
+
+
 	public void printArray(){
 		print("******A collision has happened,,,,,,,the board array looks like this ------->>>>>>");
 		for(int k=0;k<ny;k++){

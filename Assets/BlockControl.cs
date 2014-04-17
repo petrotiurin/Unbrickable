@@ -99,6 +99,8 @@ public class BlockControl : MonoBehaviour {
 	}
 
 
+
+
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
