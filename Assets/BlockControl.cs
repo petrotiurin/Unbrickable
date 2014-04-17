@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System;
 using System.Runtime.InteropServices;
 
+
+
+
 public class BlockControl : MonoBehaviour {
 	
 	private GameObject[] blocks;
@@ -99,8 +102,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		cam = new setUpWebcam();
-		cam.setUpCams();
+	//	cam = new setUpWebcam();
+	//	cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -673,7 +676,7 @@ public class BlockControl : MonoBehaviour {
 	public void createShape(){
 		// Add here shape creation code.
 		//Debug.Log("cam being used");
-		cam.takeSnap();
+	//	cam.takeSnap();
 	
 	//	System.Threading.Thread.Sleep(3000);	
 		// Cycle through these three shapes for now...
