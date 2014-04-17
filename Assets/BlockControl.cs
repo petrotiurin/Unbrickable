@@ -15,7 +15,7 @@ public class BlockControl : MonoBehaviour {
 	private ShadowCollision sh;
 	RotateCamera cameraScript;
 	private int globalX, globalZ;
-	
+	private int timeGap = 0;
 	private int maxPinsX,maxPinsZ;
 	
 	private float boundX,boundZ,boundingBox;
