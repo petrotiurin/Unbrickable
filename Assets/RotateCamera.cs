@@ -13,10 +13,12 @@ public class RotateCamera : MonoBehaviour
 	//Maximum allowed angles on vertical camera movement. Subject to change.
 	private int maxUpAngle = 40;
 	private int maxDownAngle = -20;
+	private BlockControl blockCtrl;
 	
 	//Initialise starting values and find the base of the gameboard
 	void Start ()
 	{
+//		Debug.Log("hi");
 		rotRight = false;
 		target = GameObject.Find("base");
 	}
@@ -37,42 +39,43 @@ public class RotateCamera : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		if( target != null ){
-			
-			//Always focus on the centre of the gameboard base
-			transform.LookAt(target.transform);
-			
-			processVerticalRotation();
-			
-			if (XrotToGo <= 0) {
-				//Press "w" to rotate the board CW
-				if( Input.GetKey("x") ){
-					rotRight = true;
-					XrotToGo = 90;
-					rotationDir++;
-					rotationDir = rotationDir % 4;
+			if( target != null ){
+				
+				//Always focus on the centre of the gameboard base
+				transform.LookAt(target.transform);
+				
+				processVerticalRotation();
+				
+				if (XrotToGo <= 0) {
+					//Press "w" to rotate the board CW
+					if( Input.GetKey("x") ){
+						rotRight = true;
+						XrotToGo = 90;
+						rotationDir++;
+						rotationDir = rotationDir % 4;
+					}
+					//Press "z" to rotate the board CCW
+					else if( Input.GetKey("z") ){
+						rotRight = false;
+						XrotToGo = 90;
+						rotationDir--;
+						if(rotationDir < 0) rotationDir = 3;
+					}
 				}
-				//Press "z" to rotate the board CCW
-				else if( Input.GetKey("z") ){
-					rotRight = false;
-					XrotToGo = 90;
-					rotationDir--;
-					if(rotationDir < 0) rotationDir = 3;
+				
+				//Make the position change
+				if (XrotToGo >= 0){
+					float rot = Time.deltaTime * XrotSpeed;
+					if (XrotToGo < rot) rot = XrotToGo;
+					if(rotRight){
+						transform.RotateAround( target.transform.position, Vector3.down, rot);
+					} else {
+						transform.RotateAround( target.transform.position, Vector3.up, rot);
+					}
+					XrotToGo -= rot;
 				}
-			}
-			
-			//Make the position change
-			if (XrotToGo >= 0){
-				float rot = Time.deltaTime * XrotSpeed;
-				if (XrotToGo < rot) rot = XrotToGo;
-				if(rotRight){
-					transform.RotateAround( target.transform.position, Vector3.down, rot);
-				} else {
-					transform.RotateAround( target.transform.position, Vector3.up, rot);
-				}
-				XrotToGo -= rot;
 			}
 		}
-	}
+
 }
 
