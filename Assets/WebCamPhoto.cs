@@ -55,13 +55,13 @@ public class WebCamPhoto : MonoBehaviour {
 		destTexture.SetPixels(textureData);
 		destTexture.Apply();
 		byte[] pngData = destTexture.EncodeToPNG();
-		if(File.Exists("/Users/Jonny/Desktop/A/" + x + ".png"))
+		if(File.Exists("/Users/guyhowcroft/Documents/gameImages/" + x + ".png"))
 		{
 			print ("deleted");
-			File.Delete("/Users/Jonny/Desktop/A/" + x + ".png");
+			File.Delete("/Users/guyhowcroft/Documents/gameImages/" + x + ".png");
 		}
-		File.WriteAllBytes("/Users/Jonny/Desktop/A/" + x + ".png",pngData);
-		Debug.Log("/Users/Jonny/Desktop/A/" + x + ".png");
+		File.WriteAllBytes("/Users/guyhowcroft/Documents/gameImages/" + x + ".png",pngData);
+		Debug.Log("/Users/guyhowcroft/Documents/gameImages/" + x + ".png");
 		
 	}
 }

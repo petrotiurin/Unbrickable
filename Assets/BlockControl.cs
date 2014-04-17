@@ -105,8 +105,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-	//	cam = new setUpWebcam();
-	//	cam.setUpCams();
+		cam = new setUpWebcam();
+		cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -714,7 +714,7 @@ public class BlockControl : MonoBehaviour {
 	public void createShape(){
 		// Add here shape creation code.
 		//Debug.Log("cam being used");
-	//	cam.takeSnap();
+		cam.takeSnap();
 	
 	//	System.Threading.Thread.Sleep(3000);	
 		// Cycle through these three shapes for now...
@@ -722,11 +722,11 @@ public class BlockControl : MonoBehaviour {
 		cPPCodeRunning = true;
 		//int hello = main ();
 		//print ("main = " + hello);
-	//string legoCode = Marshal.PtrToStringAnsi(lego());
+//	string legoCode = Marshal.PtrToStringAnsi(lego());
 //				System.Threading.Thread.Sleep(3000);
 		cPPCodeRunning = false;
-// 		print ("lego code = "+ legoCode);
-//			 shape4 = getShapeArray(legoCode);
+ 		//print ("lego code = "+ legoCode);
+		//	 shape4 = getShapeArray(legoCode);
 
 			 shape4 = getShapeArray();
 		//print ( GetString() );

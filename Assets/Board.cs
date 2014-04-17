@@ -67,10 +67,10 @@ public class Board : MonoBehaviour {
 		
 		DrawBoard();
 
-		audio_source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
-		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
-		layer_clear_sound.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/Triumph.wav", typeof(AudioClip));
-		startMusic("Theme1");
+	//	audio_source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
+//		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
+//		layer_clear_sound.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/Triumph.wav", typeof(AudioClip));
+//		startMusic("Theme1");
 
 		blockCtrl.assignTimeGap(timeGap);
 		StartCoroutine(Wait());
