@@ -305,7 +305,8 @@ public class BlockControl : MonoBehaviour {
 		Vector3 rotation = Vector3.zero;
 		int hasMoved = 0;
 		int newblock = 0;
-		if (block == null || shadow == null) return;
+
+        if (block == null || shadow == null) return;
 		//This keeps track of how many seconds we wait between two pieces.
 		int x = 10;
 		

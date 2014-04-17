@@ -11,7 +11,7 @@ public class Board : MonoBehaviour {
 	public int ny = 15;	// height
 	public int nz = 17;	// depth 
 	
-	int timeGap = 10; //default value. Change gap here!
+	int timeGap = 3;//10; //default value. Change gap here!
     int timer = 0;
     int score = 0;
     float starttimer = 0.0f;
@@ -64,10 +64,12 @@ public class Board : MonoBehaviour {
 		addToScene(slayer);
 		
 		DrawBoard();
+
 		audio_source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
 		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
 		layer_clear_sound.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/Triumph.wav", typeof(AudioClip));
 		startMusic("Theme1");
+
 		blockCtrl.assignTimeGap(timeGap);
 		StartCoroutine(Wait());
 		//blockCtrl.createShape();
