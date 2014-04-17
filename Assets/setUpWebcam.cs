@@ -52,8 +52,6 @@ public class setUpWebcam : MonoBehaviour {
 		webcam2.go();
 		webcam3.go();
 		webcam4.go();
-
-
 		this.setup = true;
 		//webcam2.go();
 		
