@@ -4,10 +4,10 @@ using System.Collections;
 public class setUpWebcam : MonoBehaviour {
 	
 	bool setup = false;
-	WebCamPhoto webcam1;
-	WebCamPhoto webcam2;
-	WebCamPhoto webcam3;
-	WebCamPhoto webcam4;
+	public WebCamPhoto webcam1;
+	public WebCamPhoto webcam2;
+	public WebCamPhoto webcam3;
+	public WebCamPhoto webcam4;
 
 	void Start () {
 
@@ -40,7 +40,8 @@ public class setUpWebcam : MonoBehaviour {
 	}
 	
 	public void setUpCams(){
-		print ("setting new webcame");
+
+		print ("setting new webcam");
 		webcam1 = new WebCamPhoto(2, 30);
 		webcam2 = new WebCamPhoto(1, 70);
 		webcam3 = new WebCamPhoto(4, 30);
@@ -51,6 +52,8 @@ public class setUpWebcam : MonoBehaviour {
 		webcam2.go();
 		webcam3.go();
 		webcam4.go();
+
+
 		this.setup = true;
 		//webcam2.go();
 		

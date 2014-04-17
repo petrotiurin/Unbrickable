@@ -38,7 +38,10 @@ public class WebCamPhoto : MonoBehaviour {
 		cam_texture.Play ();
 	}
 	
-	
+	public int getWidth(){
+		return cam_texture.width;
+		
+	}
 	public void BlitImage()
 	{
 	//	print ("width = " + cam_texture.width);

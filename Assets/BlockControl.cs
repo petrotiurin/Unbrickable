@@ -98,10 +98,9 @@ public class BlockControl : MonoBehaviour {
 
 	// Pre-Initialization.
 	void Awake(){
-
 		Debug.Log("initialise cam");
-	//	cam = new setUpWebcam();
-//		cam.setUpCams();
+		cam = new setUpWebcam();
+		cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -342,6 +341,7 @@ public class BlockControl : MonoBehaviour {
 		Destroy(block);
 		Destroy(shadow);
 		createShape();
+
 	}
 	
 	private void printShadow(GameObject shadow){
@@ -358,7 +358,6 @@ public class BlockControl : MonoBehaviour {
 	}
 	// Update is called once per frame.
 	void Update () {
-
 			GameObject block = GameObject.Find("ActiveBlock");
 			if (block == null || shadow == null) return;
 			Vector3 translation = Vector3.zero;
@@ -510,7 +509,7 @@ public class BlockControl : MonoBehaviour {
 			}
 			shapeMove++;
 			
-	  	
+
 	}
 		
 		//creates and positions the highlighted landing for the shape
@@ -570,6 +569,7 @@ public class BlockControl : MonoBehaviour {
 	
 	//creates a shape out of array, consisting of 0s and 1s
 	public void createShape(int[,,] shape, int colour){
+	
 		//while (shape == null);
 		if (shape == null){
 			throw new Exception("shape is null!");
@@ -673,7 +673,7 @@ public class BlockControl : MonoBehaviour {
 	public void createShape(){
 		// Add here shape creation code.
 		//Debug.Log("cam being used");
-		//cam.takeSnap();
+		cam.takeSnap();
 	
 	//	System.Threading.Thread.Sleep(3000);	
 		// Cycle through these three shapes for now...

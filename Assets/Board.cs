@@ -17,8 +17,6 @@ public class Board : MonoBehaviour {
 	//ricky moved the board initialy so the bottom left == (0,0) so centre is this
 	private Vector3 centreRotation = new Vector3 (2,1,2);
 
-	[DllImport ("make2")]
-	private static extern IntPtr lego();
 
 
 	private BlockControl blockCtrl;
@@ -60,7 +58,7 @@ public class Board : MonoBehaviour {
 	}
 
 	void Start(){
-			blockCtrl.createShape();
+		blockCtrl.createShape();
 
 	}
 	
@@ -80,6 +78,7 @@ public class Board : MonoBehaviour {
 	
 	// Create the base of the game board.
 	private void DrawBoard(){
+
 		GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		cube.name = "base";
 		
