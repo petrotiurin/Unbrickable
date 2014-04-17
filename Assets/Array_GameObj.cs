@@ -6,7 +6,7 @@ public class Array_GameObj : MonoBehaviour {
 	public GameObject[] legoPieces;
 	public int[] suggestedPieces;
 	
-	public int piecesNum = 5;
+	public int piecesNum = 4;
 	public int noOfSuggestedPieces = 3;
 	
 	//pre-defined position to show pieces on
@@ -14,14 +14,14 @@ public class Array_GameObj : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		
+		piecesNum = 4;
 		legoPieces = new GameObject[noOfSuggestedPieces];
 		suggestedPieces = new int[noOfSuggestedPieces];
 
 		position = new Vector3[noOfSuggestedPieces];
-		position[0] = new Vector3(-8.7f,3,3f);
-		position[1] = new Vector3(-6.2f,3,3f);
-		position[2] = new Vector3(-3.5f,3,3f);
+		position[0] = new Vector3(-8.7f,3,3.5f);
+		position[1] = new Vector3(-6.2f,3,3.5f);
+		position[2] = new Vector3(-3.5f,3,3.5f);
 		SuggestLegoPiece();
 	}
 	
@@ -38,8 +38,8 @@ public class Array_GameObj : MonoBehaviour {
 		case 1: prefab+="L2x2"; break;
 		case 2: prefab+="L3x2"; break;
 		case 3: prefab+="L4x2"; break;
-		case 4: prefab+="L6x1"; break;
-		default: throw new System.ArgumentException("Unrecognised piece number.");
+		//case 4: prefab+="L6x1"; break;
+		default: throw new System.ArgumentException("Unrecognised piece number = " + piece);
 		}
 		prefab += ".prefab";
 		Object obj = Resources.LoadAssetAtPath(prefab, typeof(GameObject));
@@ -69,7 +69,9 @@ public class Array_GameObj : MonoBehaviour {
 		
 		for (int i = 0; i < noOfSuggestedPieces; i++)
 		{
+			//flashPieces(i);
 	        suggestedPiece = Random.Range(0, piecesNum);
+	        Debug.Log("Piece no = " + suggestedPiece);
 			InvokePiece(i, suggestedPiece, position[i]);
 		}
 	}
@@ -80,4 +82,32 @@ public class Array_GameObj : MonoBehaviour {
 		/* Get index of the 2-3 pieces so you know which pieces to combine.
 		*/
 	}
+/*
+	void flashPieces(int pos) {
+		for(int i = 1; i < 500; i++) {
+			for(int j = 0; j < piecesNum; j++) {
+				string prefab = "Assets/Blocks/";
+				switch(j){
+				case 0: prefab+="L2x1"; break;
+				case 1: prefab+="L2x2"; break;
+				case 2: prefab+="L3x2"; break;
+				case 3: prefab+="L4x2"; break;
+				//case 4: prefab+="L6x1"; break;
+				default: throw new System.ArgumentException("Unrecognised piece number.");
+				}
+				prefab += ".prefab";
+				Object obj = Resources.LoadAssetAtPath(prefab, typeof(GameObject));
+				GameObject pieceObject = GameObject.Instantiate(obj) as GameObject;
+				addToShape(transform, pieceObject);
+				pieceObject.transform.LookAt(transform.forward);
+				pieceObject.transform.localPosition = position[pos];
+				pieceObject.transform.localScale = new Vector3(20,20,20);
+				//legoPieces[j] = pieceObject;
+
+				//wait for .2s or so
+				Destroy(pieceObject);
+			}
+		}
+	}
+	*/
 }

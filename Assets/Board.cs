@@ -18,12 +18,24 @@ public class Board : MonoBehaviour {
     bool countdown = false;
     bool pieceSuggestor = false;
 
+    //timer progress bar
+    public float barDisplay = 1; //current progress
+    public Vector2 pos = new Vector2(50,100);
+    public Vector2 size = new Vector2(150,100);
+    public Texture2D emptyTex;
+    public Texture2D fullTex;
+    //end timer progress bar
+
 	private bool[,,] boardArray;
 	
 	//for rotating the board
 	//ricky moved the board initialy so the bottom left == (0,0) so centre is this
 	private Vector3 centreRotation = new Vector3 (2,1,2);
-	
+
+	//Audio stuff
+	public AudioSource audio_source;
+	public AudioSource layer_clear_sound;
+
 	private BlockControl blockCtrl;
 	
 	// Initialization.
@@ -60,7 +72,12 @@ public class Board : MonoBehaviour {
 		addToScene(slayer);
 		
 		DrawBoard();
-		//startMusic("Theme1");
+
+		audio_source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
+		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
+		layer_clear_sound.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/Triumph.wav", typeof(AudioClip));
+		startMusic("Theme1");
+
 		blockCtrl.assignTimeGap(timeGap);
 		StartCoroutine(Wait());
 		//blockCtrl.createShape();
@@ -81,11 +98,21 @@ public class Board : MonoBehaviour {
     }
 	
 	private void startMusic(String track){
-		AudioSource source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
-		source.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/" + track + ".wav", typeof(AudioClip));
-		source.Play();
+		if (audio_source.isPlaying) audio_source.Stop();
+		audio_source.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/" + track + ".wav", typeof(AudioClip));
+		audio_source.Play();
 	}
-	
+
+	private void setMaxVolume(){
+		audio_source.volume = 1.0f;
+	}
+
+	public void playLayerClearSound(){
+		audio_source.volume = 0.1f;
+		layer_clear_sound.Play();
+		Invoke( "setMaxVolume", layer_clear_sound.clip.length );
+	}
+
 	public void PivotTo(GameObject o, Vector3 position){
 	    Vector3 offset = o.transform.position - position;
 	 
@@ -132,6 +159,8 @@ public class Board : MonoBehaviour {
 	
 	// Clear the layer (i.e. reset the layer count to 0).
 	public void clearLayer(int y) {
+		playLayerClearSound();
+
 		foreach (Transform childTransform in blocksLayer[y].transform) {
 		    Destroy(childTransform.gameObject);
 		}
@@ -264,12 +293,28 @@ public class Board : MonoBehaviour {
                 timer = (int)timediff;
                 Debug.Log("Timer = " + timer);
                 timer = timeGap - timer;
+                barDisplay = 1 - timediff * 1.0f/timeGap;//0.1f;
+
+                /*
+	            GUI.DrawTexture(Rect(50, 100, 150, 100), Texture2D);
+	            GUI.DrawTexture(Rect(50, 100, 150, 100), Texture2D);
+	            */
             }
         }else{
                 timer = 0;
+                barDisplay = 0.01f;
         }
 
-        GUI.Box(new Rect((Screen.width - 200), 10, 150, 100), timer + "s left.");
+        //timer progress bar.
+        //draw the background
+		GUI.BeginGroup(new Rect((Screen.width - 200), 10, 150, 100));
+			GUI.Box(new Rect(0,25,150,50), timer + "s left.");
+			//draw the ticker
+			GUI.BeginGroup(new Rect(5,30, 140, 40));
+				GUI.Box(new Rect(0,0,140*barDisplay,40), "");
+			GUI.EndGroup();
+		GUI.EndGroup();
+        //GUI.Box(new Rect((Screen.width - 200), 10, 150, 100), timer + "s left.");
         
         // The next bit of the code deals with piece suggestions and displaying them.
         /* DEVELOPMENT: Currently (as of 03/04/14), the boxes are empty and
