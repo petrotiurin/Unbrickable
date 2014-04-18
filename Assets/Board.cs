@@ -12,7 +12,7 @@ public class Board : MonoBehaviour {
 	public int ny = 15;	// height
 	public int nz = 17;	// depth 
 	
-	int timeGap = 3;//10; //default value. Change gap here!
+	int timeGap = 0;//10; //default value. Change gap here!
     int timer = 0;
     int score = 0;
     float starttimer = 0.0f;
@@ -102,9 +102,9 @@ public class Board : MonoBehaviour {
 	}
 
 	public void playLayerClearSound(){
-		audio_source.volume = 0.1f;
-		layer_clear_sound.Play();
-		Invoke( "setMaxVolume", layer_clear_sound.clip.length );
+		//if (audio_source != null) audio_source.volume = 0.1f;
+		//layer_clear_sound.Play();
+		//if (audio_source != null) Invoke( "setMaxVolume", layer_clear_sound.clip.length );
 	}
 
 	public void PivotTo(GameObject o, Vector3 position){
@@ -146,9 +146,15 @@ public class Board : MonoBehaviour {
 	// Add a pin object to its respective layer.
 	public void FillPosition(int layer, GameObject pin) {
 		addBlocks(layer, pin);
-		// Destroy the layer if it is full.
-		if(blocksLayer[layer].transform.childCount == (nx-2)*(nz-2)){
-			clearLayer(layer);
+	}
+
+	public void checkFullLayers(){
+		// Destroy the layers if they are full.
+		for (int i = 0; i < blocksLayer.Length; i++){
+			if(blocksLayer[i].transform.childCount == (nx-2)*(nz-2)){
+				clearLayer(i);
+				i = -1; //will be back to 0 because of i++
+			}
 		}
 	}
 	

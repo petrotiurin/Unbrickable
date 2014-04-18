@@ -32,9 +32,9 @@ public class BlockControl : MonoBehaviour {
 									   	  {{0,0,0},{0,0,0},{0,0,0}},
 									      {{0,0,0},{0,0,0},{0,0,0}}};
 	
-	private int[,,] shape2 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
-									   	  {{1,1,1},{0,0,0},{0,0,0}},
-									      {{1,1,1},{0,0,0},{0,0,0}}};
+	private int[,,] shape2 = new int[,,] {{{1,1,1},{1,1,1},{0,0,0}},
+									   	  {{1,1,1},{1,1,1},{0,0,0}},
+									      {{1,1,1},{1,1,1},{0,0,0}}};
 	
 	//[,,]full outer number, middle inner, inside the smallest
 	private int[,,] shape3 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
@@ -106,14 +106,12 @@ public class BlockControl : MonoBehaviour {
 	void Awake(){
 		Debug.Log("initialise cam");
 		cam = new setUpWebcam();
-		cam.setUpCams();
+		//cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
 		gameBoard = GetComponent<Board>();
 		getBoardValues();
-
-	
 	}
 	
 	// Initialization.
@@ -361,6 +359,7 @@ public class BlockControl : MonoBehaviour {
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
 		}
+		gameBoard.checkFullLayers();
 		//show next suggested piece
 		//This piece of code will be moved soon so we can display them
 		// in the boxes - Aankhi.
@@ -710,43 +709,12 @@ public class BlockControl : MonoBehaviour {
 		timeGap = gap;
 	}
 
-	// For demonstration purposes.
 	public void createShape(){
-		// Add here shape creation code.
-		//Debug.Log("cam being used");
-		cam.takeSnap();
-	
-	//	System.Threading.Thread.Sleep(3000);	
-		// Cycle through these three shapes for now...
-		//if(pass%3==0){
-		cPPCodeRunning = true;
-		//int hello = main ();
-		//print ("main = " + hello);
-//	string legoCode = Marshal.PtrToStringAnsi(lego());
-//				System.Threading.Thread.Sleep(3000);
-		cPPCodeRunning = false;
- 		//print ("lego code = "+ legoCode);
-		//	 shape4 = getShapeArray(legoCode);
-
-			 shape4 = getShapeArray();
-		//print ( GetString() );
-			//getShapeArray();
-			createShape(shape4, pass);
-		//} else if(pass%3==1){
-		//	createShape(shape2, pass);
-		//} else {
-		//	createShape(shape3, pass);
-		//}
+		shape4 = getShapeArray();
+		createShape(shape2, pass);
 
 		pass++;
 	}
-	
-	//TODO: remove this shit
-	/*
-	 * public int getShapeSize(){
-		return shape.GetLength(0);
-	}
-	 */
 	
 	//Makes given cube a child of the current shape
 	private void addToShape(GameObject shape, GameObject cube){
