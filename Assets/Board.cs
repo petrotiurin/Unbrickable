@@ -23,7 +23,10 @@ public class Board : MonoBehaviour {
     public Vector2 pos = new Vector2(50,100);
     public Vector2 size = new Vector2(150,100);
     public Texture2D emptyTex;
-    public Texture2D fullTex;
+    public Texture2D fullTex;// = new Texture2D(1,1);
+    Color red_color = new Color(0.3f,0,0);
+    Color white_color = new Color(1,1,1);
+    Color black_color = new Color(0,0,0);
     //end timer progress bar
 
 	private bool[,,] boardArray;
@@ -40,13 +43,50 @@ public class Board : MonoBehaviour {
 	
 	// Initialization.
 	void Awake () {
-		
 		GameObject.Find("Main Camera").AddComponent<AudioListener>();
 		boardArray = new bool[nx,ny,nz];
 		Array.Clear(boardArray, 0, boardArray.Length);
 		blockCtrl = GetComponent<BlockControl>();
 		//pinsPerShape = blockCtrl.getShapeSize();
 		blocksLayer = new GameObject [ny];
+
+		//initialise colour to texture
+		/*for(int i = 0; i < fullTex.height; i++){
+			for(int j = 0; j < fullTex.width; j++) {
+				fullTex.SetPixel(i,j,red_color);
+			}
+		}
+		fullTex.Apply();
+		//end texture colour assignment
+*/
+		fullTex = new Texture2D(1,1);
+		fullTex.SetPixel(0,0,red_color);
+		fullTex.Apply();
+
+		emptyTex = new Texture2D(150,50);
+
+		for(int i = 1; i < emptyTex.width-1; i++){
+			for(int j = 1; j < emptyTex.height-1; j++){
+				emptyTex.SetPixel(i,j,black_color);
+			}
+		}
+
+		for(int i = 0; i < emptyTex.height; i++){
+			for(int j = 0; j < 5; j++)
+				emptyTex.SetPixel(j,i,white_color);
+			for(int j = emptyTex.width-6; j < emptyTex.width; j++)
+				emptyTex.SetPixel(j,i,white_color);
+		}
+
+		for(int i = 0; i < emptyTex.width; i++){
+			for(int j = 0; j < 5; j++)
+				emptyTex.SetPixel(i,j,white_color);
+			for(int j = emptyTex.height-6; j < emptyTex.height; j++)
+				emptyTex.SetPixel(i,j,white_color);
+		}
+
+		//emptyTex.SetPixel(0,0,white_color);
+		emptyTex.Apply();
 		
 		//creating the bounding walls in the array
 		for(int i=0; i< ny;i++){
@@ -308,10 +348,12 @@ public class Board : MonoBehaviour {
         //timer progress bar.
         //draw the background
 		GUI.BeginGroup(new Rect((Screen.width - 200), 10, 150, 100));
-			GUI.Box(new Rect(0,25,150,50), timer + "s left.");
+			//GUI.Box(new Rect(0,25,150,50), timer + "s left.");
+			GUI.DrawTexture(new Rect(0,25,150,50), emptyTex);
 			//draw the ticker
-			GUI.BeginGroup(new Rect(5,30, 140, 40));
-				GUI.Box(new Rect(0,0,140*barDisplay,40), "");
+			GUI.BeginGroup(new Rect(5,31,140,39));
+				//GUI.Box(new Rect(0,0,140*barDisplay,40), fullTex);
+				GUI.DrawTexture(new Rect(0,0,140*barDisplay,40), fullTex);//, ScaleMode.ScaleToFit, true, 10.0F);
 			GUI.EndGroup();
 		GUI.EndGroup();
         //GUI.Box(new Rect((Screen.width - 200), 10, 150, 100), timer + "s left.");

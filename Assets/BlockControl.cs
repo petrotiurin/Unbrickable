@@ -488,7 +488,7 @@ public class BlockControl : MonoBehaviour {
 				
 				
 				child.renderer.material = new Material(Shader.Find("Transparent/Diffuse"));
-		        child.renderer.material.color =  new Color(0.2F, 0.3F, 0.4F, 0.5F);;
+		        child.renderer.material.color =  new Color(0.2F, 0.3F, 0.4F, 0.5F);
 				
 
 				//child.renderer.material.color = Color.green;
