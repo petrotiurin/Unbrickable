@@ -29,6 +29,10 @@ public class Board : MonoBehaviour {
     Color black_color = new Color(0,0,0);
     //end timer progress bar
 
+    //start display 2D images.
+    public Texture2D[] lego;
+    public int[] legoSuggestions;
+
 	private bool[,,] boardArray;
 	
 	//for rotating the board
@@ -87,6 +91,15 @@ public class Board : MonoBehaviour {
 
 		//emptyTex.SetPixel(0,0,white_color);
 		emptyTex.Apply();
+
+		lego = new Texture2D[4]; //hardcoded =(
+
+		lego[0] = Resources.Load("L2x1") as Texture2D;
+		lego[1] = Resources.Load("L2x2") as Texture2D;
+		lego[2] = Resources.Load("L3x2") as Texture2D;
+		lego[3] = Resources.Load("L4x2") as Texture2D;
+
+		legoSuggestions = new int[3]; //hard coded =(
 		
 		//creating the bounding walls in the array
 		for(int i=0; i< ny;i++){
@@ -334,11 +347,6 @@ public class Board : MonoBehaviour {
                 Debug.Log("Timer = " + timer);
                 timer = timeGap - timer;
                 barDisplay = 1 - timediff * 1.0f/timeGap;//0.1f;
-
-                /*
-	            GUI.DrawTexture(Rect(50, 100, 150, 100), Texture2D);
-	            GUI.DrawTexture(Rect(50, 100, 150, 100), Texture2D);
-	            */
             }
         }else{
                 timer = 0;
@@ -359,9 +367,6 @@ public class Board : MonoBehaviour {
         //GUI.Box(new Rect((Screen.width - 200), 10, 150, 100), timer + "s left.");
         
         // The next bit of the code deals with piece suggestions and displaying them.
-        /* DEVELOPMENT: Currently (as of 03/04/14), the boxes are empty and
-        ** the pieces are being suggested on the side. - Aankhi
-        */
         if(pieceSuggestor){
             Debug.Log("Piece suggestions...");
            	//This is where piece suggestions will be made to display them
@@ -371,12 +376,15 @@ public class Board : MonoBehaviour {
 			showPieceScript = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
 			showPieceScript.SuggestLegoPiece();
 
+			legoSuggestions = showPieceScript.suggestedPieces;
+
+
 			pieceSuggestor = false;
         }
 
-        GUI.Box(new Rect((Screen.width/2 - 250), 10, 150, 100), "Piece 1");
-        GUI.Box(new Rect((Screen.width/2 - 75), 10, 150, 100), "Piece 2");
-        GUI.Box(new Rect((Screen.width/2 + 100), 10, 150, 100), "Piece 3");
+        GUI.Box(new Rect((Screen.width/2 - 250), 10, 150, 100), lego[legoSuggestions[0]]);
+        GUI.Box(new Rect((Screen.width/2 - 75), 10, 150, 100), lego[legoSuggestions[1]]);
+        GUI.Box(new Rect((Screen.width/2 + 100), 10, 150, 100), lego[legoSuggestions[2]]);
     }
 }
 

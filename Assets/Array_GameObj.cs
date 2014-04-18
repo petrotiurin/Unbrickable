@@ -62,7 +62,7 @@ public class Array_GameObj : MonoBehaviour {
 		int suggestedPiece;
 
 		//destroy gameobjects (suggested lego pieces) from the previous run.
-		
+
 		foreach (GameObject piece in legoPieces){
 			Destroy(piece);
 		}
@@ -72,7 +72,8 @@ public class Array_GameObj : MonoBehaviour {
 			//flashPieces(i);
 	        suggestedPiece = Random.Range(0, piecesNum);
 	        Debug.Log("Piece no = " + suggestedPiece);
-			InvokePiece(i, suggestedPiece, position[i]);
+	        suggestedPieces[i] = suggestedPiece;
+			//InvokePiece(i, suggestedPiece, position[i]);
 		}
 	}
 
@@ -82,32 +83,4 @@ public class Array_GameObj : MonoBehaviour {
 		/* Get index of the 2-3 pieces so you know which pieces to combine.
 		*/
 	}
-/*
-	void flashPieces(int pos) {
-		for(int i = 1; i < 500; i++) {
-			for(int j = 0; j < piecesNum; j++) {
-				string prefab = "Assets/Blocks/";
-				switch(j){
-				case 0: prefab+="L2x1"; break;
-				case 1: prefab+="L2x2"; break;
-				case 2: prefab+="L3x2"; break;
-				case 3: prefab+="L4x2"; break;
-				//case 4: prefab+="L6x1"; break;
-				default: throw new System.ArgumentException("Unrecognised piece number.");
-				}
-				prefab += ".prefab";
-				Object obj = Resources.LoadAssetAtPath(prefab, typeof(GameObject));
-				GameObject pieceObject = GameObject.Instantiate(obj) as GameObject;
-				addToShape(transform, pieceObject);
-				pieceObject.transform.LookAt(transform.forward);
-				pieceObject.transform.localPosition = position[pos];
-				pieceObject.transform.localScale = new Vector3(20,20,20);
-				//legoPieces[j] = pieceObject;
-
-				//wait for .2s or so
-				Destroy(pieceObject);
-			}
-		}
-	}
-	*/
 }
