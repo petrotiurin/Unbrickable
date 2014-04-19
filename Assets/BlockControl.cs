@@ -636,8 +636,11 @@ public class BlockControl : MonoBehaviour {
 		
 		pin = 0;
 		
-		globalX = 7;
-		globalZ = 7;			
+		/*globalX = 7;
+		globalZ = 7;	*/
+
+		globalX = (int)((gameBoard.nx - 2)/2 -1);
+		globalZ = (int)((gameBoard.nz - 2)/2 -1);
 		
 		GameObject shapeObj = new GameObject();
 		shapeObj.transform.localPosition = new Vector3(globalX, startHeight, globalZ);

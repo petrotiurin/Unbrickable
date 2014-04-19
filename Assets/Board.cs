@@ -140,6 +140,14 @@ public class Board : MonoBehaviour {
 		Transform t = cube.transform;
 		t.parent = scene.GetComponent<Transform>();
 		cube.transform.Translate(0,-0.4f,0);
+		//-1.5 -1.5
+		Debug.Log(cube.renderer.bounds.min.x + " " + cube.renderer.bounds.min.z);
+		float transx,transz;
+		transx = (float) (-1.5 - cube.renderer.bounds.min.x);
+		transz = (float) (-1.5 - cube.renderer.bounds.min.z);
+		//float transx = (float)Math.Abs(1.5 - Math.Abs(cube.renderer.bounds.min.x));
+		//float transz = (float)Math.Abs(1.5 - Math.Abs(cube.renderer.bounds.min.z));
+		cube.transform.Translate(transx,0,transz);
 		//cube.transform.localPosition = new Vector3(cube.transform.position.x, -0.1f, cube.transform.position.z);
 	}
 	
