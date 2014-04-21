@@ -2,40 +2,55 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Runtime.InteropServices;
+
+
+
 
 public class BlockControl : MonoBehaviour {
 	
 	private GameObject[] blocks;
-	
+	setUpWebcam cam;
 	private GameObject shadow, highlight;
 	private ShadowCollision sh;
 	RotateCamera cameraScript;
 	private int globalX, globalZ;
-	
+	private int timeGap = 0;
 	private int maxPinsX,maxPinsZ;
 	
 	private float boundX,boundZ,boundingBox;
 	
 	private int pass;
 
-	private int timeGap = 0;
-	
 	private bool firstBlock = true;
 
 	private bool waitActive = false;
+	public bool cPPCodeRunning = false;
 	
 	//sample shape, just fo shows
-	private int[,,] shape1 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
-									   	  {{1,1,1},{0,0,0},{0,0,0}},
-									      {{1,1,1},{0,0,0},{0,0,0}}};
+	private int[,,] shape1 = new int[,,] {{{1,1,1},{1,1,0},{1,0,0}},
+									   	  {{0,0,0},{0,0,0},{0,0,0}},
+									      {{0,0,0},{0,0,0},{0,0,0}}};
+	
 	
 	private int[,,] shape2 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
-									      {{1,1,1},{0,0,0},{0,0,0}}};
+									      {{0,0,0},{0,0,0},{0,0,0}}};
 	
+	//[,,]full outer number, middle inner, inside the smallest
 	private int[,,] shape3 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
 									   	  {{1,1,1},{0,0,0},{0,0,0}},
 									      {{1,1,1},{0,0,0},{0,0,0}}};
+
+	//private int[,,] shapeTemp = new int[20,20,20];
+
+	private int[,,] shape4;
+	[DllImport ("make2")]
+	private static extern IntPtr lego();
+
+	[DllImport ("make2")]
+	private static extern int main();
+
 	
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
@@ -55,8 +70,11 @@ public class BlockControl : MonoBehaviour {
 	
 	private GameObject FragmentCube;
 
+	//[DllImport ("make2")]
+	//private static extern IntPtr lego();
+
 	//for moving the shapes need to know the centre of shape
-	private float posX=2,posZ=2;	
+	private float posX,posZ;	
 	private Vector3 centreRotation = new Vector3 (2,1,2);
 	private int currentShapeLength;
 	
@@ -81,11 +99,18 @@ public class BlockControl : MonoBehaviour {
 		}
 		return newShape;
 	}
-	
+
+
+
+
 	// Pre-Initialization.
 	void Awake(){
+		Debug.Log("initialise cam");
+		cam = new setUpWebcam();
+		//cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
+
 		gameBoard = GetComponent<Board>();
 		getBoardValues();
 	}
@@ -96,6 +121,7 @@ public class BlockControl : MonoBehaviour {
 		timer = 1;
 		shapeMove=0;
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
+		getShapeArray();
 	}
 	
 	// Set maximum amount of pins that can fit in each direction.
@@ -103,27 +129,130 @@ public class BlockControl : MonoBehaviour {
 		maxPinsX = gameBoard.nx;
 		maxPinsZ = gameBoard.nz;
 	}
-	
-	public void PivotTo(GameObject o, Vector3 position){
-	    Vector3 offset = o.transform.position - position;
-	 
-	    foreach (Transform child in o.transform)
-	        child.transform.position += offset;
-	 
-	    o.transform.position = position;
+
+	// For testing purposes
+	public int[,,] getShapeArray(){
+		int[,,] shapeTemp = new int[20,20,20];
+		string data = "13.1.11.1.";//13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
+		string[] dA = data.Split('.');
+		for (int i = 0; i < dA.Length - 1; i+=4){
+			int x = Int32.Parse(dA[i]);
+			int y = Int32.Parse(dA[i+1]);
+			int z = Int32.Parse(dA[i+2]);
+			shapeTemp[x,y,z] = Int32.Parse(dA[i+3]);
+		}
+		return transformShape(shapeTemp);
+	}
+
+	// Get the shape from the computer vision stuff and puts in to the shape array
+	public int[,,] getShapeArray(string data){
+		int[,,] shapeTemp = new int[20,20,20];
+		string[] dA = data.Split('.');
+		for (int i = 0; i < dA.Length - 1; i+=4){
+			int x = Int32.Parse(dA[i]);
+			int y = Int32.Parse(dA[i+1]);
+			int z = Int32.Parse(dA[i+2]);
+			shapeTemp[x,y,z] = Int32.Parse(dA[i+3]);
+		}
+		return transformShape(shapeTemp);
+	}
+
+	private int[,,] transformShape(int[,,] shape){
+		int[,,] shape4;
+		int minY = shape.GetLength(0);
+		int maxY = 0;
+		for (int x=0; x < shape.GetLength(0); x++){
+			for (int y=0; y < shape.GetLength(1); y++){
+				for (int z=0; z < shape.GetLength(2); z++){
+					if (shape[x,y,z] != 0){
+						if (y < minY) minY=y;
+						if (y > maxY) maxY=y;
+					}
+				}
+			}
+		}
+		Debug.Log("Minmax: " + (maxY-minY+1));
+		shape4 = new int[20,maxY-minY+1,20];
+		for (int x=0; x < shape.GetLength(0); x++){
+			for (int y=0; y < shape.GetLength(1); y++){
+				for (int z=0; z < shape.GetLength(2); z++){
+					if (shape[x,y,z] != 0){
+						shape4[x,y-minY,z]=shape[x,y,z];				
+					}
+				}
+			}
+		}
+		return shape4;
 	}
 	
-	private void getRotationCentre(int[,,] shape){
-		//go throught each part of the array and search for the 1's, keep count and go throught all of th arrays in the z direction
-		//same for the x direction
-		//count the distance between the starting 1 and the last 1
-		//if a 1 is on the edge and nowhere else in the line, this is potentially the furthest edge
+	//check the pieces that the user uses against the allowed pieces
+	public int checkPieces(int[,,] shape){
+
+		Array_GameObj pieceArray;
+		//access Array_GameObj through this
+		pieceArray = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
+
+		//number of suggested pieces for looping through the suggested pieces
+		int numberOfPieces = pieceArray.noOfSuggestedPieces;
+
+		int yellow=0 , green=0, blue=0, red=0;
+
+		//count the amount of colours from the shape array
+		for (int x=0; x < shape.GetLength(0); x++){
+			for (int y=0; y < shape.GetLength(1); y++){
+				for (int z=0; z < shape.GetLength(2); z++){
+					switch(shape[x,y,z]){
+					case 0:	break;//no block
+					case 1: red++; break;//red
+					case 2: green++; break;//green
+					case 3: blue++; break;//blue
+					case 4: yellow++; break;//yellow maybe CHECK
+					default: throw new System.ArgumentException("Unrecognised colour number."+ shape[x,y,z]);
+					}
+				}
+			}
+		}
+
+		//for the pieces that are suggested
+		int suggestedRed=0,suggestedGreen=0,suggestedBlue=0, suggestedYellow=0;
+		//count the amount of colours from the pieces suggested
+		for(int i=0; i<numberOfPieces;i++){
+			//case number from Array_GameObj so different to the cases above from the shape array
+			switch(pieceArray.suggestedPieces[i]){
+			case 0: suggestedYellow++; break;//yellow
+			case 1: suggestedGreen++; break;//green
+			case 2: suggestedBlue++; break;//blue
+			case 3: suggestedRed++; break;//red
+			}
+		}
+		//amountColour - amount of the certain colour the user has used
+		//suggestedColour - amount of certain colour the computer has used
+		if(!(red==suggestedRed*8 && blue==suggestedBlue*6 && green==suggestedGreen*4 && yellow==suggestedYellow*2)){
+
+			print ("THE USER HAS NOT USED THE CORRECT SHAPES!!!");
+		}
+
+
+		return 0;
+	}
+	
+	/*public void getShapeArray(){
+		List<int[]> list = new List<int[]>();
+		list.Add(new int[]{1,1,1,1});
+		list.Add(new int[]{1,2,1,1});
+		list.Add(new int[]{1,3,1,1});
+		list.Add(new int[]{2,2,1,1});
+		//Debug.Log("hi");
+		foreach (int[] i in list){ // Loop through List with foreach
+			//getting array [x,y,z,c];
+			//shape4[i[0],i[1],i[2]] = i[3];
+		}		
+	}*/
+
+	private void getRotationCentre(int[,,] shape, float halfLength){
 		
-		GameObject active = GameObject.Find("ActiveBlock");
-		
-		double length, width;
-		int[] lengthSize = new int[shape.GetLength(0)];
-		int[] widthSize = new int[shape.GetLength(1)];
+		int[] zSize = new int[shape.GetLength(0)];
+		int[] xSize = new int[shape.GetLength(2)];
 		//to work out the length of the shape.
 		//for the y direction
 		for(int i=0; i<shape.GetLength(1);i++){
@@ -132,70 +261,72 @@ public class BlockControl : MonoBehaviour {
 				//for the x direction
 				for(int k = 0;k<shape.GetLength(0);k++){
 					if(shape[j,i,k] != 0){
-						lengthSize[k] = 1;
-						widthSize[j] = 1;
+						//finds the longest by overwriting the array with a 1
+						zSize[k] = 1;
+						xSize[j] = 1;
 					}
 				}
 			}
 		}
+
 		//to calulate the length of the longest block of 1's
-		int finalLength,startLength = 0,endLength = 0,found1 = 0;
+		int finalZ,startZ = 0,endZ = 0;
+		bool found = false;
 		for(int i=0;i<shape.GetLength(2);i++){
 			//get the start position in the array of the shape
-			if(lengthSize[i] != 1&&found1 == 0){
-				found1 = 1;
-				startLength = i;
+			if(zSize[i] == 1 && !found){
+				found = true;
+				startZ = i;
 			}
-			if(lengthSize[i] == 1){
-				endLength = i;
-			}			
+			if(zSize[i] == 1){
+				endZ = i;
+			}	
 		}
+		
 		//to calculate the width of the longest blocks of 1's
-		int finalWidth,startWidth = 0,endWidth = 0,foundWidth1 = 0;
+		int finalX,startX = 0,endX = 0;
+		found = false;
 		for(int i=0;i<shape.GetLength(1);i++){
 			//get the start position in the array of the shape
-			if(widthSize[i] == 1&&foundWidth1 == 0){
-				foundWidth1 = 1;
-				startWidth = i;
+			if(xSize[i] == 1 && !found){
+				found = true;
+				startX = i;
 			}
-			if(widthSize[i] == 1){
-				endWidth = i;
+			if(xSize[i] == 1){
+				endX = i;
 			}			
 		}
+
 		//calculate the final length from the start 1 to the last 1
-		finalLength = (endLength - startLength) + 1;
-		//gets the centre of the length
-		length = active.transform.position.z + (startLength*pinSize) + ((finalLength * pinSize)/2);
+		finalZ = (endZ - startZ) + 1;
+		
 		//calculate the final width from the start 1 to the last 1
-		finalWidth = (endWidth - startWidth) + 1;
-		//gets the centre of the width
-		width = active.transform.position.x + (startWidth*pinSize) + ((finalWidth * pinSize)/2);
+		finalX = (endX - startX) + 1;
 		
-		/*final length and width = the actual longest lengths
-		  length and width = the centre of gravityin relation to the origin corner*/
+		float centreX,centreZ;
 		
-		//if length and width is the same size then rotate around the center of gravity
-		//else rotate around the nearest corner
-		if(finalLength == finalWidth){
-			posX = active.transform.position.x;
-			posZ = active.transform.position.z;
-		}else{
-			posX = (float)(int)active.transform.position.x;
-			posZ = (float)(int)active.transform.position.z;
+		if(finalZ%2 == finalX%2){
+			//both even or both odd
+			centreX = startX + (startX + endX)/2;
+			centreZ = startZ + (startZ + endZ)/2;
 		}
-		//calculate the bounding box
-		boundX = finalWidth/2;
-		boundZ = finalLength/2;
+		else{
+			//one even side, one odd side - reduce shortest dimension by 1
+			if (finalZ < finalX){
+				centreX = startX + (startX + endX)/2;
+				centreZ = startZ + (startZ + endZ - 1)/2;
+			}
+			else
+			{
+				centreX = startX + (startX + endX - 1)/2;
+				centreZ = startZ + (startZ + endZ)/2;
+			}
+		}
 		
-		
-		//calculate the size of the bounding box
-		if(finalWidth > finalLength)boundingBox=finalWidth*finalWidth;
-		else boundingBox=finalLength*finalLength;
-		
-		//get centre and set the pivot
-		centreRotation = new Vector3 (posX,active.transform.position.y,posZ);
-		PivotTo(active,centreRotation);
+		posX = centreX-halfLength;
+		posZ = centreZ-halfLength;
 	}
+	
 	private bool checkMoveAllowed(){
 		//first, get all block coordinates
 		List<int> xs = new List<int>();
@@ -216,6 +347,7 @@ public class BlockControl : MonoBehaviour {
 		}
 		return true;
 	}
+
 	private bool checkArrayCollisions(){
 		//first, get all block coordinates
 		List<int> xs = new List<int>();
@@ -269,7 +401,7 @@ public class BlockControl : MonoBehaviour {
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
 		}
-
+		gameBoard.checkFullLayers();
 		//show next suggested piece
 		//This piece of code will be moved soon so we can display them
 		// in the boxes - Aankhi.
@@ -285,6 +417,7 @@ public class BlockControl : MonoBehaviour {
 		Destroy(block);
 		Destroy(shadow);
 		createShape();
+
 	}
 	
 	private void printShadow(GameObject shadow){
@@ -292,6 +425,7 @@ public class BlockControl : MonoBehaviour {
 		//List<int> xs = new List<int>();
 		//List<int> ys = new List<int>();
 		//List<int> zs = new List<int>();
+		return;
 		foreach (Transform child in shadow.transform){
 			Debug.Log("" + ((int)Math.Round(child.position.x) + 1) + " : " +
 			((int)Math.Round(child.position.y - 0.38)) + " : " +
@@ -305,7 +439,8 @@ public class BlockControl : MonoBehaviour {
 		Vector3 rotation = Vector3.zero;
 		int hasMoved = 0;
 		int newblock = 0;
-		if (block == null || shadow == null) return;
+
+        if (block == null || shadow == null) return;
 		//This keeps track of how many seconds we wait between two pieces.
 		int x = 10;
 		
@@ -453,6 +588,7 @@ public class BlockControl : MonoBehaviour {
 				posZ += translation.z;
 			}
 		}
+
 		if(hasMoved==1 || newblock==1){
 			Destroy(highlight);
 			highlightLanding();
@@ -481,15 +617,14 @@ public class BlockControl : MonoBehaviour {
 			//copy shadow
 			highlight = Instantiate(shadow, highlightPos, shadow.transform.rotation) as GameObject;
 			highlight.name = "activeHighlight";
+			//highlight.AddComponent<CombineChildren>();
 			
 			foreach (Transform child in highlight.transform){
 				//50% opacity on highlight pins
 				
-				
 				child.renderer.material = new Material(Shader.Find("Transparent/Diffuse"));
 		        child.renderer.material.color =  new Color(0.2F, 0.3F, 0.4F, 0.5F);;
 				
-
 				//child.renderer.material.color = Color.green;
 				child.gameObject.renderer.enabled = true;
 			}
@@ -521,20 +656,14 @@ public class BlockControl : MonoBehaviour {
 	
 	//creates a shape out of array, consisting of 0s and 1s
 	public void createShape(int[,,] shape, int colour){
-		if (shape.GetLength(0) != shape.GetLength(1)){
-			throw new System.Exception("Shape x and y dimensions must match");
+	
+		//while (shape == null);
+		if (shape == null){
+			throw new Exception("shape is null!");
 		}
-		
-		/* Skip one shape at the end of the first layer.
-		 * For demonstration purposes. */
-		/*
-		 * 
-
-		// Wrap-around.
-		if (globalX >= maxPinsX){
-			globalX = 0;
-			globalZ = (globalZ + 3) % maxPinsZ;
-		}*/
+		if (shape.GetLength(0) != shape.GetLength(2)){
+			throw new System.Exception("Shape x and z dimensions must match");
+		}
 		
 		pin = 0;
 		
@@ -542,14 +671,17 @@ public class BlockControl : MonoBehaviour {
 		globalZ = 7;			
 		
 		GameObject shapeObj = new GameObject();
-		shapeObj.transform.localPosition = new Vector3(globalX, startHeight, globalZ);
+		addComponents(shapeObj, shape.GetLength(0));		
 		float halfLength = shape.GetLength(0)/2;
+		getRotationCentre(shape, halfLength);
+		
+		shapeObj.transform.position = new Vector3(globalX + posX, startHeight, globalZ + posZ);
 		
 		for (int x=0; x < shape.GetLength(0); x++){
-			for (int y=0; y < shape.GetLength(0); y++){
-				for (int z=0; z < shape.GetLength(0); z++){
+			for (int y=0; y < shape.GetLength(1); y++){
+				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
-						GameObject currentCube = createPointCube(x-halfLength,y-halfLength,z-halfLength);
+						GameObject currentCube = createPointCube(x-halfLength,y-1.5f,z-halfLength);
 						
 						currentCube.GetComponent<MeshRenderer>();
 						
@@ -567,6 +699,11 @@ public class BlockControl : MonoBehaviour {
 								
 							default : break;
 						}
+						
+						//make pins the same material as block
+						GameObject child = currentCube.transform.Find("pin").gameObject;
+						child.renderer.material = currentCube.renderer.material;
+						
 						addToShape(shapeObj, currentCube);
 						
 					}
@@ -574,24 +711,24 @@ public class BlockControl : MonoBehaviour {
 			}
 		}
 		
-		addComponents(shapeObj, shape.GetLength(0));
 		currentShapeLength = shape.GetLength(0);
+		
+		//Shadow block
 		shadow = Instantiate(shapeObj, shapeObj.transform.position, shapeObj.transform.rotation) as GameObject;
 		shadow.name = "ActiveShadow";
 		foreach (Transform child in shadow.transform){
+			GameObject shadowPin = child.Find("pin").gameObject;
+			Destroy (shadowPin);
 			child.gameObject.renderer.enabled = false;
 			child.gameObject.collider.isTrigger = true;
 		}
-		//addToScene(shadow);
-		addToScene(shapeObj);
-		//Debug.Log(shapeObj.transform.position);
-		//Debug.Log(shapeObj.transform.localPosition);
-		//shapeObj.transform.Translate(0,20,0);
+		
 		GameObject shadowLayer = GameObject.Find("ShadowLayer");
 		Transform t = shadow.transform;
 		t.parent = shadowLayer.GetComponent<Transform>();
-		//change the centre rotation vector for the shape centre
-		getRotationCentre(shape);
+		
+		addToScene(shapeObj);
+		
 		globalX=globalX+3;
 	}
 	
@@ -611,27 +748,18 @@ public class BlockControl : MonoBehaviour {
 		timeGap = gap;
 	}
 
-	// For demonstration purposes.
 	public void createShape(){
-		// Add here shape creation code.
+		shape4 = getShapeArray();
 		
-		// Cycle through these three shapes for now...
-		if(pass%3==0)
-			createShape(shape1, pass);
-		else if(pass%3==1)
-			createShape(shape2, pass);
-		else
-			createShape(shape3, pass);
+		// check required pieces against users pieces
+		checkPieces (shape2);
+		
+		// create shape from lego bricks
+		createShape(shape2, pass);
+		
 
 		pass++;
 	}
-	
-	//TODO: remove this shit
-	/*
-	 * public int getShapeSize(){
-		return shape.GetLength(0);
-	}
-	 */
 	
 	//Makes given cube a child of the current shape
 	private void addToShape(GameObject shape, GameObject cube){
