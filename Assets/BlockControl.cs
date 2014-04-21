@@ -419,15 +419,6 @@ public class BlockControl : MonoBehaviour {
 			}
 		}
 		gameBoard.checkFullLayers();
-		//show next suggested piece
-		//This piece of code will be moved soon so we can display them
-		// in the boxes - Aankhi.
-		/*
-		Array_GameObj showPieceScript;
-		showPieceScript = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
-		showPieceScript.SuggestLegoPiece();
-		*/
-		//-------------------------------------------
 		block.rigidbody.isKinematic = true;
 		shadow.rigidbody.isKinematic = true;
 		//create new shape and destroy the old empty container
