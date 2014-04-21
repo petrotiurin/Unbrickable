@@ -17,6 +17,7 @@ public class BlockControl : MonoBehaviour {
 	private int globalX, globalZ;
 	private int timeGap = 0;
 	private int maxPinsX,maxPinsZ;
+	string legoCode;
 	
 	private float boundX,boundZ,boundingBox;
 	
@@ -350,6 +351,8 @@ public class BlockControl : MonoBehaviour {
     }
 
 
+	
+	
 	private void triggerNextShape(GameObject block){
 		for (int i = 0; i < Math.Pow(currentShapeLength, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
@@ -711,6 +714,20 @@ public class BlockControl : MonoBehaviour {
 		timeGap = gap;
 	}
 
+	IEnumerator Wait2(){
+		gameBoard.pauseGame(Time.realtimeSinceStartup);
+		legoCode = Marshal.PtrToStringAnsi(lego());
+
+		Debug.Log("Wait for " + timeGap + "s");
+		waitActive = true;
+		yield return new WaitForSeconds(3);
+		waitActive = false;
+		Debug.Log("After waiting for " + timeGap + "s");
+		
+			
+			gameBoard.unpauseGame();
+	}
+
 	// For demonstration purposes.
 	public void createShape(){
 		cam.takeSnap();
@@ -719,7 +736,9 @@ public class BlockControl : MonoBehaviour {
 		//comment this out if you havnt got a webcam
 	//	int hello = main ();
 //		print ("main = " + hello);
-		string legoCode = Marshal.PtrToStringAnsi(lego());
+		StartCoroutine(Wait2());
+		//string legoCode = Marshal.PtrToStringAnsi(lego());
+	//	System.Threading.Thread.Sleep(5000);
 		print ("lego code = "+ legoCode);
 		while(legoCode == ""){
 			print ("waiting");
