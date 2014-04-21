@@ -720,15 +720,16 @@ public class BlockControl : MonoBehaviour {
 		// Cycle through these three shapes for now...
 		//if(pass%3==0){
 		cPPCodeRunning = true;
-		//int hello = main ();
-		//print ("main = " + hello);
-//	string legoCode = Marshal.PtrToStringAnsi(lego());
+
+		int hello = main ();
+		print ("main = " + hello);
+	string legoCode = Marshal.PtrToStringAnsi(lego());
 //				System.Threading.Thread.Sleep(3000);
 		cPPCodeRunning = false;
- 		//print ("lego code = "+ legoCode);
-		//	 shape4 = getShapeArray(legoCode);
+ 		print ("lego code = "+ legoCode);
+			 shape4 = getShapeArray(legoCode);
 
-			 shape4 = getShapeArray();
+		//	 shape4 = getShapeArray();
 		//print ( GetString() );
 			//getShapeArray();
 			createShape(shape4, pass);
