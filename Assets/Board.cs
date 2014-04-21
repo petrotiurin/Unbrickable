@@ -24,9 +24,6 @@ public class Board : MonoBehaviour {
     public Vector2 size = new Vector2(150,100);
     public Texture2D emptyTex;
     public Texture2D fullTex;// = new Texture2D(1,1);
-    Color red_color = new Color(0.3f,0,0);
-    Color white_color = new Color(1,1,1);
-    Color black_color = new Color(0,0,0);
     //end timer progress bar
 
     //start display 2D images.
@@ -48,58 +45,15 @@ public class Board : MonoBehaviour {
 	// Initialization.
 	void Awake () {
 		GameObject.Find("Main Camera").AddComponent<AudioListener>();
-		boardArray = new bool[nx,ny,nz];
+        //boardArray keeps track of which positions on the board is occupied.
+        boardArray = new bool[nx,ny,nz];
 		Array.Clear(boardArray, 0, boardArray.Length);
 		blockCtrl = GetComponent<BlockControl>();
 		//pinsPerShape = blockCtrl.getShapeSize();
 		blocksLayer = new GameObject [ny];
 
-		//initialise colour to texture
-		/*for(int i = 0; i < fullTex.height; i++){
-			for(int j = 0; j < fullTex.width; j++) {
-				fullTex.SetPixel(i,j,red_color);
-			}
-		}
-		fullTex.Apply();
-		//end texture colour assignment
-*/
-		fullTex = new Texture2D(1,1);
-		fullTex.SetPixel(0,0,red_color);
-		fullTex.Apply();
-
-		emptyTex = new Texture2D(150,50);
-
-		for(int i = 1; i < emptyTex.width-1; i++){
-			for(int j = 1; j < emptyTex.height-1; j++){
-				emptyTex.SetPixel(i,j,black_color);
-			}
-		}
-
-		for(int i = 0; i < emptyTex.height; i++){
-			for(int j = 0; j < 5; j++)
-				emptyTex.SetPixel(j,i,white_color);
-			for(int j = emptyTex.width-6; j < emptyTex.width; j++)
-				emptyTex.SetPixel(j,i,white_color);
-		}
-
-		for(int i = 0; i < emptyTex.width; i++){
-			for(int j = 0; j < 5; j++)
-				emptyTex.SetPixel(i,j,white_color);
-			for(int j = emptyTex.height-6; j < emptyTex.height; j++)
-				emptyTex.SetPixel(i,j,white_color);
-		}
-
-		//emptyTex.SetPixel(0,0,white_color);
-		emptyTex.Apply();
-
-		lego = new Texture2D[4]; //hardcoded =(
-
-		lego[0] = Resources.Load("L2x1") as Texture2D;
-		lego[1] = Resources.Load("L2x2") as Texture2D;
-		lego[2] = Resources.Load("L3x2") as Texture2D;
-		lego[3] = Resources.Load("L4x2") as Texture2D;
-
-		legoSuggestions = new int[3]; //hard coded =(
+        //initialise textures for the GUI.
+        initTextures();
 		
 		//creating the bounding walls in the array
 		for(int i=0; i< ny;i++){
@@ -126,29 +80,16 @@ public class Board : MonoBehaviour {
 		
 		DrawBoard();
 
+        //add music.
 		audio_source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
 		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
 		layer_clear_sound.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/Triumph.wav", typeof(AudioClip));
 		startMusic("Theme1");
 
+        //start gameplay.
 		blockCtrl.assignTimeGap(timeGap);
 		StartCoroutine(Wait());
-		//blockCtrl.createShape();
 	}
-
-	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
-	**	 before the first shape is triggered.
-	** The game is "paused" -- the shape doesn't descend but you can still
-	**   rotate the board, if you need to see where you'd place the blocks.
-	*/
-	IEnumerator Wait(){
-		pauseGame(0);//Time.realtimeSinceStartup);
-        Debug.Log("Wait for " + timeGap + "s");
-        yield return new WaitForSeconds(timeGap);
-        Debug.Log("After waiting for " + timeGap + "s");
-		unpauseGame();
-		blockCtrl.createShape();
-    }
 	
 	private void startMusic(String track){
 		if (audio_source.isPlaying) audio_source.Stop();
@@ -186,9 +127,12 @@ public class Board : MonoBehaviour {
 		cube.name = "base";
 		
 		// Blocks fall from (0,0) into bottom corner.
+        // Transform the cube into the base.
 		cube.transform.localScale = new Vector3(nx-2, 0.2F, nz-2);
+        // Sets where the blocks fall (somewhat the centre of the base).
 		cube.transform.position = new Vector3(6.0F, -0.1F, 6.0F);
-	
+
+        //Rest done so as to be able to use other features.
 		//set the center to be the pivot
 		centreRotation = new Vector3 ((float)cube.transform.position.x,cube.transform.position.y,(float)cube.transform.position.z);
 		PivotTo(cube,centreRotation);
@@ -209,6 +153,17 @@ public class Board : MonoBehaviour {
 			clearLayer(layer);
 		}
 	}
+
+    /* We currently have a very basic scoring system in which
+        ** the point increases by 10 every time a row is cleared.
+        ** 10 is a rather arbitrary number but gives a bigger sense of
+        ** achievement than getting 1 point after so much effort :P
+        ** TODO: Expand this to add points @ rules. (eg. 2 adjacent red pieces)
+        */
+    void scoring(int flag){
+        if(flag == 0)
+            score += 10;
+    }
 	
 	// Clear the layer (i.e. reset the layer count to 0).
 	public void clearLayer(int y) {
@@ -218,12 +173,9 @@ public class Board : MonoBehaviour {
 		    Destroy(childTransform.gameObject);
 		}
 
-		/* We currently have a very basic scoring system in which
-		** the point increases by 10 every time a row is cleared.
-		** 10 is a rather arbitrary number but gives a bigger sense of
-		** achievement than getting 1 point after so much effort :P
-		*/
-		score += 10;
+		//Handle scoring when layer is being destroyed.
+        scoring(0);
+
 		Destroy(blocksLayer[y]);
 		blocksLayer[y] = null; //probably redundant
 		
@@ -251,8 +203,6 @@ public class Board : MonoBehaviour {
 				boardArray[i,ny-1,j] =false ;
 			}
 		}
-		
-		
 		
 		//float blockSize = blockCtrl.pinSize;
 		
@@ -313,6 +263,19 @@ public class Board : MonoBehaviour {
 	}
 
 
+    /* Creates a gap of x (currently 10 for initial testing purposes) seconds
+    **   before the first shape is triggered.
+    ** This is a special case that occures only before the first time.
+    */
+    IEnumerator Wait(){
+        pauseGame(0);//Time.realtimeSinceStartup);
+        Debug.Log("Wait for " + timeGap + "s");
+        yield return new WaitForSeconds(timeGap);
+        Debug.Log("After waiting for " + timeGap + "s");
+        unpauseGame();
+        blockCtrl.createShape();
+    }
+
 	public void pauseGame(float start){
         if(!countdown){
             starttimer = start;
@@ -322,11 +285,63 @@ public class Board : MonoBehaviour {
         }
     }
 
-    //At 1, the passage of time is at real time.
     public void unpauseGame(){
+   	    //At 1, the passage of time is at real time.
         //Time.timeScale = 1;
         timer = 0;
         countdown = false;
+    }
+
+    //initialise textures to colour the timer and
+    //  display the suggested pieces as 2D textures.
+    void initTextures(){
+        //initialise the colours used.
+        Color red_color = new Color(0.3f,0,0);
+        Color white_color = new Color(1,1,1);
+        Color black_color = new Color(0,0,0);
+
+        //initialise colour for the progress bar.
+        fullTex = new Texture2D(1,1);
+        fullTex.SetPixel(0,0,red_color);
+        fullTex.Apply();
+
+        //colour for the ticker box. Currently black with white border.
+        emptyTex = new Texture2D(150,50);
+
+        //inside of the box
+        for(int i = 1; i < emptyTex.width-1; i++){
+            for(int j = 1; j < emptyTex.height-1; j++){
+                emptyTex.SetPixel(i,j,black_color);
+            }
+        }
+
+        //box's border
+        for(int i = 0; i < emptyTex.height; i++){
+            for(int j = 0; j < 5; j++)
+                emptyTex.SetPixel(j,i,white_color);
+            for(int j = emptyTex.width-6; j < emptyTex.width; j++)
+                emptyTex.SetPixel(j,i,white_color);
+        }
+
+        for(int i = 0; i < emptyTex.width; i++){
+            for(int j = 0; j < 5; j++)
+                emptyTex.SetPixel(i,j,white_color);
+            for(int j = emptyTex.height-6; j < emptyTex.height; j++)
+                emptyTex.SetPixel(i,j,white_color);
+        }
+        emptyTex.Apply();
+
+        //Creates an array to store the 4 images of the lego pieces.
+        //Number of pieces that are suggested and number of total pieces
+        //  are currently hard-coded.
+        lego = new Texture2D[4];
+
+        lego[0] = Resources.Load("L2x1") as Texture2D;
+        lego[1] = Resources.Load("L2x2") as Texture2D;
+        lego[2] = Resources.Load("L3x2") as Texture2D;
+        lego[3] = Resources.Load("L4x2") as Texture2D;
+
+        legoSuggestions = new int[3];
     }
 
     /* The GUI contains of 3 main objects - the score board, the timer and
@@ -372,12 +387,11 @@ public class Board : MonoBehaviour {
            	//This is where piece suggestions will be made to display them
            	//	in the following boxes.
 
-           	Array_GameObj showPieceScript;
+    		Array_GameObj showPieceScript;
 			showPieceScript = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
 			showPieceScript.SuggestLegoPiece();
 
 			legoSuggestions = showPieceScript.suggestedPieces;
-
 
 			pieceSuggestor = false;
         }

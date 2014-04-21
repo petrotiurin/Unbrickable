@@ -103,7 +103,8 @@ public class BlockControl : MonoBehaviour {
 		maxPinsX = gameBoard.nx;
 		maxPinsZ = gameBoard.nz;
 	}
-	
+
+	//used in getRotationCentre()
 	public void PivotTo(GameObject o, Vector3 position){
 	    Vector3 offset = o.transform.position - position;
 	 
@@ -114,7 +115,7 @@ public class BlockControl : MonoBehaviour {
 	}
 	
 	private void getRotationCentre(int[,,] shape){
-		//go throught each part of the array and search for the 1's, keep count and go throught all of th arrays in the z direction
+		//go through each part of the array and search for the 1's, keep count and go throught all of th arrays in the z direction
 		//same for the x direction
 		//count the distance between the starting 1 and the last 1
 		//if a 1 is on the edge and nowhere else in the line, this is potentially the furthest edge
@@ -196,6 +197,7 @@ public class BlockControl : MonoBehaviour {
 		centreRotation = new Vector3 (posX,active.transform.position.y,posZ);
 		PivotTo(active,centreRotation);
 	}
+
 	private bool checkMoveAllowed(){
 		//first, get all block coordinates
 		List<int> xs = new List<int>();
@@ -216,6 +218,7 @@ public class BlockControl : MonoBehaviour {
 		}
 		return true;
 	}
+
 	private bool checkArrayCollisions(){
 		//first, get all block coordinates
 		List<int> xs = new List<int>();
@@ -269,16 +272,6 @@ public class BlockControl : MonoBehaviour {
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
 		}
-
-		//show next suggested piece
-		//This piece of code will be moved soon so we can display them
-		// in the boxes - Aankhi.
-		/*
-		Array_GameObj showPieceScript;
-		showPieceScript = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
-		showPieceScript.SuggestLegoPiece();
-		*/
-		//-------------------------------------------
 		block.rigidbody.isKinematic = true;
 		shadow.rigidbody.isKinematic = true;
 		//create new shape and destroy the old empty container
@@ -322,7 +315,7 @@ public class BlockControl : MonoBehaviour {
 			if (checkMoveAllowed()){
 				block.transform.Translate(0,-1,0);
 			} else {
-				//Pauses game for 10 secs before the next piece is triggered
+				//Pauses game for 10 secs before the next piece is triggered.
 				/* We first check if it's currently waiting or not, as
 				** Update() is called several times in the 10s period.
 				** We don't just wait for a value to be returned after the 10s
@@ -330,8 +323,6 @@ public class BlockControl : MonoBehaviour {
 				*/
 				if(!waitActive)
 					StartCoroutine(Wait(block));
-				/*triggerNextShape(block);
-				block = GameObject.Find("ActiveBlock");*/
 				newblock = 1;
 			}
 		}	
