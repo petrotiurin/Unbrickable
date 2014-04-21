@@ -25,8 +25,7 @@ public class BlockControl : MonoBehaviour {
 	private bool firstBlock = true;
 
 	private bool waitActive = false;
-	public bool cPPCodeRunning = false;
-	
+
 	//sample shape, just fo shows
 	private int[,,] shape1 = new int[,,] {{{1,1,1},{1,1,0},{1,0,0}},
 									   	  {{0,0,0},{0,0,0},{0,0,0}},
@@ -106,7 +105,7 @@ public class BlockControl : MonoBehaviour {
 	void Awake(){
 		Debug.Log("initialise cam");
 		cam = new setUpWebcam();
-		//cam.setUpCams();
+		cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -179,7 +178,7 @@ public class BlockControl : MonoBehaviour {
 			for (int y=0; y < shape.GetLength(1); y++){
 				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
-						shape4[x,maxY+1-y,z]=shape[x,y,z];		
+						shape4[x,maxY-y,z]=shape[x,y,z];		
 					}
 				}
 			}
@@ -712,9 +711,27 @@ public class BlockControl : MonoBehaviour {
 		timeGap = gap;
 	}
 
+	// For demonstration purposes.
 	public void createShape(){
-		shape4 = getShapeArray();
-		createShape(shape2, pass);
+		cam.takeSnap();
+
+
+		//comment this out if you havnt got a webcam
+	//	int hello = main ();
+//		print ("main = " + hello);
+		string legoCode = Marshal.PtrToStringAnsi(lego());
+		print ("lego code = "+ legoCode);
+		while(legoCode == ""){
+			print ("waiting");
+		}
+		shape4 = getShapeArray(legoCode);
+
+
+
+		//comment this out if you have webcams
+		//shape4 = getShapeArray();
+
+		createShape(shape4, pass);
 
 		pass++;
 	}

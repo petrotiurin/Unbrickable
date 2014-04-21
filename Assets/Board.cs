@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections;
 using System;
 using System.Runtime.InteropServices;
-
 public class Board : MonoBehaviour {
 	
 	private GameObject[] blocksLayer;
@@ -12,7 +11,7 @@ public class Board : MonoBehaviour {
 	public int ny = 15;	// height
 	public int nz = 17;	// depth 
 	
-	int timeGap = 0;//10; //default value. Change gap here!
+	int timeGap = 10;//10; //default value. Change gap here!
     int timer = 0;
     int score = 0;
     float starttimer = 0.0f;
