@@ -791,17 +791,16 @@ public class BlockControl : MonoBehaviour {
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
-		//Debug.Log("cam being used");
 		cam.takeSnap();
 
 
-		int hello = main ();
-		print ("main = " + hello);
-		string legoCode = Marshal.PtrToStringAnsi(lego());
-		print ("lego code = "+ legoCode);
-		shape4 = getShapeArray(legoCode);
+	//	int hello = main ();
+	//print ("main = " + hello);
+		//string legoCode = Marshal.PtrToStringAnsi(lego());
+		//print ("lego code = "+ legoCode);
+	//	shape4 = getShapeArray(legoCode);
 
-		//	 shape4 = getShapeArray();
+			 shape4 = getShapeArray();
 
 			createShape(shape4, pass);
 
