@@ -32,9 +32,9 @@ public class BlockControl : MonoBehaviour {
 									   	  {{0,0,0},{0,0,0},{0,0,0}},
 									      {{0,0,0},{0,0,0},{0,0,0}}};
 	
-	private int[,,] shape2 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
-									   	  {{1,1,1},{0,0,0},{0,0,0}},
-									      {{1,1,1},{0,0,0},{0,0,0}}};
+	private int[,,] shape2 = new int[,,] {{{1,1,1},{1,1,1},{0,0,0}},
+									   	  {{1,1,1},{1,1,1},{0,0,0}},
+									      {{1,1,1},{1,1,1},{0,0,0}}};
 	
 	//[,,]full outer number, middle inner, inside the smallest
 	private int[,,] shape3 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
@@ -112,8 +112,6 @@ public class BlockControl : MonoBehaviour {
 
 		gameBoard = GetComponent<Board>();
 		getBoardValues();
-
-	
 	}
 	
 	// Initialization.
@@ -361,6 +359,7 @@ public class BlockControl : MonoBehaviour {
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
 		}
+		gameBoard.checkFullLayers();
 		//show next suggested piece
 		//This piece of code will be moved soon so we can display them
 		// in the boxes - Aankhi.
@@ -637,8 +636,11 @@ public class BlockControl : MonoBehaviour {
 		
 		pin = 0;
 		
-		globalX = 7;
-		globalZ = 7;			
+		/*globalX = 7;
+		globalZ = 7;	*/
+
+		globalX = (int)((gameBoard.nx - 2)/2 -1);
+		globalZ = (int)((gameBoard.nz - 2)/2 -1);
 		
 		GameObject shapeObj = new GameObject();
 		shapeObj.transform.localPosition = new Vector3(globalX, startHeight, globalZ);
@@ -710,7 +712,6 @@ public class BlockControl : MonoBehaviour {
 		timeGap = gap;
 	}
 
-	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
 		//Debug.Log("cam being used");
@@ -741,13 +742,6 @@ public class BlockControl : MonoBehaviour {
 
 		pass++;
 	}
-	
-	//TODO: remove this shit
-	/*
-	 * public int getShapeSize(){
-		return shape.GetLength(0);
-	}
-	 */
 	
 	//Makes given cube a child of the current shape
 	private void addToShape(GameObject shape, GameObject cube){
