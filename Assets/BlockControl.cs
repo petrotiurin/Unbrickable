@@ -17,6 +17,7 @@ public class BlockControl : MonoBehaviour {
 	private int globalX, globalZ;
 	private int timeGap = 0;
 	private int maxPinsX,maxPinsZ;
+	string legoCode;
 	
 	private float boundX,boundZ,boundingBox;
 	
@@ -25,8 +26,7 @@ public class BlockControl : MonoBehaviour {
 	private bool firstBlock = true;
 
 	private bool waitActive = false;
-	public bool cPPCodeRunning = false;
-	
+
 	//sample shape, just fo shows
 	private int[,,] shape1 = new int[,,] {{{1,1,1},{1,1,0},{1,0,0}},
 									   	  {{0,0,0},{0,0,0},{0,0,0}},
@@ -352,6 +352,8 @@ public class BlockControl : MonoBehaviour {
     }
 
 
+	
+	
 	private void triggerNextShape(GameObject block){
 		for (int i = 0; i < Math.Pow(currentShapeLength, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
@@ -716,6 +718,21 @@ public class BlockControl : MonoBehaviour {
 		timeGap = gap;
 	}
 
+	IEnumerator Wait2(){
+		gameBoard.pauseGame(Time.realtimeSinceStartup);
+		legoCode = Marshal.PtrToStringAnsi(lego());
+
+		Debug.Log("Wait for " + timeGap + "s");
+		waitActive = true;
+		yield return new WaitForSeconds(10);
+		waitActive = false;
+		Debug.Log("After waiting for " + timeGap + "s");
+		
+			
+			gameBoard.unpauseGame();
+	}
+
+	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
 		//Debug.Log("cam being used");
