@@ -121,7 +121,7 @@ public class BlockControl : MonoBehaviour {
 		timer = 1;
 		shapeMove=0;
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
-		getShapeArray();
+		//getShapeArray();
 
 	}
 	
@@ -179,7 +179,8 @@ public class BlockControl : MonoBehaviour {
 			for (int y=0; y < shape.GetLength(1); y++){
 				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
-						shape4[x,maxY+1-y,z]=shape[x,y,z];		
+						shape4[x,maxY+1-y,z]=shape[x,y,z];
+						//shape4[x,minY + y,z]=shape[x,y,z];	
 					}
 				}
 			}
@@ -686,7 +687,10 @@ public class BlockControl : MonoBehaviour {
 		//addToScene(shadow);
 		addToScene(shapeObj);
 		//Debug.Log(shapeObj.transform.position);
-		//Debug.Log(shapeObj.transform.localPosition);
+		Debug.Log("Transform local " + shapeObj.transform.localPosition);
+		float displacement = startHeight/10-shapeObj.transform.localPosition.y;
+		shapeObj.transform.Translate(0, displacement,0);
+		shadow.transform.Translate(0, displacement,0);
 		//shapeObj.transform.Translate(0,20,0);
 		GameObject shadowLayer = GameObject.Find("ShadowLayer");
 		Transform t = shadow.transform;
@@ -713,7 +717,7 @@ public class BlockControl : MonoBehaviour {
 	}
 
 	public void createShape(){
-		shape4 = getShapeArray();
+		//shape4 = getShapeArray();
 		createShape(shape2, pass);
 
 		pass++;
