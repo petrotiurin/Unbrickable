@@ -720,7 +720,7 @@ public class BlockControl : MonoBehaviour {
 
 		Debug.Log("Wait for " + timeGap + "s");
 		waitActive = true;
-		yield return new WaitForSeconds(3);
+		yield return new WaitForSeconds(10);
 		waitActive = false;
 		Debug.Log("After waiting for " + timeGap + "s");
 		
@@ -734,14 +734,12 @@ public class BlockControl : MonoBehaviour {
 
 
 		//comment this out if you havnt got a webcam
-	//	int hello = main ();
-//		print ("main = " + hello);
-		StartCoroutine(Wait2());
-		//string legoCode = Marshal.PtrToStringAnsi(lego());
-	//	System.Threading.Thread.Sleep(5000);
+
+		legoCode = Marshal.PtrToStringAnsi(lego());
+		System.Threading.Thread.Sleep(5000);
 		print ("lego code = "+ legoCode);
 		while(legoCode == ""){
-			print ("waiting");
+			Debug.Log("waiting");
 		}
 		shape4 = getShapeArray(legoCode);
 
