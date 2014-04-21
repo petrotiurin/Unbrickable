@@ -179,7 +179,7 @@ public class BlockControl : MonoBehaviour {
 			for (int y=0; y < shape.GetLength(1); y++){
 				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
-						shape4[x,y-minY,z]=shape[x,y,z];				
+						shape4[x,maxY+1-y,z]=shape[x,y,z];		
 					}
 				}
 			}
