@@ -106,7 +106,7 @@ public class BlockControl : MonoBehaviour {
 	void Awake(){
 		Debug.Log("initialise cam");
 		cam = new setUpWebcam();
-		//cam.setUpCams();
+		cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -179,7 +179,7 @@ public class BlockControl : MonoBehaviour {
 			for (int y=0; y < shape.GetLength(1); y++){
 				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
-						shape4[x,maxY+1-y,z]=shape[x,y,z];
+						shape4[x,maxY-y,z]=shape[x,y,z];
 						//shape4[x,minY + y,z]=shape[x,y,z];	
 					}
 				}
@@ -737,29 +737,18 @@ public class BlockControl : MonoBehaviour {
 		// Add here shape creation code.
 		//Debug.Log("cam being used");
 		cam.takeSnap();
-	
-	//	System.Threading.Thread.Sleep(3000);	
-		// Cycle through these three shapes for now...
-		//if(pass%3==0){
-		cPPCodeRunning = true;
+
 
 		int hello = main ();
 		print ("main = " + hello);
-	string legoCode = Marshal.PtrToStringAnsi(lego());
-//				System.Threading.Thread.Sleep(3000);
-		cPPCodeRunning = false;
- 		print ("lego code = "+ legoCode);
-			 shape4 = getShapeArray(legoCode);
+		string legoCode = Marshal.PtrToStringAnsi(lego());
+		print ("lego code = "+ legoCode);
+		shape4 = getShapeArray(legoCode);
 
 		//	 shape4 = getShapeArray();
-		//print ( GetString() );
-			//getShapeArray();
+
 			createShape(shape4, pass);
-		//} else if(pass%3==1){
-		//	createShape(shape2, pass);
-		//} else {
-		//	createShape(shape3, pass);
-		//}
+
 
 		pass++;
 	}
