@@ -25,6 +25,7 @@ public class Array_GameObj : MonoBehaviour {
 		SuggestLegoPiece();
 	}
 	
+
 	//Makes given cube a child of the current shape
 	private void addToShape(Transform shape, GameObject cube){
 		Transform t = cube.transform;

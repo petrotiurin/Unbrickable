@@ -26,15 +26,16 @@ public class BlockControl : MonoBehaviour {
 
 	private bool waitActive = false;
 	public bool cPPCodeRunning = false;
-	
+
+
 	//sample shape, just fo shows
 	private int[,,] shape1 = new int[,,] {{{1,1,1},{1,1,0},{1,0,0}},
 									   	  {{0,0,0},{0,0,0},{0,0,0}},
 									      {{0,0,0},{0,0,0},{0,0,0}}};
 	
-	private int[,,] shape2 = new int[,,] {{{1,1,1},{1,1,1},{0,0,0}},
-									   	  {{1,1,1},{1,1,1},{0,0,0}},
-									      {{1,1,1},{1,1,1},{0,0,0}}};
+	private int[,,] shape2 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
+									   	  {{1,1,1},{0,0,0},{0,0,0}},
+									      {{1,1,1},{0,0,0},{0,0,0}}};
 	
 	//[,,]full outer number, middle inner, inside the smallest
 	private int[,,] shape3 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
@@ -104,12 +105,11 @@ public class BlockControl : MonoBehaviour {
 
 	// Pre-Initialization.
 	void Awake(){
-		Debug.Log("initialise cam");
+		//Debug.Log("initialise cam");
 		cam = new setUpWebcam();
 		//cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
-
 		gameBoard = GetComponent<Board>();
 		getBoardValues();
 	}
@@ -156,7 +156,34 @@ public class BlockControl : MonoBehaviour {
 			int z = Int32.Parse(dA[i+2]);
 			shapeTemp[x,y,z] = Int32.Parse(dA[i+3]);
 		}
+
 		return transformShape(shapeTemp);
+	}
+
+	//check the pieces that the user uses against the allowed pieces
+	public int checkPieces(int[,,] shape){
+
+		Array_GameObj pieceArray;
+		pieceArray = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
+		print("the number in the array is ::::::: "+pieceArray.suggestedPieces[1]);
+		int numberOfPieces = pieceArray.noOfSuggestedPieces;
+		int[] userPieces;
+		int yellow =0 ,green =0,blue =0,red =0;
+
+		for (int x=0; x < shape.GetLength(0); x++){
+			for (int y=0; y < shape.GetLength(1); y++){
+				for (int z=0; z < shape.GetLength(2); z++){
+					switch(shape[x,y,z]){
+					case 1: red++; break;//red
+					case 2: green++; break;//green
+					case 3: blue++; break;//blue
+					//case 4: prefab+="L6x1"; break;//yellow
+					default: throw new System.ArgumentException("Unrecognised colour number.");
+					}
+				}
+			}
+		}
+		return 0;
 	}
 
 	private int[,,] transformShape(int[,,] shape){
@@ -173,7 +200,7 @@ public class BlockControl : MonoBehaviour {
 				}
 			}
 		}
-		Debug.Log("Minmax: " + (maxY-minY+1));
+		//Debug.Log("Minmax: " + (maxY-minY+1));
 		shape4 = new int[20,maxY-minY+1,20];
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(1); y++){
@@ -275,8 +302,6 @@ public class BlockControl : MonoBehaviour {
 		//if length and width is the same size then rotate around the center of gravity
 		//else rotate around the nearest corner
 
-		print ("final length = "+finalLength+"final width = "+finalWidth);
-		print("[X]origin coordinate = "+ active.transform.position.x + "[Z]origin coordinate = "+active.transform.position.z);
 		posX = (float)(int)active.transform.position.x;
 		posZ = (float)(int)active.transform.position.z;
 
@@ -320,8 +345,8 @@ public class BlockControl : MonoBehaviour {
 			if (ys[i] < 0) return true;
 			//Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
 			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
-				Debug.Log("A collision has happened!"+xs[i]+1+":"+ys[i]+":" +zs[i]+1);
-				gameBoard.printArray();
+			//	Debug.Log("A collision has happened!"+xs[i]+1+":"+ys[i]+":" +zs[i]+1);
+				//gameBoard.printArray();
 				return true;
 			}
 		}
@@ -336,14 +361,14 @@ public class BlockControl : MonoBehaviour {
 	*/
 	IEnumerator Wait(GameObject block){
 		gameBoard.pauseGame(Time.realtimeSinceStartup);
-        Debug.Log("Wait for " + timeGap + "s");
+       // Debug.Log("Wait for " + timeGap + "s");
         waitActive = true;
         yield return new WaitForSeconds(timeGap);
         waitActive = false;
-        Debug.Log("After waiting for " + timeGap + "s");
+       // Debug.Log("After waiting for " + timeGap + "s");
 
         if(block == null)
-        	Debug.Log("Block is null :S !!");
+        //	Debug.Log("Block is null :S !!");
 
         triggerNextShape(block);
 		block = GameObject.Find("ActiveBlock");
@@ -385,9 +410,9 @@ public class BlockControl : MonoBehaviour {
 		//List<int> zs = new List<int>();
 		return;
 		foreach (Transform child in shadow.transform){
-			Debug.Log("" + ((int)Math.Round(child.position.x) + 1) + " : " +
-			((int)Math.Round(child.position.y - 0.38)) + " : " +
-			((int)Math.Round(child.position.z) + 1));
+//			Debug.Log("" + ((int)Math.Round(child.position.x) + 1) + " : " +
+//			((int)Math.Round(child.position.y - 0.38)) + " : " +
+//			((int)Math.Round(child.position.z) + 1));
 		};	
 	}
 	// Update is called once per frame.
@@ -532,11 +557,9 @@ public class BlockControl : MonoBehaviour {
 			shadow.transform.Rotate(rotation,Space.Self);
 			shadow.transform.Translate(translation, Space.World);
 			if (checkArrayCollisions()){
-				Debug.Log("Array collision");
-				Debug.Log("shadow");
-				printShadow(shadow);
-				Debug.Log("block");
-				printShadow(block);
+				//Debug.Log("Array collision");
+				//Debug.Log("shadow");
+				//Debug.Log("block");
 				shadow.transform.position = backupPos;
 				shadow.transform.rotation = backupRot;
 			}else{
@@ -622,7 +645,9 @@ public class BlockControl : MonoBehaviour {
 		if (shape.GetLength(0) != shape.GetLength(2)){
 			throw new System.Exception("Shape x and z dimensions must match");
 		}
-		
+
+
+
 		/* Skip one shape at the end of the first layer.
 		 * For demonstration purposes. */
 		/*
@@ -714,6 +739,8 @@ public class BlockControl : MonoBehaviour {
 
 	public void createShape(){
 		shape4 = getShapeArray();
+		checkPieces(shape4);
+
 		createShape(shape2, pass);
 
 		pass++;
