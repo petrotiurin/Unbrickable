@@ -6,7 +6,8 @@ public class Array_GameObj : MonoBehaviour {
 	public GameObject[] legoPieces;
 	public int[] suggestedPieces;
 	
-	public int piecesNum = 5;
+	//total number of pieces to choose from.
+	public int piecesNum = 4;
 	public int noOfSuggestedPieces = 3;
 	
 	//pre-defined position to show pieces on
@@ -14,7 +15,7 @@ public class Array_GameObj : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		
+		piecesNum = 4;
 		legoPieces = new GameObject[noOfSuggestedPieces];
 		suggestedPieces = new int[noOfSuggestedPieces];
 
@@ -62,15 +63,18 @@ public class Array_GameObj : MonoBehaviour {
 		int suggestedPiece;
 
 		//destroy gameobjects (suggested lego pieces) from the previous run.
-		
+
 		foreach (GameObject piece in legoPieces){
 			Destroy(piece);
 		}
 		
 		for (int i = 0; i < noOfSuggestedPieces; i++)
 		{
+			//flashPieces(i);
 	        suggestedPiece = Random.Range(0, piecesNum);
-			InvokePiece(i, suggestedPiece, position[i]);
+	        Debug.Log("Piece no = " + suggestedPiece);
+	        suggestedPieces[i] = suggestedPiece;
+			//InvokePiece(i, suggestedPiece, position[i]);
 		}
 	}
 
