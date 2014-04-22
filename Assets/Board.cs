@@ -31,7 +31,9 @@ public class Board : MonoBehaviour {
 
 
 	private BlockControl blockCtrl;
-	
+
+	private Camera topCam;
+
 	// Initialization.
 	void Awake () {
 		
@@ -66,6 +68,7 @@ public class Board : MonoBehaviour {
 		addToScene(slayer);
 		
 		DrawBoard();
+		createTopCamera();
 
 	//	audio_source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
 //		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
@@ -75,6 +78,15 @@ public class Board : MonoBehaviour {
 		blockCtrl.assignTimeGap(timeGap);
 		StartCoroutine(Wait());
 		//blockCtrl.createShape();
+	}
+
+	private void createTopCamera(){
+		UnityEngine.Object cameraPrefab = Resources.LoadAssetAtPath("Assets/TopCamera.prefab", typeof(Camera));
+		topCam = GameObject.Instantiate(cameraPrefab) as Camera;
+		topCam.transform.position = GameObject.Find("base").transform.position;
+		topCam.transform.Translate(new Vector3(0,ny + 3,0),Space.World);
+		topCam.name = "Top Cam";
+		//topCam.transform.Rotate()
 	}
 
 	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
@@ -289,6 +301,8 @@ public class Board : MonoBehaviour {
     ** the piece suggestions.
     */
     void OnGUI () {
+		Texture t = (Texture)Resources.LoadAssetAtPath("Assets/TopDownView.renderTexture", typeof(Texture));
+		GUI.DrawTexture(new Rect ((Screen.width - 300),(Screen.height - 300),300,300),t);
 
     	// The following line of code displays the current score.
         GUI.Box(new Rect (50,10,150,100), "Score " + score);
