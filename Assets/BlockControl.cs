@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Text;
+using System.IO;  
 using System.Runtime.InteropServices;
 
 
@@ -135,7 +137,7 @@ public class BlockControl : MonoBehaviour {
 	// For testing purposes
 	public int[,,] getShapeArray(){
 		int[,,] shapeTemp = new int[20,20,20];
-		string data = "13.1.11.1.";//13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
+		string data = "10.1.9.2.10.1.10.2.10.2.9.3.10.2.10.3.11.1.9.2.11.1.10.2.11.2.9.3.11.2.10.3.12.2.9.3.12.2.10.3.";//13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
 		string[] dA = data.Split('.');
 		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
@@ -606,7 +608,7 @@ public class BlockControl : MonoBehaviour {
 			}
 		}
 
-		if(hasMoved==1 || newblock==1){
+		if(hasMoved==1 || newblock==0){
 			Destroy(highlight);
 			highlightLanding();
 			hasMoved = 0;
@@ -671,7 +673,7 @@ public class BlockControl : MonoBehaviour {
 	}
 	
 	//creates a shape out of array, consisting of 0s and 1s
-	public void createShape(int[,,] shape, int colour){
+	public void createShape(int[,,] shape){
 	
 		//while (shape == null);
 		if (shape == null){
@@ -683,11 +685,14 @@ public class BlockControl : MonoBehaviour {
 		
 		pin = 0;
 		
-		/*globalX = 7;
-		globalZ = 7;	*/
+		//globalX = 7;
+		//globalZ = 7;	
 
-		globalX = (int)((gameBoard.nx - 2)/2 -1);
-		globalZ = (int)((gameBoard.nz - 2)/2 -1);
+		globalX = (int)((gameBoard.nx - 2)/2);// -1);
+		globalZ = (int)((gameBoard.nz - 2)/2);// -1);
+
+		print ("GLOBAL X = " + globalX + " !!!!!!!!!!!!!!!!!");
+		print ("GLOBAL Z = " + globalZ + " !!!!!!!!!!!!!!!!!");
 		
 		GameObject shapeObj = new GameObject();
 		addComponents(shapeObj, shape.GetLength(0));		
@@ -774,38 +779,80 @@ public class BlockControl : MonoBehaviour {
 		timeGap = gap;
 	}
 
-	IEnumerator Wait2(){
+	IEnumerator Wait2(int seconds){
 		gameBoard.pauseGame(Time.realtimeSinceStartup);
-		legoCode = Marshal.PtrToStringAnsi(lego());
+		//legoCode = Marshal.PtrToStringAnsi(lego());
 
-		Debug.Log("Wait for " + timeGap + "s");
+		Debug.Log("Wait for " + seconds + "s");
 		waitActive = true;
-		yield return new WaitForSeconds(10);
+		yield return new WaitForSeconds(seconds);
 		waitActive = false;
-		Debug.Log("After waiting for " + timeGap + "s");
+		Debug.Log("After waiting for " + seconds + "s");
 		
 			
 			gameBoard.unpauseGame();
 	}
+
+
+
+	private string Load(string fileName)
+	{
+		string line = "";
+		// Handle any problems that might arise when reading the text
+		try
+		{
+		
+			// Create a new StreamReader, tell it which file to read and what encoding the file
+			// was saved as
+			StreamReader theReader = new StreamReader(fileName, Encoding.Default);
+			
+			// Immediately clean up the reader after this block of code is done.
+			// You generally use the "using" statement for potentially memory-intensive objects
+			// instead of relying on garbage collection.
+			// (Do not confuse this with the using directive for namespace at the 
+			// beginning of a class!)
+			using (theReader)
+			{
+				// While there's lines left in the text file, do this:
+					line = theReader.ReadLine();
+					print ("line = " + line);
+					
+
+
+				
+				// Done reading, close the reader and return true to broadcast success    
+				theReader.Close();
+				return line;
+			}
+		}
+		
+		// If anything broke in the try block, we throw an exception with information
+		// on what didn't work
+		catch (Exception e)
+		{
+			Console.WriteLine("{0}\n", e.Message);
+			return line;
+		}
+	}
+
 
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
 		cam.takeSnap();
 
+		// call c++ code
+		int hello = main ();
 
-	//	int hello = main ();
-	//print ("main = " + hello);
-		//string legoCode = Marshal.PtrToStringAnsi(lego());
-		//print ("lego code = "+ legoCode);
-	//	shape4 = getShapeArray(legoCode);
-
-			 shape4 = getShapeArray();
-
-			createShape(shape4, pass);
-
-
-		pass++;
+		StartCoroutine(Wait2(3));
+		string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+			StartCoroutine(Wait2(1));
+		print (legoCode);
+	//	shape4 = getShapeArray(legoCode);    //If your using the webcams to get the shape
+	
+		shape4 = getShapeArray();   //If your using a hardcoded shape
+	
+		createShape(shape4);
 	}
 	
 	//Makes given cube a child of the current shape

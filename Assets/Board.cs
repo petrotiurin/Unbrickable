@@ -300,7 +300,7 @@ public class Board : MonoBehaviour {
             if(timediff < timeGap){
                 //Debug.Log("timediff = " + timediff);
                 timer = (int)timediff;
-                Debug.Log("Timer = " + timer);
+                //Debug.Log("Timer = " + timer);
                 timer = timeGap - timer;
             }
         }else{
