@@ -116,20 +116,6 @@ public class Board : MonoBehaviour {
 		topCam.name = "Top Cam";
 		//topCam.transform.Rotate()
 	}
-
-	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
-	**	 before the first shape is triggered.
-	** The game is "paused" -- the shape doesn't descend but you can still
-	**   rotate the board, if you need to see where you'd place the blocks.
-	*/
-	IEnumerator Wait(){
-		pauseGame(0);//Time.realtimeSinceStartup);
-        Debug.Log("Wait for " + timeGap + "s");
-        yield return new WaitForSeconds(timeGap);
-        Debug.Log("After waiting for " + timeGap + "s");
-		unpauseGame();
-		blockCtrl.createShape();
-    }
 	
 	private void startMusic(String track){
 		if (audio_source.isPlaying) audio_source.Stop();
