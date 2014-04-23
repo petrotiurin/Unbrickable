@@ -845,12 +845,12 @@ public class BlockControl : MonoBehaviour {
 		int hello = main ();
 
 		StartCoroutine(Wait2(3));
-	//	string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+		string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
 		StartCoroutine(Wait2(1));
-//		print (legoCode);
-	//	shape4 = getShapeArray(legoCode);    //If your using the webcams to get the shape
+		print (legoCode);
+		shape4 = getShapeArray(legoCode);    //If your using the webcams to get the shape
 	
-		shape4 = getShapeArray();   //If your using a hardcoded shape
+	//	shape4 = getShapeArray();   //If your using a hardcoded shape
 	
 		createShape(shape4);
 	}
