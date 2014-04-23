@@ -105,8 +105,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		cam = new setUpWebcam();
-		cam.setUpCams();
+		//cam = new setUpWebcam();
+		//cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -135,7 +135,7 @@ public class BlockControl : MonoBehaviour {
 	// For testing purposes
 	public int[,,] getShapeArray(){
 		int[,,] shapeTemp = new int[20,20,20];
-		string data = "13.1.11.1.";//13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
+		string data = "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
 		string[] dA = data.Split('.');
 		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
@@ -158,28 +158,38 @@ public class BlockControl : MonoBehaviour {
 		}
 		return transformShape(shapeTemp);
 	}
-
+	/*
+	 * Gets rid of empty space around the shape box. Inverts the shape.
+	 */
 	private int[,,] transformShape(int[,,] shape){
 		int[,,] shape4;
 		int minY = shape.GetLength(0);
 		int maxY = 0;
+		int minX = shape.GetLength(0);
+		int maxX = 0;
+		int minZ = shape.GetLength(0);
+		int maxZ = 0;
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(1); y++){
 				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
 						if (y < minY) minY=y;
 						if (y > maxY) maxY=y;
+						if (x < minX) minX=x;
+						if (x > maxX) maxX=x;
+						if (x < minZ) minZ=z;
+						if (x > maxZ) maxZ=z;
 					}
 				}
 			}
 		}
 		Debug.Log("Minmax: " + (maxY-minY+1));
-		shape4 = new int[20,maxY-minY+1,20];
+		shape4 = new int[maxX-minX+1,maxY-minY+1,maxZ-minZ+1];
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(1); y++){
 				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
-						shape4[x,maxY-y,z]=shape[x,y,z];
+						shape4[maxX-x,maxY-y,maxZ-z]=shape[x,y,z];
 						//shape4[x,minY + y,z]=shape[x,y,z];	
 					}
 				}
@@ -266,15 +276,15 @@ public class BlockControl : MonoBehaviour {
 
 	private void getRotationCentre(int[,,] shape, float halfLength){
 		
-		int[] zSize = new int[shape.GetLength(0)];
-		int[] xSize = new int[shape.GetLength(2)];
+		int[] zSize = new int[shape.GetLength(2)];
+		int[] xSize = new int[shape.GetLength(0)];
 		//to work out the length of the shape.
 		//for the y direction
 		for(int i=0; i<shape.GetLength(1);i++){
 			//for the z direction
-			for(int j = 0; j<shape.GetLength(2);j++){
+			for(int j = 0; j<shape.GetLength(0);j++){
 				//for the x direction
-				for(int k = 0;k<shape.GetLength(0);k++){
+				for(int k = 0;k<shape.GetLength(2);k++){
 					if(shape[j,i,k] != 0){
 						//finds the longest by overwriting the array with a 1
 						zSize[k] = 1;
@@ -668,9 +678,9 @@ public class BlockControl : MonoBehaviour {
 		if (shape == null){
 			throw new Exception("shape is null!");
 		}
-		if (shape.GetLength(0) != shape.GetLength(2)){
+		/*if (shape.GetLength(0) != shape.GetLength(2)){
 			throw new System.Exception("Shape x and z dimensions must match");
-		}
+		}*/
 		
 		pin = 0;
 		
@@ -782,7 +792,7 @@ public class BlockControl : MonoBehaviour {
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
-		cam.takeSnap();
+		//cam.takeSnap();
 
 
 	//	int hello = main ();
