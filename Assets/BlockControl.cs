@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Text;
+using System.IO;
 using System.Runtime.InteropServices;
 
 
@@ -10,7 +12,7 @@ using System.Runtime.InteropServices;
 public class BlockControl : MonoBehaviour {
 	
 	private GameObject[] blocks;
-	setUpWebcam cam;
+	//setUpWebcam cam;
 	private GameObject shadow, highlight;
 	private ShadowCollision sh;
 	RotateCamera cameraScript;
@@ -105,8 +107,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		cam = new setUpWebcam();
-		cam.setUpCams();
+	//	cam = new setUpWebcam();
+//		cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -662,7 +664,7 @@ public class BlockControl : MonoBehaviour {
 	}
 	
 	//creates a shape out of array, consisting of 0s and 1s
-	public void createShape(int[,,] shape, int colour){
+	public void createShape(int[,,] shape){
 	
 		//while (shape == null);
 		if (shape == null){
@@ -765,39 +767,76 @@ public class BlockControl : MonoBehaviour {
 		timeGap = gap;
 	}
 
-	IEnumerator Wait2(){
+	IEnumerator Wait2(int seconds){
 		gameBoard.pauseGame(Time.realtimeSinceStartup);
-		legoCode = Marshal.PtrToStringAnsi(lego());
-
-		Debug.Log("Wait for " + timeGap + "s");
-		waitActive = true;
-		yield return new WaitForSeconds(10);
-		waitActive = false;
-		Debug.Log("After waiting for " + timeGap + "s");
+		//legoCode = Marshal.PtrToStringAnsi(lego());
 		
-			
-			gameBoard.unpauseGame();
+		Debug.Log("Wait for " + seconds + "s");
+		waitActive = true;
+		yield return new WaitForSeconds(seconds);
+		waitActive = false;
+		Debug.Log("After waiting for " + seconds + "s");
+		
+		
+		gameBoard.unpauseGame();
 	}
+	
+	
+	
+	private string Load(string fileName)
+	{
+		string line = "";
+		// Handle any problems that might arise when reading the text
+		try
+		{
+			
+			// Create a new StreamReader, tell it which file to read and what encoding the file
+			// was saved as
+			StreamReader theReader = new StreamReader(fileName, Encoding.Default);
+			
 
+			using (theReader)
+			{
+				// While there's lines left in the text file, do this:
+				line = theReader.ReadLine();
+				print ("line = " + line);
+
+				
+				// Done reading, close the reader and return true to broadcast success    
+				theReader.Close();
+				return line;
+			}
+		}
+		
+		// If anything broke in the try block, we throw an exception with information
+		// on what didn't work
+		catch (Exception e)
+		{
+			Console.WriteLine("{0}\n", e.Message);
+			return line;
+		}
+	}
+	
+	
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
-		cam.takeSnap();
-
-
-	//	int hello = main ();
-	//print ("main = " + hello);
-		//string legoCode = Marshal.PtrToStringAnsi(lego());
-		//print ("lego code = "+ legoCode);
-	//	shape4 = getShapeArray(legoCode);
-
-			 shape4 = getShapeArray();
-
-			createShape(shape4, pass);
-
-
-		pass++;
+		//cam.takeSnap();
+		
+		// call c++ code
+		//int hello = main ();
+		
+		//StartCoroutine(Wait2(3));
+		//string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+		//StartCoroutine(Wait2(1));
+		//print (legoCode);
+		//shape4 = getShapeArray(legoCode);    //If your using the webcams to get the shape
+		
+			shape4 = getShapeArray();   //If your using a hardcoded shape
+		
+		createShape(shape4);
 	}
+
 	
 	//Makes given cube a child of the current shape
 	private void addToShape(GameObject shape, GameObject cube){
