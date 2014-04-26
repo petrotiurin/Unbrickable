@@ -32,9 +32,7 @@ public class BlockControl : MonoBehaviour {
 									   	  {{0,0,0},{0,0,0},{0,0,0}},
 									      {{0,0,0},{0,0,0},{0,0,0}}};
 	
-	private int[,,] shape2 = new int[,,] {{{1,1,1},{1,1,1},{0,0,0}},
-									   	  {{1,1,1},{1,1,1},{0,0,0}},
-									      {{1,1,1},{1,1,1},{0,0,0}}};
+	private int[,,] shape2 = new int[,,] {{{1,0,0,0},{1,1,0,0},{1,1,1,1}}, {{0,0,0,0},{0,0,0,0},{0,0,0,1}}, {{0,0,0,0},{0,0,0,0},{0,0,0,0}}, {{0,0,0,0},{0,0,0,0},{0,0,0,0}}};
 	
 	//[,,]full outer number, middle inner, inside the smallest
 	private int[,,] shape3 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
@@ -275,76 +273,29 @@ public class BlockControl : MonoBehaviour {
 	}*/
 
 	private void getRotationCentre(int[,,] shape, float halfLength){
-		
-		int[] zSize = new int[shape.GetLength(2)];
-		int[] xSize = new int[shape.GetLength(0)];
-		//to work out the length of the shape.
-		//for the y direction
-		for(int i=0; i<shape.GetLength(1);i++){
-			//for the z direction
-			for(int j = 0; j<shape.GetLength(0);j++){
-				//for the x direction
-				for(int k = 0;k<shape.GetLength(2);k++){
-					if(shape[j,i,k] != 0){
-						//finds the longest by overwriting the array with a 1
-						zSize[k] = 1;
-						xSize[j] = 1;
-					}
-				}
-			}
-		}
 
-		//to calulate the length of the longest block of 1's
-		int finalZ,startZ = 0,endZ = 0;
-		bool found = false;
-		for(int i=0;i<shape.GetLength(2);i++){
-			//get the start position in the array of the shape
-			if(zSize[i] == 1 && !found){
-				found = true;
-				startZ = i;
-			}
-			if(zSize[i] == 1){
-				endZ = i;
-			}	
-		}
-		
-		//to calculate the width of the longest blocks of 1's
-		int finalX,startX = 0,endX = 0;
-		found = false;
-		for(int i=0;i<shape.GetLength(1);i++){
-			//get the start position in the array of the shape
-			if(xSize[i] == 1 && !found){
-				found = true;
-				startX = i;
-			}
-			if(xSize[i] == 1){
-				endX = i;
-			}			
-		}
-
-		//calculate the final length from the start 1 to the last 1
-		finalZ = (endZ - startZ) + 1;
-		
-		//calculate the final width from the start 1 to the last 1
-		finalX = (endX - startX) + 1;
+		float finalX, finalZ;
+		finalX = shape.GetLength(0)-1;
+		finalZ = shape.GetLength(2)-1;
 		
 		float centreX,centreZ;
 		
 		if(finalZ%2 == finalX%2){
 			//both even or both odd
-			centreX = startX + (startX + endX)/2;
-			centreZ = startZ + (startZ + endZ)/2;
+			centreX = finalX/2;
+			centreZ = finalZ/2;
+			print(finalX + "/2=" + centreX);
 		}
 		else{
 			//one even side, one odd side - reduce shortest dimension by 1
 			if (finalZ < finalX){
-				centreX = startX + (startX + endX)/2;
-				centreZ = startZ + (startZ + endZ - 1)/2;
+				centreX = finalX/2;
+				centreZ = (finalZ - 1)/2;
 			}
 			else
 			{
-				centreX = startX + (startX + endX - 1)/2;
-				centreZ = startZ + (startZ + endZ)/2;
+				centreX = (finalX - 1)/2;
+				centreZ = finalZ/2;
 			}
 		}
 		
@@ -358,9 +309,9 @@ public class BlockControl : MonoBehaviour {
 		List<int> ys = new List<int>();
 		List<int> zs = new List<int>();
 		foreach (Transform child in shadow.transform){
-			xs.Add((int)Math.Round(child.position.x) + 1);
+			xs.Add((int)Math.Round(child.position.x + (gameBoard.nx - 17)/2 + 1));
 			ys.Add((int)Math.Round(child.position.y - 0.38));
-			zs.Add((int)Math.Round(child.position.z) + 1);
+			zs.Add((int)Math.Round(child.position.z + (gameBoard.nz - 17)/2 + 1));
 		};
 		for (int i = 0; i < xs.Count; i++){
 			if (ys[i] < 0) return false;
@@ -379,9 +330,9 @@ public class BlockControl : MonoBehaviour {
 		List<int> ys = new List<int>();
 		List<int> zs = new List<int>();
 		foreach (Transform child in shadow.transform){
-			xs.Add((int)Math.Round(child.position.x) + 1);
+			xs.Add((int)Math.Round(child.position.x + (gameBoard.nx - 17)/2 + 1));
 			ys.Add((int)Math.Round(child.position.y - 0.38));
-			zs.Add((int)Math.Round(child.position.z) + 1);
+			zs.Add((int)Math.Round(child.position.z + (gameBoard.nz - 17)/2 + 1));
 		};
 		for (int i = 0; i < xs.Count; i++){
 			if (ys[i] < 0) return true;
@@ -684,12 +635,12 @@ public class BlockControl : MonoBehaviour {
 		
 		pin = 0;
 		
-		/*globalX = 7;
-		globalZ = 7;	*/
+		globalX = 7;
+		globalZ = 7;	
 
-		globalX = (int)((gameBoard.nx - 2)/2 -1);
-		globalZ = (int)((gameBoard.nz - 2)/2 -1);
-		
+		/*globalX = (int)((gameBoard.nx - 2)/2);
+		globalZ = (int)((gameBoard.nz - 2)/2);*/
+		Debug.Log(globalX + " " +globalZ);
 		GameObject shapeObj = new GameObject();
 		addComponents(shapeObj, shape.GetLength(0));		
 		float halfLength = shape.GetLength(0)/2;
@@ -757,6 +708,8 @@ public class BlockControl : MonoBehaviour {
 		addToScene(shapeObj);
 		
 		globalX=globalX+3;
+
+		print (shapeObj.transform.position.x + ":" + shapeObj.transform.position.z);
 	}
 	
 	// Adds necessary components and initialisation to a shape.

@@ -11,8 +11,10 @@ public class Board : MonoBehaviour {
 	public int nx = 17;	// width
 	public int ny = 15;	// height
 	public int nz = 17;	// depth 
-	
-	int timeGap = 10; //default value. Change gap here!
+
+	public float transx,transz;
+
+	int timeGap = 0; //default value. Change gap here!
     int timer = 0;
     int score = 0;
     float starttimer = 0.0f;
@@ -165,16 +167,15 @@ public class Board : MonoBehaviour {
 		GameObject scene = GameObject.Find("Scene");
 		Transform t = cube.transform;
 		t.parent = scene.GetComponent<Transform>();
-		cube.transform.Translate(0,-0.4f,0);
+		//cube.transform.Translate(0,-0.4f,0);
 		//-1.5 -1.5
-		Debug.Log(cube.renderer.bounds.min.x + " " + cube.renderer.bounds.min.z);
-		float transx,transz;
+		/*Debug.Log(cube.renderer.bounds.min.x + " " + cube.renderer.bounds.min.z);
 		transx = (float) (-1.5 - cube.renderer.bounds.min.x);
-		transz = (float) (-1.5 - cube.renderer.bounds.min.z);
+		transz = (float) (-1.5 - cube.renderer.bounds.min.z);*/
 		//float transx = (float)Math.Abs(1.5 - Math.Abs(cube.renderer.bounds.min.x));
 		//float transz = (float)Math.Abs(1.5 - Math.Abs(cube.renderer.bounds.min.z));
-		cube.transform.Translate(transx,0,transz);
-		//cube.transform.localPosition = new Vector3(cube.transform.position.x, -0.1f, cube.transform.position.z);
+		//cube.transform.Translate(transx,0,transz);
+		//cube.transform.localPosition = new Vector3(cube.transform.localPosition.x, -0.1f, cube.transform.localPosition.z);
 	}
 	
 	// Add a pin object to its respective layer.
@@ -272,8 +273,8 @@ public class Board : MonoBehaviour {
 	private void addBlocks(int layer, GameObject cube){
 		cube.name = "Block";
 	    cube.transform.parent = blocksLayer[layer].transform;
-		int x = (int)Math.Round(cube.transform.position.x) + 2;
-		int z = (int)Math.Round(cube.transform.position.z) + 2;
+		int x = (int)Math.Round(cube.transform.position.x + (nx - 17)/2) + 2;
+		int z = (int)Math.Round(cube.transform.position.z + (nz - 17)/2) + 2;
 		boardArray[x,layer,z] = true;
 		//Debug.Log(x+" "+layer+" "+z);
 	}
