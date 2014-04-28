@@ -14,10 +14,12 @@ public class RotateCamera : MonoBehaviour
 	private int maxUpAngle = 40;
 	private int maxDownAngle = -20;
 	private BlockControl blockCtrl;
+	private GameObject topCam;
 	
 	//Initialise starting values and find the base of the gameboard
 	void Start ()
 	{
+		topCam = GameObject.Find("Top Cam");
 //		Debug.Log("hi");
 		rotRight = false;
 		target = GameObject.Find("base");
@@ -69,8 +71,10 @@ public class RotateCamera : MonoBehaviour
 					if (XrotToGo < rot) rot = XrotToGo;
 					if(rotRight){
 						transform.RotateAround( target.transform.position, Vector3.down, rot);
+						topCam.transform.RotateAround( topCam.transform.position, Vector3.down, rot);
 					} else {
 						transform.RotateAround( target.transform.position, Vector3.up, rot);
+						topCam.transform.RotateAround( topCam.transform.position, Vector3.up, rot);
 					}
 					XrotToGo -= rot;
 				}
