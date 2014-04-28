@@ -243,8 +243,6 @@ public class Board : MonoBehaviour {
 			}
 		}
 		
-		
-		
 		//float blockSize = blockCtrl.pinSize;
 		
 		//for moving the rest of the board down

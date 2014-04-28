@@ -77,7 +77,6 @@ public class BlockControl : MonoBehaviour {
 	//for moving the shapes need to know the centre of shape
 	private float posX,posZ;	
 	private Vector3 centreRotation = new Vector3 (2,1,2);
-	private int currentShapeLength;
 	
 	//rotate the shape array
 	int[,,] rotateShape(int[,,] shape, bool clockwise){
@@ -376,7 +375,7 @@ public class BlockControl : MonoBehaviour {
 	
 	
 	private void triggerNextShape(GameObject block){
-		for (int i = 0; i < Math.Pow(currentShapeLength, 3); i++){
+		for (int i = 0; i < Math.Pow(gameBoard.nx, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
 			if (childTransform != null){
 				int layer = (int)Math.Round(childTransform.position.y - 0.38);
@@ -683,8 +682,6 @@ public class BlockControl : MonoBehaviour {
 				}
 			}
 		}
-		
-		currentShapeLength = shape.GetLength(0);
 		
 		//Shadow block
 		shadow = Instantiate(shapeObj, shapeObj.transform.position, shapeObj.transform.rotation) as GameObject;
