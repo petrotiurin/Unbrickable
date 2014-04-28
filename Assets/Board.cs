@@ -14,7 +14,7 @@ public class Board : MonoBehaviour {
 
 	public float transx,transz;
 
-	int timeGap = 0; //default value. Change gap here!
+	int timeGap = 10; //default value. Change gap here!
     int timer = 0;
     int score = 0;
     float starttimer = 0.0f;
@@ -114,7 +114,10 @@ public class Board : MonoBehaviour {
 		UnityEngine.Object cameraPrefab = Resources.LoadAssetAtPath("Assets/TopCamera.prefab", typeof(Camera));
 		topCam = GameObject.Instantiate(cameraPrefab) as Camera;
 		topCam.transform.position = GameObject.Find("base").transform.position;
-		topCam.transform.Translate(new Vector3(0,ny + 3,0),Space.World);
+		float camHeight;
+		if ((nx+nz)/2 > ny + 3) camHeight = (nx+nz)/2;
+		else camHeight = ny + 3;
+		topCam.transform.Translate(new Vector3(0,camHeight,0),Space.World);
 		topCam.name = "Top Cam";
 		//topCam.transform.Rotate()
 	}
@@ -154,12 +157,9 @@ public class Board : MonoBehaviour {
 				UnityEngine.Object blockPrefab = Resources.LoadAssetAtPath("Assets/block.prefab", typeof(GameObject));
 				GameObject cube = GameObject.Instantiate(blockPrefab) as GameObject;
 				
-				cube.transform.position = new Vector3(1.55f + x - halfLength,
-													  -0.55f,
-					  								  1.55f + z - halfLength);
-				
-				if (nx%2 == 0)
-					cube.transform.Translate(-0.5f, 0.0f, -0.5f);
+				cube.transform.position = new Vector3(1.5f + x - halfLength,
+													  -0.45f,
+					  								  1.5f + z - halfLength);
 				
 				Transform cubeTrans = cube.transform;
 				
@@ -169,7 +169,7 @@ public class Board : MonoBehaviour {
 		
 		
 		
-		legoBase.transform.position = new Vector3(6.0F, -0.1F, 6.0F);
+		legoBase.transform.position = new Vector3(6.0F, 0.0F, 6.0F);
 		legoBase.AddComponent<CombineChildren>();
 		
 		foreach (Transform child in legoBase.transform){
@@ -187,6 +187,7 @@ public class Board : MonoBehaviour {
 		GameObject scene = GameObject.Find("Scene");
 		Transform t = legoBase.transform;
 		t.parent = scene.GetComponent<Transform>();
+		if (nx%2 == 0) legoBase.transform.Translate(-0.5f,0.0f,-0.5f,Space.World);
 		//cube.transform.Translate(0,-0.4f,0);
 		//-1.5 -1.5
 		/*Debug.Log(cube.renderer.bounds.min.x + " " + cube.renderer.bounds.min.z);
@@ -263,8 +264,6 @@ public class Board : MonoBehaviour {
 			}
 		}
 		
-		
-		
 		//float blockSize = blockCtrl.pinSize;
 		
 		//for moving the rest of the board down
@@ -300,7 +299,7 @@ public class Board : MonoBehaviour {
 	}
 	
 	public bool checkPosition(int x, int y, int z){
-		if (y < 15)	return boardArray[x,y,z];
+		if (y < ny)	return boardArray[x,y,z];
 		return false;
 	}
 	
@@ -411,7 +410,7 @@ public class Board : MonoBehaviour {
             if(timediff < timeGap){
                 //Debug.Log("timediff = " + timediff);
                 timer = (int)timediff;
-                Debug.Log("Timer = " + timer);
+                //Debug.Log("Timer = " + timer);
                 timer = timeGap - timer;
                 barDisplay = 1 - timediff * 1.0f/timeGap;//0.1f;
             }
