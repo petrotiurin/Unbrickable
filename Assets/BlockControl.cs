@@ -106,7 +106,7 @@ public class BlockControl : MonoBehaviour {
 
 	// Pre-Initialization.
 	void Awake(){
-		Debug.Log("initialise cam");
+		//Debug.Log("initialise cam");
 		//cam = new setUpWebcam();
 		//cam.setUpCams();
 		globalX = 0;
@@ -137,7 +137,7 @@ public class BlockControl : MonoBehaviour {
 	// For testing purposes
 	public int[,,] getShapeArray(){
 		int[,,] shapeTemp = new int[20,20,20];
-		string data = "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
+		string data = "9.0.7.2.9.0.6.2.9.0.5.2.9.0.4.2.9.0.3.2.9.0.8.2.9.0.9.2.9.1.7.1.9.1.8.1.9.1.9.1.9.1.10.1.9.2.7.1.9.2.8.1.9.2.9.1.9.2.10.1.10.0.8.2.10.0.9.2.10.1.7.1.10.1.8.1.10.1.9.1.10.1.10.1.10.2.7.1.10.2.8.1.10.2.9.1.10.2.10.1.";
 		string[] dA = data.Split('.');
 		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
@@ -179,13 +179,13 @@ public class BlockControl : MonoBehaviour {
 						if (y > maxY) maxY=y;
 						if (x < minX) minX=x;
 						if (x > maxX) maxX=x;
-						if (x < minZ) minZ=z;
-						if (x > maxZ) maxZ=z;
+						if (z < minZ) minZ=z;
+						if (z > maxZ) maxZ=z;
 					}
 				}
 			}
 		}
-		Debug.Log("Minmax: " + (maxY-minY+1));
+		//Debug.Log("Minmax: " + (maxY-minY+1));
 		shape4 = new int[maxX-minX+1,maxY-minY+1,maxZ-minZ+1];
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(1); y++){
@@ -276,7 +276,7 @@ public class BlockControl : MonoBehaviour {
 		}		
 	}*/
 
-	private void getRotationCentre(int[,,] shape, float halfLength){
+	private void getRotationCentre(int[,,] shape, float halfLengthX, float halfLengthZ){
 
 		float finalX, finalZ;
 		finalX = shape.GetLength(0)-1;
@@ -303,8 +303,8 @@ public class BlockControl : MonoBehaviour {
 			}
 		}
 		
-		posX = centreX-halfLength;
-		posZ = centreZ-halfLength;
+		posX = centreX-halfLengthX;
+		posZ = centreZ-halfLengthZ;
 	}
 	
 	private bool checkMoveAllowed(){
@@ -342,8 +342,8 @@ public class BlockControl : MonoBehaviour {
 			if (ys[i] < 0) return true;
 			//Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
 			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
-				Debug.Log("A collision has happened!"+xs[i]+1+":"+ys[i]+":" +zs[i]+1);
-				gameBoard.printArray();
+				//Debug.Log("A collision has happened!"+xs[i]+1+":"+ys[i]+":" +zs[i]+1);
+				//gameBoard.printArray();
 				return true;
 			}
 		}
@@ -547,10 +547,7 @@ public class BlockControl : MonoBehaviour {
 			shadow.transform.Rotate(rotation,Space.Self);
 			shadow.transform.Translate(translation, Space.World);
 			if (checkArrayCollisions()){
-				Debug.Log("Array collision");
-				Debug.Log("shadow");
 				printShadow(shadow);
-				Debug.Log("block");
 				printShadow(block);
 				shadow.transform.position = backupPos;
 				shadow.transform.rotation = backupRot;
@@ -644,11 +641,12 @@ public class BlockControl : MonoBehaviour {
 
 		/*globalX = (int)((gameBoard.nx - 2)/2);
 		globalZ = (int)((gameBoard.nz - 2)/2);*/
-		Debug.Log(globalX + " " +globalZ);
+		//Debug.Log(globalX + " " +globalZ);
 		GameObject shapeObj = new GameObject();
 		addComponents(shapeObj, shape.GetLength(0));		
-		float halfLength = shape.GetLength(0)/2;
-		getRotationCentre(shape, halfLength);
+		float halfLengthX = shape.GetLength(0)/2;	
+		float halfLengthZ = shape.GetLength(2)/2;
+		getRotationCentre(shape, halfLengthX, halfLengthZ);
 		
 		shapeObj.transform.position = new Vector3(globalX + posX, startHeight, globalZ + posZ);
 		
@@ -656,7 +654,7 @@ public class BlockControl : MonoBehaviour {
 			for (int y=0; y < shape.GetLength(1); y++){
 				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
-						GameObject currentCube = createPointCube(x-halfLength,y-1.5f,z-halfLength);
+						GameObject currentCube = createPointCube(x-halfLengthX,y-1.5f,z-halfLengthZ);
 						
 						currentCube.GetComponent<MeshRenderer>();
 						
@@ -699,8 +697,6 @@ public class BlockControl : MonoBehaviour {
 		}
 		//addToScene(shadow);
 		addToScene(shapeObj);
-		//Debug.Log(shapeObj.transform.position);
-		Debug.Log("Transform local " + shapeObj.transform.localPosition);
 		float displacement = startHeight/10-shapeObj.transform.localPosition.y;
 		shapeObj.transform.Translate(0, displacement,0);
 		shadow.transform.Translate(0, displacement,0);
