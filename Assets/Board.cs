@@ -14,7 +14,7 @@ public class Board : MonoBehaviour {
 
 	public float transx,transz;
 
-	int timeGap = 0; //default value. Change gap here!
+	int timeGap = 10; //default value. Change gap here!
     int timer = 0;
     int score = 0;
     float starttimer = 0.0f;
@@ -114,7 +114,10 @@ public class Board : MonoBehaviour {
 		UnityEngine.Object cameraPrefab = Resources.LoadAssetAtPath("Assets/TopCamera.prefab", typeof(Camera));
 		topCam = GameObject.Instantiate(cameraPrefab) as Camera;
 		topCam.transform.position = GameObject.Find("base").transform.position;
-		topCam.transform.Translate(new Vector3(0,blockCtrl.startHeight + 5,0),Space.World);
+		float camHeight;
+		if ((nx+nz)/2 > ny + 3) camHeight = (nx+nz)/2;
+		else camHeight = ny + 3;
+		topCam.transform.Translate(new Vector3(0,camHeight,0),Space.World);
 		topCam.name = "Top Cam";
 		//topCam.transform.Rotate()
 	}

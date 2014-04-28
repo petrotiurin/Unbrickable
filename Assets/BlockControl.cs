@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 public class BlockControl : MonoBehaviour {
 	
 	private GameObject[] blocks;
-	//setUpWebcam cam;
+	setUpWebcam cam;
 	private GameObject shadow, highlight;
 	private ShadowCollision sh;
 	RotateCamera cameraScript;
@@ -26,8 +26,9 @@ public class BlockControl : MonoBehaviour {
 	private int pass;
 
 	private bool firstBlock = true;
-
+	private int xTime;
 	private bool waitActive = false;
+	private bool shapeFalling = false;
 
 	//sample shape, just fo shows
 	private int[,,] shape1 = new int[,,] {{{1,1,1},{1,1,0},{1,0,0}},
@@ -105,9 +106,9 @@ public class BlockControl : MonoBehaviour {
 
 	// Pre-Initialization.
 	void Awake(){
-		//Debug.Log("initialise cam");
-		//cam = new setUpWebcam();
-		//cam.setUpCams();
+		Debug.Log("initialise cam");
+		cam = new setUpWebcam();
+		cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -136,7 +137,7 @@ public class BlockControl : MonoBehaviour {
 	// For testing purposes
 	public int[,,] getShapeArray(){
 		int[,,] shapeTemp = new int[20,20,20];
-		string data = "9.0.7.2.9.0.6.2.9.0.5.2.9.0.4.2.9.0.3.2.9.0.8.2.9.0.9.2.9.1.7.1.9.1.8.1.9.1.9.1.9.1.10.1.9.2.7.1.9.2.8.1.9.2.9.1.9.2.10.1.10.0.8.2.10.0.9.2.10.1.7.1.10.1.8.1.10.1.9.1.10.1.10.1.10.2.7.1.10.2.8.1.10.2.9.1.10.2.10.1.";
+		string data =  "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
 		string[] dA = data.Split('.');
 		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
@@ -164,11 +165,11 @@ public class BlockControl : MonoBehaviour {
 	 */
 	private int[,,] transformShape(int[,,] shape){
 		int[,,] shape4;
-		int minY = shape.GetLength(0);
+		int minY = shape.GetLength(1);
 		int maxY = 0;
 		int minX = shape.GetLength(0);
 		int maxX = 0;
-		int minZ = shape.GetLength(0);
+		int minZ = shape.GetLength(2);
 		int maxZ = 0;
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(1); y++){
@@ -357,15 +358,26 @@ public class BlockControl : MonoBehaviour {
 	*/
 	IEnumerator Wait(GameObject block){
 		gameBoard.pauseGame(Time.realtimeSinceStartup);
-        Debug.Log("Wait for " + timeGap + "s");
+        Debug.Log("Wait for " + 1 + "s");
         waitActive = true;
-        yield return new WaitForSeconds(timeGap);
+
+		xTime = 0;
+		Debug.Log ("wejkjlfd");
+		while (xTime < 1000){
+			Debug.Log ("xTime = " + xTime);
+        		yield return new WaitForSeconds(0.01f);
+
+			xTime++;
+		}
+
         waitActive = false;
         Debug.Log("After waiting for " + timeGap + "s");
+		shapeFalling = false;
 
         if(block == null)
         	Debug.Log("Block is null :S !!");
 
+		//GAME OVER
         triggerNextShape(block);
 		block = GameObject.Find("ActiveBlock");
 		gameBoard.unpauseGame();
@@ -440,7 +452,14 @@ public class BlockControl : MonoBehaviour {
 				block = GameObject.Find("ActiveBlock");*/
 				newblock = 1;
 			}
-		}	
+		}
+
+		if(Input.GetKeyDown("return")){
+			shapeFalling = true;
+			xTime = 999999999;
+			Debug.Log ("ENTER");
+
+		}
 		
 		//ROTATE right
 		if (Input.GetKeyDown("v")){		
@@ -546,8 +565,11 @@ public class BlockControl : MonoBehaviour {
 			shadow.transform.Rotate(rotation,Space.Self);
 			shadow.transform.Translate(translation, Space.World);
 			if (checkArrayCollisions()){
-				printShadow(shadow);
-				printShadow(block);
+			//	Debug.Log("Array collision");
+			//	Debug.Log("shadow");
+			//	printShadow(shadow);
+			//	Debug.Log("block");
+			//	printShadow(block);
 				shadow.transform.position = backupPos;
 				shadow.transform.rotation = backupRot;
 			}else{
@@ -727,11 +749,11 @@ public class BlockControl : MonoBehaviour {
 		gameBoard.pauseGame(Time.realtimeSinceStartup);
 		//legoCode = Marshal.PtrToStringAnsi(lego());
 		
-		Debug.Log("Wait for " + seconds + "s");
+	//	Debug.Log("Wait for " + seconds + "s");
 		waitActive = true;
 		yield return new WaitForSeconds(seconds);
 		waitActive = false;
-		Debug.Log("After waiting for " + seconds + "s");
+		//Debug.Log("After waiting for " + seconds + "s");
 		
 		
 		gameBoard.unpauseGame();
@@ -777,18 +799,18 @@ public class BlockControl : MonoBehaviour {
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
-		//cam.takeSnap();
+		cam.takeSnap();
 		
 		// call c++ code
-		//int hello = main ();
+		int hello = main ();
 		
-		//StartCoroutine(Wait2(3));
-		//string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
-		//StartCoroutine(Wait2(1));
-		//print (legoCode);
-		//shape4 = getShapeArray(legoCode);    //If your using the webcams to get the shape
+		StartCoroutine(Wait2(3));
+		string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+		StartCoroutine(Wait2(1));
+		print (legoCode);
+		shape4 = getShapeArray(legoCode);    //If your using the webcams to get the shape
 		
-			shape4 = getShapeArray();   //If your using a hardcoded shape
+		//	shape4 = getShapeArray();   //If your using a hardcoded shape
 		
 		createShape(shape4);
 	}
