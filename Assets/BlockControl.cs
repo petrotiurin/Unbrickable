@@ -2,15 +2,14 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Text;
+using System.IO;
 using System.Runtime.InteropServices;
-
-
-
 
 public class BlockControl : MonoBehaviour {
 	
 	private GameObject[] blocks;
-	setUpWebcam cam;
+	//setUpWebcam cam;
 	private GameObject shadow, highlight;
 	private ShadowCollision sh;
 	RotateCamera cameraScript;
@@ -26,7 +25,7 @@ public class BlockControl : MonoBehaviour {
 	private bool firstBlock = true;
 
 	private bool waitActive = false;
-
+	
 	public bool gameOver = false;
 
 	//sample shape, just fo shows
@@ -57,7 +56,7 @@ public class BlockControl : MonoBehaviour {
 	 * that makes a building block of a shape. */
 	public float pinSize = 1.0f;
 	
-	Board gameBoard;
+	public Board gameBoard;
 
 	GameOver gOver;
 	
@@ -123,7 +122,7 @@ public class BlockControl : MonoBehaviour {
 	// Initialization.
 	void Start () {
 
-		pass = 0;	
+		pass = 0;
 		timer = 1;
 		shapeMove=0;
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
@@ -141,7 +140,7 @@ public class BlockControl : MonoBehaviour {
 	// For testing purposes
 	public int[,,] getShapeArray(){
 		int[,,] shapeTemp = new int[20,20,20];
-		string data = "13.1.11.1.";//13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
+		string data = "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
 		string[] dA = data.Split('.');
 		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
@@ -164,28 +163,38 @@ public class BlockControl : MonoBehaviour {
 		}
 		return transformShape(shapeTemp);
 	}
-
+	/*
+	 * Gets rid of empty space around the shape box. Inverts the shape.
+	 */
 	private int[,,] transformShape(int[,,] shape){
 		int[,,] shape4;
 		int minY = shape.GetLength(0);
 		int maxY = 0;
+		int minX = shape.GetLength(0);
+		int maxX = 0;
+		int minZ = shape.GetLength(0);
+		int maxZ = 0;
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(1); y++){
 				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
 						if (y < minY) minY=y;
 						if (y > maxY) maxY=y;
+						if (x < minX) minX=x;
+						if (x > maxX) maxX=x;
+						if (x < minZ) minZ=z;
+						if (x > maxZ) maxZ=z;
 					}
 				}
 			}
 		}
 		Debug.Log("Minmax: " + (maxY-minY+1));
-		shape4 = new int[20,maxY-minY+1,20];
+		shape4 = new int[maxX-minX+1,maxY-minY+1,maxZ-minZ+1];
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(1); y++){
 				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
-						shape4[x,maxY-y,z]=shape[x,y,z];
+						shape4[maxX-x,maxY-y,maxZ-z]=shape[x,y,z];
 						//shape4[x,minY + y,z]=shape[x,y,z];	
 					}
 				}
@@ -271,76 +280,29 @@ public class BlockControl : MonoBehaviour {
 	}*/
 
 	private void getRotationCentre(int[,,] shape, float halfLength){
-		
-		int[] zSize = new int[shape.GetLength(0)];
-		int[] xSize = new int[shape.GetLength(2)];
-		//to work out the length of the shape.
-		//for the y direction
-		for(int i=0; i<shape.GetLength(1);i++){
-			//for the z direction
-			for(int j = 0; j<shape.GetLength(2);j++){
-				//for the x direction
-				for(int k = 0;k<shape.GetLength(0);k++){
-					if(shape[j,i,k] != 0){
-						//finds the longest by overwriting the array with a 1
-						zSize[k] = 1;
-						xSize[j] = 1;
-					}
-				}
-			}
-		}
 
-		//to calulate the length of the longest block of 1's
-		int finalZ,startZ = 0,endZ = 0;
-		bool found = false;
-		for(int i=0;i<shape.GetLength(2);i++){
-			//get the start position in the array of the shape
-			if(zSize[i] == 1 && !found){
-				found = true;
-				startZ = i;
-			}
-			if(zSize[i] == 1){
-				endZ = i;
-			}	
-		}
-		
-		//to calculate the width of the longest blocks of 1's
-		int finalX,startX = 0,endX = 0;
-		found = false;
-		for(int i=0;i<shape.GetLength(1);i++){
-			//get the start position in the array of the shape
-			if(xSize[i] == 1 && !found){
-				found = true;
-				startX = i;
-			}
-			if(xSize[i] == 1){
-				endX = i;
-			}			
-		}
-
-		//calculate the final length from the start 1 to the last 1
-		finalZ = (endZ - startZ) + 1;
-		
-		//calculate the final width from the start 1 to the last 1
-		finalX = (endX - startX) + 1;
+		float finalX, finalZ;
+		finalX = shape.GetLength(0)-1;
+		finalZ = shape.GetLength(2)-1;
 		
 		float centreX,centreZ;
 		
 		if(finalZ%2 == finalX%2){
 			//both even or both odd
-			centreX = startX + (startX + endX)/2;
-			centreZ = startZ + (startZ + endZ)/2;
+			centreX = finalX/2;
+			centreZ = finalZ/2;
+			print(finalX + "/2=" + centreX);
 		}
 		else{
 			//one even side, one odd side - reduce shortest dimension by 1
 			if (finalZ < finalX){
-				centreX = startX + (startX + endX)/2;
-				centreZ = startZ + (startZ + endZ - 1)/2;
+				centreX = finalX/2;
+				centreZ = (finalZ - 1)/2;
 			}
 			else
 			{
-				centreX = startX + (startX + endX - 1)/2;
-				centreZ = startZ + (startZ + endZ)/2;
+				centreX = (finalX - 1)/2;
+				centreZ = finalZ/2;
 			}
 		}
 		
@@ -354,9 +316,9 @@ public class BlockControl : MonoBehaviour {
 		List<int> ys = new List<int>();
 		List<int> zs = new List<int>();
 		foreach (Transform child in shadow.transform){
-			xs.Add((int)Math.Round(child.position.x) + 1);
+			xs.Add((int)Math.Round(child.position.x + (gameBoard.nx - 17)/2 + 1));
 			ys.Add((int)Math.Round(child.position.y - 0.38));
-			zs.Add((int)Math.Round(child.position.z) + 1);
+			zs.Add((int)Math.Round(child.position.z + (gameBoard.nz - 17)/2 + 1));
 		};
 		for (int i = 0; i < xs.Count; i++){
 			if (ys[i] < 0) return false;
@@ -375,9 +337,9 @@ public class BlockControl : MonoBehaviour {
 		List<int> ys = new List<int>();
 		List<int> zs = new List<int>();
 		foreach (Transform child in shadow.transform){
-			xs.Add((int)Math.Round(child.position.x) + 1);
+			xs.Add((int)Math.Round(child.position.x + (gameBoard.nx - 17)/2 + 1));
 			ys.Add((int)Math.Round(child.position.y - 0.38));
-			zs.Add((int)Math.Round(child.position.z) + 1);
+			zs.Add((int)Math.Round(child.position.z + (gameBoard.nz - 17)/2 + 1));
 		};
 		for (int i = 0; i < xs.Count; i++){
 			if (ys[i] < 0) return true;
@@ -448,12 +410,12 @@ public class BlockControl : MonoBehaviour {
 	}
 	// Update is called once per frame.
 	void Update () {
-		//if the top-most position is full, you can no longer add pieces.
-		//this means you have lost the game.
-		if(gameBoard.checkPosition(11,4,9)){//globalX-1, gameBoard.ny-1,globalZ-1)){
+		//checks if a piece has been added to the top layer of the array.
+		//if so, end game.
+		if(gameBoard.isGameOver()){
 			gameOver = true;
 			Application.LoadLevel("GameOver");
-			//Debug.Log("HEEEEEEEEEEEEEEELLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOO");
+			Debug.Log("BYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEEEEE");
 		}
 
 		if(gameOver == false){
@@ -591,6 +553,14 @@ public class BlockControl : MonoBehaviour {
 					hasMoved = 1;
 				}
 			}
+
+			//When enter is pressed, the next shape is triggered.
+			//STILL IN DEV - Aankhi.
+			if(Input.GetKey("enter") || Input.GetKey("return")){
+				Debug.Log("Enter key pressed. Wuhoo!");
+				//stop timer and make piece fall down.
+			}
+
 			if (newblock != 1){
 				Vector3 backupPos = shadow.transform.position;
 				Quaternion backupRot = shadow.transform.rotation;
@@ -619,8 +589,8 @@ public class BlockControl : MonoBehaviour {
 				newblock = 0;
 			}
 			shapeMove++;
-		}
-  	}
+	  	}
+	}
 	
 	//creates and positions the highlighted landing for the shape
 	private void highlightLanding(){
@@ -678,24 +648,24 @@ public class BlockControl : MonoBehaviour {
 	}
 	
 	//creates a shape out of array, consisting of 0s and 1s
-	public void createShape(int[,,] shape, int colour){
+	public void createShape(int[,,] shape){
 	
 		//while (shape == null);
 		if (shape == null){
 			throw new Exception("shape is null!");
 		}
-		if (shape.GetLength(0) != shape.GetLength(2)){
+		/*if (shape.GetLength(0) != shape.GetLength(2)){
 			throw new System.Exception("Shape x and z dimensions must match");
-		}
+		}*/
 		
 		pin = 0;
 		
-		/*globalX = 7;
-		globalZ = 7;	*/
+		globalX = 7;
+		globalZ = 7;	
 
-		globalX = (int)((gameBoard.nx - 2)/2 -1);
-		globalZ = (int)((gameBoard.nz - 2)/2 -1);
-		
+		/*globalX = (int)((gameBoard.nx - 2)/2);
+		globalZ = (int)((gameBoard.nz - 2)/2);*/
+		Debug.Log(globalX + " " +globalZ);
 		GameObject shapeObj = new GameObject();
 		addComponents(shapeObj, shape.GetLength(0));		
 		float halfLength = shape.GetLength(0)/2;
@@ -760,7 +730,7 @@ public class BlockControl : MonoBehaviour {
 		Transform t = shadow.transform;
 		t.parent = shadowLayer.GetComponent<Transform>();
 		
-		//addToScene(shapeObj);
+		addToScene(shapeObj);
 		
 		globalX=globalX+3;
 	}
@@ -781,39 +751,76 @@ public class BlockControl : MonoBehaviour {
 		timeGap = gap;
 	}
 
-	IEnumerator Wait2(){
+	IEnumerator Wait2(int seconds){
 		gameBoard.pauseGame(Time.realtimeSinceStartup);
-		legoCode = Marshal.PtrToStringAnsi(lego());
-
-		Debug.Log("Wait for " + timeGap + "s");
-		waitActive = true;
-		yield return new WaitForSeconds(10);
-		waitActive = false;
-		Debug.Log("After waiting for " + timeGap + "s");
+		//legoCode = Marshal.PtrToStringAnsi(lego());
 		
-			
-			gameBoard.unpauseGame();
+		Debug.Log("Wait for " + seconds + "s");
+		waitActive = true;
+		yield return new WaitForSeconds(seconds);
+		waitActive = false;
+		Debug.Log("After waiting for " + seconds + "s");
+		
+		
+		gameBoard.unpauseGame();
 	}
+	
+	
+	
+	private string Load(string fileName)
+	{
+		string line = "";
+		// Handle any problems that might arise when reading the text
+		try
+		{
+			
+			// Create a new StreamReader, tell it which file to read and what encoding the file
+			// was saved as
+			StreamReader theReader = new StreamReader(fileName, Encoding.Default);
+			
 
+			using (theReader)
+			{
+				// While there's lines left in the text file, do this:
+				line = theReader.ReadLine();
+				print ("line = " + line);
+
+				
+				// Done reading, close the reader and return true to broadcast success    
+				theReader.Close();
+				return line;
+			}
+		}
+		
+		// If anything broke in the try block, we throw an exception with information
+		// on what didn't work
+		catch (Exception e)
+		{
+			Console.WriteLine("{0}\n", e.Message);
+			return line;
+		}
+	}
+	
+	
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
-		//cam.takeSnap(); //-------------------------------
-
-
-	//	int hello = main ();
-	//print ("main = " + hello);
-		//string legoCode = Marshal.PtrToStringAnsi(lego());
-		//print ("lego code = "+ legoCode);
-	//	shape4 = getShapeArray(legoCode);
-
-			 shape4 = getShapeArray();
-
-			createShape(shape4, pass);
-
-
-		pass++;
+		//cam.takeSnap();
+		
+		// call c++ code
+		//int hello = main ();
+		
+		//StartCoroutine(Wait2(3));
+		//string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+		//StartCoroutine(Wait2(1));
+		//print (legoCode);
+		//shape4 = getShapeArray(legoCode);    //If your using the webcams to get the shape
+		
+			shape4 = getShapeArray();   //If your using a hardcoded shape
+		
+		createShape(shape4);
 	}
+
 	
 	//Makes given cube a child of the current shape
 	private void addToShape(GameObject shape, GameObject cube){

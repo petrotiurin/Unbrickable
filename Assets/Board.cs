@@ -9,10 +9,12 @@ public class Board : MonoBehaviour {
 	
 	// Dimensions of the board in "shapes".
 	public int nx = 17;	// width
-	public int ny = 15;	// height
+	public int ny = 5;	// height
 	public int nz = 17;	// depth 
-	
-	int timeGap = 1;//10; //default value. Change gap here!
+
+	public float transx,transz;
+
+	int timeGap = 0; //10 is default value. Change gap here!
     int timer = 0;
     int score = 0;
     float starttimer = 0.0f;
@@ -31,6 +33,9 @@ public class Board : MonoBehaviour {
     public Texture2D[] lego;
     public int[] legoSuggestions;
 
+    //for wall, it is one unit of the walls.
+    public Transform grid;
+
 	private bool[,,] boardArray;
 	
 	//for rotating the board
@@ -43,7 +48,9 @@ public class Board : MonoBehaviour {
 
 
 	private BlockControl blockCtrl;
-	
+
+	private Camera topCam;
+
 	// Initialization.
 	void Awake () {
 		GameObject.Find("Main Camera").AddComponent<AudioListener>();
@@ -94,6 +101,9 @@ public class Board : MonoBehaviour {
 		addToScene(slayer);
 		
 		DrawBoard();
+        //boundaries for initial orientation
+        DrawBoundary(0);
+		createTopCamera();
 
 	//	audio_source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
 //		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
@@ -103,6 +113,15 @@ public class Board : MonoBehaviour {
 		//start gameplay.
 		blockCtrl.assignTimeGap(timeGap);
 		StartCoroutine(Wait());
+	}
+
+	private void createTopCamera(){
+		UnityEngine.Object cameraPrefab = Resources.LoadAssetAtPath("Assets/TopCamera.prefab", typeof(Camera));
+		topCam = GameObject.Instantiate(cameraPrefab) as Camera;
+		topCam.transform.position = GameObject.Find("base").transform.position;
+		topCam.transform.Translate(new Vector3(0,blockCtrl.startHeight + 5,0),Space.World);
+		topCam.name = "Top Cam";
+		//topCam.transform.Rotate()
 	}
 	
 	private void startMusic(String track){
@@ -153,18 +172,48 @@ public class Board : MonoBehaviour {
 		GameObject scene = GameObject.Find("Scene");
 		Transform t = cube.transform;
 		t.parent = scene.GetComponent<Transform>();
-		cube.transform.Translate(0,-0.4f,0);
+		//cube.transform.Translate(0,-0.4f,0);
 		//-1.5 -1.5
-		//Debug.Log(cube.renderer.bounds.min.x + " " + cube.renderer.bounds.min.z);
-		float transx,transz;
+		/*Debug.Log(cube.renderer.bounds.min.x + " " + cube.renderer.bounds.min.z);
 		transx = (float) (-1.5 - cube.renderer.bounds.min.x);
-		transz = (float) (-1.5 - cube.renderer.bounds.min.z);
+		transz = (float) (-1.5 - cube.renderer.bounds.min.z);*/
 		//float transx = (float)Math.Abs(1.5 - Math.Abs(cube.renderer.bounds.min.x));
 		//float transz = (float)Math.Abs(1.5 - Math.Abs(cube.renderer.bounds.min.z));
-		cube.transform.Translate(transx,0,transz);
-		//cube.transform.localPosition = new Vector3(cube.transform.position.x, -0.1f, cube.transform.position.z);
+		//cube.transform.Translate(transx,0,transz);
+		//cube.transform.localPosition = new Vector3(cube.transform.localPosition.x, -0.1f, cube.transform.localPosition.z);
 	}
-	
+
+
+    //Create visible boundary walls.
+    public void DrawBoundary(int rotDir){
+        GameObject[] argo = GameObject.FindGameObjectsWithTag("WallPiece");
+        foreach (GameObject go in argo) {
+            Destroy(go);
+        }
+
+        for(int i=0; i< ny;i++){
+            for(int j=-1;j < nx-3;j++){
+                if(rotDir == 0){
+                    Instantiate(grid, new Vector3(j,i,nz-3),Quaternion.identity);
+                    Instantiate(grid, new Vector3(nx-3,i,j),Quaternion.identity);
+                }
+                else if(rotDir == 1){
+                    Instantiate(grid, new Vector3(j,i,nz-3),Quaternion.identity);
+                    Instantiate(grid, new Vector3(-2,i,j),Quaternion.identity);
+                }
+                else if(rotDir == 2){
+                    Instantiate(grid, new Vector3(-2,i,j),Quaternion.identity);
+                    Instantiate(grid, new Vector3(j,i,-2),Quaternion.identity);   
+                }
+                else{
+                    Instantiate(grid, new Vector3(j,i,-2),Quaternion.identity); 
+                    Instantiate(grid, new Vector3(nx-3,i,j),Quaternion.identity);
+
+                }
+            }
+        }
+    }
+    
 	// Add a pin object to its respective layer.
 	public void FillPosition(int layer, GameObject pin) {
 		addBlocks(layer, pin);
@@ -260,21 +309,23 @@ public class Board : MonoBehaviour {
 	private void addBlocks(int layer, GameObject cube){
 		cube.name = "Block";
 	    cube.transform.parent = blocksLayer[layer].transform;
-		int x = (int)Math.Round(cube.transform.position.x) + 2;
-		int z = (int)Math.Round(cube.transform.position.z) + 2;
+		int x = (int)Math.Round(cube.transform.position.x + (nx - 17)/2) + 2;
+		int z = (int)Math.Round(cube.transform.position.z + (nz - 17)/2) + 2;
 		boardArray[x,layer,z] = true;
 		//Debug.Log(x+" "+layer+" "+z);
 	}
 	
 	public bool checkPosition(int x, int y, int z){
-		if (y < 15)	return boardArray[x,y,z];
-        return false;
+		if (y < ny)	return boardArray[x,y,z];
+		return false;
 	}
 
+    //Called from BlockControl to check if the top layer has been filled.
     public bool isGameOver(){
-        for(int i = 0; i < nx; i++)
-            for(int j = 0; j < nx; j++)
-                if(boardArray[i,4,j])
+        Debug.Log("checking if game over");
+        for(int i = 1; i < nx-1; i++)
+            for(int j = 1; j < nz-1; j++)
+                if(boardArray[i,ny-1,j])
                     return true;
         return false;
     }
@@ -306,10 +357,10 @@ public class Board : MonoBehaviour {
 	**   rotate the board, if you need to see where you'd place the blocks.
 	*/
 	IEnumerator Wait(){
-		pauseGame(Time.realtimeSinceStartup);
-        //Debug.Log("Wait for " + timeGap + "s");
+		pauseGame(0);//Time.realtimeSinceStartup);
+        Debug.Log("Wait for " + timeGap + "s");
         yield return new WaitForSeconds(timeGap);
-        //Debug.Log("After waiting for " + timeGap + "s");
+        Debug.Log("After waiting for " + timeGap + "s");
 		unpauseGame();
 		blockCtrl.createShape();
     }
@@ -333,13 +384,13 @@ public class Board : MonoBehaviour {
     //  display the suggested pieces as 2D textures.
     void initTextures(){
         //initialise the colours used.
-        Color ticker_colour = new Color(1, 0.92f, 0.016f, 1); //yellow
-        Color ticker_border = new Color(0,0,0,1); //black
-        Color ticker_inside = new Color(1,1,1,1); //white
+        Color red_color = new Color(0.3f,0,0);
+        Color white_color = new Color(1,1,1);
+        Color black_color = new Color(0,0,0);
  
         //initialise colour for the progress bar.
         fullTex = new Texture2D(1,1);
-        fullTex.SetPixel(0,0,ticker_colour);
+        fullTex.SetPixel(0,0,red_color);
         fullTex.Apply();
  
         //colour for the ticker box. Currently black with white border.
@@ -348,23 +399,23 @@ public class Board : MonoBehaviour {
         //inside of the box
         for(int i = 1; i < emptyTex.width-1; i++){
             for(int j = 1; j < emptyTex.height-1; j++){
-                emptyTex.SetPixel(i,j,ticker_inside);
+                emptyTex.SetPixel(i,j,black_color);
             }
         }
  
         //box's border
         for(int i = 0; i < emptyTex.height; i++){
             for(int j = 0; j < 5; j++)
-                emptyTex.SetPixel(j,i,ticker_border);
+                emptyTex.SetPixel(j,i,white_color);
             for(int j = emptyTex.width-6; j < emptyTex.width; j++)
-                emptyTex.SetPixel(j,i,ticker_border);
+                emptyTex.SetPixel(j,i,white_color);
         }
  
         for(int i = 0; i < emptyTex.width; i++){
             for(int j = 0; j < 5; j++)
-                emptyTex.SetPixel(i,j,ticker_border);
+                emptyTex.SetPixel(i,j,white_color);
             for(int j = emptyTex.height-6; j < emptyTex.height; j++)
-                emptyTex.SetPixel(i,j,ticker_border);
+                emptyTex.SetPixel(i,j,white_color);
         }
         emptyTex.Apply();
     }
@@ -373,6 +424,8 @@ public class Board : MonoBehaviour {
     ** the piece suggestions.
     */
     void OnGUI () {
+		Texture t = (Texture)Resources.LoadAssetAtPath("Assets/TopDownView.renderTexture", typeof(Texture));
+		GUI.DrawTexture(new Rect ((Screen.width - 300),(Screen.height - 300),300,300),t);
 
     	// The following line of code displays the current score.
         GUI.Box(new Rect (50,10,150,100), "Score " + score);
@@ -384,7 +437,7 @@ public class Board : MonoBehaviour {
             if(timediff < timeGap){
                 //Debug.Log("timediff = " + timediff);
                 timer = (int)timediff;
-                //Debug.Log("Timer = " + timer);
+                Debug.Log("Timer = " + timer);
                 timer = timeGap - timer;
                 barDisplay = 1 - timediff * 1.0f/timeGap;//0.1f;
             }
@@ -408,12 +461,18 @@ public class Board : MonoBehaviour {
         
         // The next bit of the code deals with piece suggestions and displaying them.
         if(pieceSuggestor){
+            Debug.Log("Piece suggestions...");
            	//This is where piece suggestions will be made to display them
-         	//	in the following boxes.
+           	//	in the following boxes.
+
            	Array_GameObj showPieceScript;
 			showPieceScript = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
 			showPieceScript.SuggestLegoPiece();
+
 			legoSuggestions = showPieceScript.suggestedPieces;
+			for(int i = 0; i < 3; i++)
+				Debug.Log("Lego pc suggestion (" + i + ") = " + legoSuggestions[i]);
+
 			pieceSuggestor = false;
         }
 
