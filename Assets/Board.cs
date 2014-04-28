@@ -134,15 +134,6 @@ public class Board : MonoBehaviour {
 		//layer_clear_sound.Play();
 		//if (audio_source != null) Invoke( "setMaxVolume", layer_clear_sound.clip.length );
 	}
-
-	public void PivotTo(GameObject o, Vector3 position){
-	    Vector3 offset = o.transform.position - position;
-	 
-	    foreach (Transform child in o.transform)
-	        child.transform.position += offset;
-	 
-	    o.transform.position = position;
-	}
 	
 	// Update is called once per frame.
 	void Update (){
@@ -152,20 +143,49 @@ public class Board : MonoBehaviour {
 	// Create the base of the game board.
 	private void DrawBoard(){
 
-		GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-		cube.name = "base";
+		GameObject legoBase = new GameObject();
+		legoBase.name = "base";
+
+		float halfLength = ((float)nx)/2;
+		
+		for (float x=0; x < nx-2; x++){
+			for (float z=0; z < nz-2; z++){
+				
+				UnityEngine.Object blockPrefab = Resources.LoadAssetAtPath("Assets/block.prefab", typeof(GameObject));
+				GameObject cube = GameObject.Instantiate(blockPrefab) as GameObject;
+				
+				cube.transform.position = new Vector3(1.55f + x - halfLength,
+													  -0.55f,
+					  								  1.55f + z - halfLength);
+				
+				if (nx%2 == 0)
+					cube.transform.Translate(-0.5f, 0.0f, -0.5f);
+				
+				Transform cubeTrans = cube.transform;
+				
+				cubeTrans.parent = legoBase.GetComponent<Transform>();
+			}
+		}
+		
+		
+		
+		legoBase.transform.position = new Vector3(6.0F, -0.1F, 6.0F);
+		legoBase.AddComponent<CombineChildren>();
+		
+		foreach (Transform child in legoBase.transform){
+			Destroy (child.gameObject);
+		}
 		
 		// Blocks fall from (0,0) into bottom corner.
-		cube.transform.localScale = new Vector3(nx-2, 0.2F, nz-2);
-		cube.transform.position = new Vector3(6.0F, -0.1F, 6.0F);
+		//cube.transform.localScale = new Vector3(nx-2, 0.2F, nz-2);
+		//cube.transform.position = new Vector3(6.0F, -0.1F, 6.0F);
 	
 		//set the center to be the pivot
-		centreRotation = new Vector3 ((float)cube.transform.position.x,cube.transform.position.y,(float)cube.transform.position.z);
-		PivotTo(cube,centreRotation);
+//		centreRotation = new Vector3 ((float)cube.transform.position.x,cube.transform.position.y,(float)cube.transform.position.z);
 		
 		// Make the base a child of the scene
 		GameObject scene = GameObject.Find("Scene");
-		Transform t = cube.transform;
+		Transform t = legoBase.transform;
 		t.parent = scene.GetComponent<Transform>();
 		//cube.transform.Translate(0,-0.4f,0);
 		//-1.5 -1.5

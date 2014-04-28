@@ -52,7 +52,6 @@ public class BlockControl : MonoBehaviour {
 	[DllImport ("make2")]
 	private static extern int main();
 
-	
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
 	public float pinSize = 1.0f;
@@ -411,7 +410,6 @@ public class BlockControl : MonoBehaviour {
 		Vector3 translation = Vector3.zero;
 		Vector3 rotation = Vector3.zero;
 		int hasMoved = 0;
-		int newblock = 0;
 
         if (block == null || shadow == null) return;
 		//This keeps track of how many seconds we wait between two pieces.
@@ -439,7 +437,6 @@ public class BlockControl : MonoBehaviour {
 					StartCoroutine(Wait(block));
 				/*triggerNextShape(block);
 				block = GameObject.Find("ActiveBlock");*/
-				newblock = 1;
 			}
 		}	
 		
@@ -541,32 +538,30 @@ public class BlockControl : MonoBehaviour {
 				hasMoved = 1;
 			}
 		}
-		if (newblock != 1){
-			Vector3 backupPos = shadow.transform.position;
-			Quaternion backupRot = shadow.transform.rotation;
-			shadow.transform.Rotate(rotation,Space.Self);
-			shadow.transform.Translate(translation, Space.World);
-			if (checkArrayCollisions()){
-				Debug.Log("Array collision");
-				Debug.Log("shadow");
-				printShadow(shadow);
-				Debug.Log("block");
-				printShadow(block);
-				shadow.transform.position = backupPos;
-				shadow.transform.rotation = backupRot;
-			}else{
-				block.transform.Rotate(rotation,Space.Self);
-				block.transform.Translate(translation, Space.World);
-				posX += translation.x;
-				posZ += translation.z;
-			}
+		
+		Vector3 backupPos = shadow.transform.position;
+		Quaternion backupRot = shadow.transform.rotation;
+		shadow.transform.Rotate(rotation,Space.Self);
+		shadow.transform.Translate(translation, Space.World);
+		if (checkArrayCollisions()){
+			Debug.Log("Array collision");
+			Debug.Log("shadow");
+			printShadow(shadow);
+			Debug.Log("block");
+			printShadow(block);
+			shadow.transform.position = backupPos;
+			shadow.transform.rotation = backupRot;
+		}else{
+			block.transform.Rotate(rotation,Space.Self);
+			block.transform.Translate(translation, Space.World);
+			posX += translation.x;
+			posZ += translation.z;
 		}
 
-		if(hasMoved==1 || newblock==1){
+		if(hasMoved==1){
 			Destroy(highlight);
 			highlightLanding();
 			hasMoved = 0;
-			newblock = 0;
 		}
 		shapeMove++;
   	}
@@ -695,7 +690,7 @@ public class BlockControl : MonoBehaviour {
 			GameObject shadowPin = child.Find("pin").gameObject;
 			Destroy (shadowPin);
 			child.gameObject.renderer.enabled = false;
-			child.gameObject.collider.isTrigger = true;
+			//child.gameObject.collider.isTrigger = true;
 		}
 		//addToScene(shadow);
 		addToScene(shapeObj);
@@ -712,6 +707,7 @@ public class BlockControl : MonoBehaviour {
 		addToScene(shapeObj);
 		
 		globalX=globalX+3;
+		firstBlock = true;
 	}
 	
 	// Adds necessary components and initialisation to a shape.
