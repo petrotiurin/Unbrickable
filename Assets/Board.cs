@@ -167,6 +167,7 @@ public class Board : MonoBehaviour {
 		GameObject scene = GameObject.Find("Scene");
 		Transform t = cube.transform;
 		t.parent = scene.GetComponent<Transform>();
+		if (nx%2 == 0) cube.transform.Translate(-0.5f,0.0f,-0.5f,Space.World);
 		//cube.transform.Translate(0,-0.4f,0);
 		//-1.5 -1.5
 		/*Debug.Log(cube.renderer.bounds.min.x + " " + cube.renderer.bounds.min.z);
