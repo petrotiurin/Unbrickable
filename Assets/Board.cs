@@ -114,7 +114,7 @@ public class Board : MonoBehaviour {
 		UnityEngine.Object cameraPrefab = Resources.LoadAssetAtPath("Assets/TopCamera.prefab", typeof(Camera));
 		topCam = GameObject.Instantiate(cameraPrefab) as Camera;
 		topCam.transform.position = GameObject.Find("base").transform.position;
-		topCam.transform.Translate(new Vector3(0,ny + 3,0),Space.World);
+		topCam.transform.Translate(new Vector3(0,blockCtrl.startHeight + 5,0),Space.World);
 		topCam.name = "Top Cam";
 		//topCam.transform.Rotate()
 	}
@@ -243,8 +243,6 @@ public class Board : MonoBehaviour {
 			}
 		}
 		
-		
-		
 		//float blockSize = blockCtrl.pinSize;
 		
 		//for moving the rest of the board down
@@ -280,7 +278,7 @@ public class Board : MonoBehaviour {
 	}
 	
 	public bool checkPosition(int x, int y, int z){
-		if (y < 15)	return boardArray[x,y,z];
+		if (y < ny)	return boardArray[x,y,z];
 		return false;
 	}
 	
