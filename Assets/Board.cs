@@ -330,16 +330,19 @@ public class Board : MonoBehaviour {
 		t.parent = scene.GetComponent<Transform>();
 	}
 
-
-
 	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
 	**	 before the first shape is triggered.
 	** The game is "paused" -- the shape doesn't descend but you can still
 	**   rotate the board, if you need to see where you'd place the blocks.
 	*/
 	IEnumerator Wait(){
-		pauseGame(Time.realtimeSinceStartup);
-        Debug.Log("Wait for " + timeGap + "s");
+        float time = Time.realtimeSinceStartup;
+        if(time > 2)
+        	pauseGame(Time.realtimeSinceStartup);
+        else
+            pauseGame(0f);
+
+        Debug.Log("TIME --------------> " + Time.realtimeSinceStartup);
 
         xTime = 0;
 
@@ -348,7 +351,6 @@ public class Board : MonoBehaviour {
             xTime++;
         }
 
-        Debug.Log("After waiting for " + timeGap + "s");
 		unpauseGame();
 		blockCtrl.createShape();
     }

@@ -361,9 +361,7 @@ public class BlockControl : MonoBehaviour {
 		xTime = 0;
 		Debug.Log ("wejkjlfd");
 		while (xTime < (timeGap/0.01f)){
-			Debug.Log ("xTime = " + xTime);
-        		yield return new WaitForSeconds(0.01f);
-
+			yield return new WaitForSeconds(0.01f);
 			xTime++;
 		}
 
