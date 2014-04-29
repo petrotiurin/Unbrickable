@@ -21,6 +21,10 @@ public class Board : MonoBehaviour {
     bool countdown = false;
     bool pieceSuggestor = false;
 
+    //Make shape fall when enter is pressed
+    bool shapeFalling = false;
+    int xTime = 0;
+
 	//timer progress bar
     public float barDisplay = 1; //current progress
     public Vector2 pos = new Vector2(50,100);
@@ -140,7 +144,11 @@ public class Board : MonoBehaviour {
 	
 	// Update is called once per frame.
 	void Update (){
-		
+		if(Input.GetKeyDown("return")){
+            shapeFalling = true;
+            xTime = 999999999;
+            Debug.Log ("ENTER");
+        }
 	}
 	
 	// Create the base of the game board.
@@ -330,9 +338,16 @@ public class Board : MonoBehaviour {
 	**   rotate the board, if you need to see where you'd place the blocks.
 	*/
 	IEnumerator Wait(){
-		pauseGame(0);//Time.realtimeSinceStartup);
+		pauseGame(Time.realtimeSinceStartup);
         Debug.Log("Wait for " + timeGap + "s");
-        yield return new WaitForSeconds(timeGap);
+
+        xTime = 0;
+
+        while(xTime < (timeGap / 0.01)){
+            yield return new WaitForSeconds(0.01f);
+            xTime++;
+        }
+
         Debug.Log("After waiting for " + timeGap + "s");
 		unpauseGame();
 		blockCtrl.createShape();
@@ -405,7 +420,6 @@ public class Board : MonoBehaviour {
 
         // The following lines of code deals with the countdown timers.
         if(countdown){
-
             float timediff = Time.realtimeSinceStartup - starttimer;
             if(timediff < timeGap){
                 //Debug.Log("timediff = " + timediff);

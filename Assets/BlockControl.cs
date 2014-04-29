@@ -348,7 +348,6 @@ public class BlockControl : MonoBehaviour {
 		return false;
 	}
 
-
 	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
 	**	 before next shape is triggered.
 	** The game is "paused" -- the shape doesn't descend but you can still
@@ -361,7 +360,7 @@ public class BlockControl : MonoBehaviour {
 
 		xTime = 0;
 		Debug.Log ("wejkjlfd");
-		while (xTime < 1000){
+		while (xTime < (timeGap/0.01f)){
 			Debug.Log ("xTime = " + xTime);
         		yield return new WaitForSeconds(0.01f);
 
