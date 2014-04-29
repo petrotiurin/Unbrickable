@@ -146,7 +146,7 @@ public class Board : MonoBehaviour {
 	void Update (){
 		if(Input.GetKeyDown("return")){
             shapeFalling = true;
-            xTime = 999999999;
+            xTime = 88888888;
             Debug.Log ("ENTER");
         }
 	}
@@ -351,8 +351,14 @@ public class Board : MonoBehaviour {
             xTime++;
         }
 
-		unpauseGame();
-		blockCtrl.createShape();
+        //game over mechanism
+        if(xTime == (timeGap / 0.01)){
+            Application.LoadLevel("MainMenu");
+        }
+        else{
+            unpauseGame();
+            blockCtrl.createShape();
+        }		
     }
 
 	public void pauseGame(float start){

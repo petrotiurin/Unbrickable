@@ -372,10 +372,14 @@ public class BlockControl : MonoBehaviour {
         if(block == null)
         	Debug.Log("Block is null :S !!");
 
-		//GAME OVER
-        triggerNextShape(block);
-		block = GameObject.Find("ActiveBlock");
-		gameBoard.unpauseGame();
+		//game over mechanism
+        if(xTime == (timeGap / 0.01)){
+            Application.LoadLevel("MainMenu");
+        }
+        else{
+            unpauseGame();
+            blockCtrl.createShape();
+        }
     }
 
 
@@ -449,7 +453,8 @@ public class BlockControl : MonoBehaviour {
 
 		if(Input.GetKeyDown("return")){
 			shapeFalling = true;
-			xTime = 999999999;
+			//Unique key code. Required to check if user has run out of time.
+			xTime = 88888888;
 			Debug.Log ("ENTER");
 
 		}
