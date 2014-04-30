@@ -81,6 +81,9 @@ public class BlockControl : MonoBehaviour {
 	//to make sure no movement is produced while waiting for the next sahpe
 	private bool movingStopped = false;
 
+	//material for highlight
+	private Material transparentMaterial;
+
 	//rotate the shape array
 	int[,,] rotateShape(int[,,] shape, bool clockwise){
 		
@@ -113,6 +116,8 @@ public class BlockControl : MonoBehaviour {
 		//cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
+		
+		transparentMaterial = (Material)Resources.LoadAssetAtPath("Assets/ShadowMaterial.mat", typeof(Material));
 
 		gameBoard = GetComponent<Board>();
 		getBoardValues();
@@ -587,17 +592,18 @@ public class BlockControl : MonoBehaviour {
 			//copy shadow
 			highlight = Instantiate(shadow, highlightPos, shadow.transform.rotation) as GameObject;
 			highlight.name = "activeHighlight";
-			
+
 			foreach (Transform child in highlight.transform){
 				//50% opacity on highlight pins
-				
-				child.renderer.material = new Material(Shader.Find("Transparent/Diffuse"));
-		        child.renderer.material.color =  new Color(0.2F, 0.3F, 0.4F, 0.5F);;
+				child.renderer.material = transparentMaterial;
+				//child.renderer.material = new Material(Shader.Find("Transparent/Diffuse"));
+		        //child.renderer.material.color =  new Color(0.2F, 0.3F, 0.4F, 0.5F);;
 				
 				//child.renderer.material.color = Color.green;
 				child.gameObject.renderer.enabled = true;
 			}
 			shadow.transform.Translate(0,k,0);
+			highlight.AddComponent<CombineChildren>();
 		}
 	}
 	
@@ -676,7 +682,6 @@ public class BlockControl : MonoBehaviour {
 						//make pins the same material as block
 						GameObject child = currentCube.transform.Find("pin").gameObject;
 						child.renderer.material = currentCube.renderer.material;
-						
 						addToShape(shapeObj, currentCube);
 						
 					}
@@ -691,20 +696,16 @@ public class BlockControl : MonoBehaviour {
 			GameObject shadowPin = child.Find("pin").gameObject;
 			Destroy (shadowPin);
 			child.gameObject.renderer.enabled = false;
-			//child.gameObject.collider.isTrigger = true;
 		}
-		//addToScene(shadow);
 		addToScene(shapeObj);
 		float displacement = startHeight/10-shapeObj.transform.localPosition.y;
 		shapeObj.transform.Translate(0, displacement,0);
 		shadow.transform.Translate(0, displacement,0);
-		//shapeObj.transform.Translate(0,20,0);
+		shapeObj.AddComponent<CombineChildren>();
 		GameObject shadowLayer = GameObject.Find("ShadowLayer");
 		Transform t = shadow.transform;
 		t.parent = shadowLayer.GetComponent<Transform>();
-		
 		addToScene(shapeObj);
-		
 		globalX=globalX+3;
 		firstBlock = true;
 	}
