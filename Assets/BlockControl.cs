@@ -77,7 +77,10 @@ public class BlockControl : MonoBehaviour {
 	//for moving the shapes need to know the centre of shape
 	private float posX,posZ;	
 	private Vector3 centreRotation = new Vector3 (2,1,2);
-	
+
+	//to make sure no movement is produced while waiting for the next sahpe
+	private bool movingStopped = false;
+
 	//rotate the shape array
 	int[,,] rotateShape(int[,,] shape, bool clockwise){
 		
@@ -317,7 +320,7 @@ public class BlockControl : MonoBehaviour {
 		};
 		for (int i = 0; i < xs.Count; i++){
 			if (ys[i] < 0) return false;
-			//Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
+			Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
 			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
 				//Debug.Log("collision!"+xs[i]+":"+ys[i]+":" +zs[i]);
 				return false;
@@ -327,25 +330,7 @@ public class BlockControl : MonoBehaviour {
 	}
 
 	private bool checkArrayCollisions(){
-		//first, get all block coordinates
-		List<int> xs = new List<int>();
-		List<int> ys = new List<int>();
-		List<int> zs = new List<int>();
-		foreach (Transform child in shadow.transform){
-			xs.Add((int)Math.Round(child.position.x + (gameBoard.nx - 17)/2 + 1));
-			ys.Add((int)Math.Round(child.position.y - 0.38));
-			zs.Add((int)Math.Round(child.position.z + (gameBoard.nz - 17)/2 + 1));
-		};
-		for (int i = 0; i < xs.Count; i++){
-			if (ys[i] < 0) return true;
-			//Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
-			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
-				//Debug.Log("A collision has happened!"+xs[i]+1+":"+ys[i]+":" +zs[i]+1);
-				//gameBoard.printArray();
-				return true;
-			}
-		}
-		return false;
+		return !checkMoveAllowed();
 	}
 
 	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
@@ -376,12 +361,14 @@ public class BlockControl : MonoBehaviour {
         triggerNextShape(block);
 		block = GameObject.Find("ActiveBlock");
 		gameBoard.unpauseGame();
+		movingStopped = false;
     }
 
 
 	
 	
 	private void triggerNextShape(GameObject block){
+		gameBoard.printArray();
 		for (int i = 0; i < Math.Pow(gameBoard.nx, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
 			if (childTransform != null){
@@ -396,7 +383,7 @@ public class BlockControl : MonoBehaviour {
 		Destroy(block);
 		Destroy(shadow);
 		createShape();
-
+		gameBoard.printArray();
 	}
 	
 	private void printShadow(GameObject shadow){
@@ -428,7 +415,7 @@ public class BlockControl : MonoBehaviour {
 			firstBlock = false;
 		}
 		timer -= Time.deltaTime;
-		if(timer<=0){
+		if(timer<=0 && !movingStopped){
 			timer=1;
 			shadow.transform.Translate(0,-1,0);
 			if (checkMoveAllowed()){
@@ -440,6 +427,7 @@ public class BlockControl : MonoBehaviour {
 				** We don't just wait for a value to be returned after the 10s
 				** as we still need to move the board.
 				*/
+				movingStopped = true;
 				if(!waitActive)
 					StartCoroutine(Wait(block));
 				/*triggerNextShape(block);
@@ -451,7 +439,6 @@ public class BlockControl : MonoBehaviour {
 			shapeFalling = true;
 			xTime = 999999999;
 			Debug.Log ("ENTER");
-
 		}
 		
 		//ROTATE right
@@ -552,31 +539,33 @@ public class BlockControl : MonoBehaviour {
 				hasMoved = 1;
 			}
 		}
-		Vector3 backupPos = shadow.transform.position;
-		Quaternion backupRot = shadow.transform.rotation;
-		shadow.transform.Rotate(rotation,Space.Self);
-		shadow.transform.Translate(translation, Space.World);
-		if (checkArrayCollisions()){
-			Debug.Log("Array collision");
-			Debug.Log("shadow");
-			printShadow(shadow);
-			Debug.Log("block");
-			printShadow(block);
-			shadow.transform.position = backupPos;
-			shadow.transform.rotation = backupRot;
-		}else{
-			block.transform.Rotate(rotation,Space.Self);
-			block.transform.Translate(translation, Space.World);
-			posX += translation.x;
-			posZ += translation.z;
-		}
+		if (!movingStopped){
+			Vector3 backupPos = shadow.transform.position;
+			Quaternion backupRot = shadow.transform.rotation;
+			shadow.transform.Rotate(rotation,Space.Self);
+			shadow.transform.Translate(translation, Space.World);
+			if (checkArrayCollisions()){
+				Debug.Log("Array collision");
+				Debug.Log("shadow");
+				printShadow(shadow);
+				Debug.Log("block");
+				printShadow(block);
+				shadow.transform.position = backupPos;
+				shadow.transform.rotation = backupRot;
+			}else{
+				block.transform.Rotate(rotation,Space.Self);
+				block.transform.Translate(translation, Space.World);
+				posX += translation.x;
+				posZ += translation.z;
+			}
 
-		if(hasMoved==1){
-			Destroy(highlight);
-			highlightLanding();
-			hasMoved = 0;
+			if(hasMoved==1){
+				Destroy(highlight);
+				highlightLanding();
+				hasMoved = 0;
+			}
+			shapeMove++;
 		}
-		shapeMove++;
   	}
 	
 	//creates and positions the highlighted landing for the shape
