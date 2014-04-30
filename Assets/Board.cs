@@ -307,8 +307,12 @@ public class Board : MonoBehaviour {
 	}
 	
 	public bool checkPosition(int x, int y, int z){
-		if (y < ny)	return boardArray[x,y,z];
-		return false;
+		// if position is outside the array x and z coordiantes return collision
+		// if the shape is above the array, but within boundaries let it move
+		// else check for array collisions
+		if (x < 0 || z < 0 || x >= nx || z >= nz) return true;
+		else if (y >= ny) return false;
+		else return boardArray[x,y,z];
 	}
 	
 	public void printArray(){
