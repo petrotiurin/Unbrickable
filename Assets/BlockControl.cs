@@ -18,7 +18,6 @@ public class BlockControl : MonoBehaviour {
 	RotateCamera cameraScript;
 	private int globalX, globalZ;
 	private int timeGap = 0;
-	private int maxPinsX,maxPinsZ;
 	string legoCode;
 	
 	private float boundX,boundZ,boundingBox;
@@ -66,7 +65,9 @@ public class BlockControl : MonoBehaviour {
 	private int pin = 0;
 	
 	private float timer;
-	
+
+	public float moveTime = 0.07f;
+
 	private int shapeMove;
 	
 	private GameObject FragmentCube;
@@ -124,7 +125,6 @@ public class BlockControl : MonoBehaviour {
 		globalZ = 0;
 
 		gameBoard = GetComponent<Board>();
-		getBoardValues();
 	}
 	
 	// Initialization.
@@ -141,13 +141,6 @@ public class BlockControl : MonoBehaviour {
 
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
 	}
-	
-	// Set maximum amount of pins that can fit in each direction.
-	public void getBoardValues(){
-		maxPinsX = gameBoard.nx;
-		maxPinsZ = gameBoard.nz;
-	}
-
 
 	// For testing purposes
 	public int[,,] getShapeArray(){
@@ -467,11 +460,13 @@ public class BlockControl : MonoBehaviour {
 			rotation = new Vector3(0,-90,0);
 			hasMoved = 1;
 		}
-		
+
+		moveTime -= Time.deltaTime;
+
 		//piece falls down further with space bar
 		if(Input.GetKey("space")){
 			//check every 4 frames
-			if(shapeMove%4 == 0){
+			if(moveTime <= 0){
 				translation = new Vector3(0,-1,0);
 				hasMoved = 1;
 			}
@@ -480,7 +475,7 @@ public class BlockControl : MonoBehaviour {
 		//MOVE forward
 		if (Input.GetKey("up")){
 			//check every 4 frames
-			if(shapeMove%4 == 0){
+			if(moveTime <= 0){
 				if (cameraScript.rotationDir == 0){
 					translation = new Vector3(0,0,1);
 				}
@@ -500,7 +495,7 @@ public class BlockControl : MonoBehaviour {
 		//MOVE back
 		if (Input.GetKey("down")){
 			//check every 4 frames
-			if(shapeMove%4 == 0){
+			if(moveTime <= 0){
 				if (cameraScript.rotationDir == 0){
 					translation = new Vector3(0,0,-1);
 				}
@@ -520,7 +515,7 @@ public class BlockControl : MonoBehaviour {
 		//MOVE right
   		if (Input.GetKey("right")){
 			//check every 4 frames
-			if(shapeMove%4 == 0){
+			if(moveTime <= 0){
 				if (cameraScript.rotationDir == 0){
 					translation = new Vector3(1,0,0);
 				}
@@ -539,7 +534,7 @@ public class BlockControl : MonoBehaviour {
   		//MOVE left
   		if (Input.GetKey("left")){
 			//check every 4 frames
-			if(shapeMove%4 == 0){
+			if(moveTime <= 0){
 				if (cameraScript.rotationDir == 0){
 					translation = new Vector3(-1,0,0);
 				}
@@ -555,6 +550,11 @@ public class BlockControl : MonoBehaviour {
 				hasMoved = 1;
 			}
 		}
+
+		if(moveTime <= 0 && hasMoved == 1){
+			moveTime = 0.07f;
+		}
+
 		if (!movingStopped){
 			Vector3 backupPos = shadow.transform.position;
 			Quaternion backupRot = shadow.transform.rotation;
@@ -785,7 +785,7 @@ public class BlockControl : MonoBehaviour {
 		
 		shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape4);
+		createShape(shape2);
 	}
 
 	

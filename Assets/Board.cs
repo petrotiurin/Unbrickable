@@ -249,7 +249,6 @@ public class Board : MonoBehaviour {
 		
 			
 		//remove the layer from the board array
-		//TODO: change so that it can delete multiple layers
 		//nx=17    x,y,z
 		for(int i=1; i< nx-1;i++){
 			for(int j=1;j < nz-1;j++){
