@@ -13,6 +13,8 @@ public class Board : MonoBehaviour {
 	public int nz = 17;	// depth 
 
 	public float transx,transz;
+	
+	private int flashPass;
 
 	int timeGap = 10; //default value. Change gap here!
     int timer = 0;
@@ -100,6 +102,8 @@ public class Board : MonoBehaviour {
 		String lName = "ShadowLayer";
 		slayer.name = lName;
 		addToScene(slayer);
+		
+		flashPass = 0;
 		
 		DrawBoard();
 		createTopCamera();
