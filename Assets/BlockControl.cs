@@ -6,10 +6,13 @@ using System.Text;
 using System.IO;
 using System.Runtime.InteropServices;
 
+
+
+
 public class BlockControl : MonoBehaviour {
 	
 	private GameObject[] blocks;
-	//setUpWebcam cam;
+	setUpWebcam cam;
 	private GameObject shadow, highlight;
 	private ShadowCollision sh;
 	RotateCamera cameraScript;
@@ -23,10 +26,9 @@ public class BlockControl : MonoBehaviour {
 	private int pass;
 
 	private bool firstBlock = true;
-
+	private int xTime;
 	private bool waitActive = false;
-	
-	public bool gameOver = false;
+	private bool shapeFalling = false;
 
 	//sample shape, just fo shows
 	private int[,,] shape1 = new int[,,] {{{1,1,1},{1,1,0},{1,0,0}},
@@ -51,14 +53,11 @@ public class BlockControl : MonoBehaviour {
 	[DllImport ("make2")]
 	private static extern int main();
 
-	
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
 	public float pinSize = 1.0f;
 	
-	public Board gameBoard;
-
-	GameOver gOver;
+	Board gameBoard;
 	
 	//starting height where shapes are created
 	public float startHeight = 50.0f;
@@ -78,7 +77,6 @@ public class BlockControl : MonoBehaviour {
 	//for moving the shapes need to know the centre of shape
 	private float posX,posZ;	
 	private Vector3 centreRotation = new Vector3 (2,1,2);
-	private int currentShapeLength;
 	
 	//rotate the shape array
 	int[,,] rotateShape(int[,,] shape, bool clockwise){
@@ -115,19 +113,16 @@ public class BlockControl : MonoBehaviour {
 
 		gameBoard = GetComponent<Board>();
 		getBoardValues();
-
-		gOver = GetComponent<GameOver>();
 	}
 	
 	// Initialization.
 	void Start () {
 
-		pass = 0;
+		pass = 0;	
 		timer = 1;
 		shapeMove=0;
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
 		//getShapeArray();
-
 	}
 	
 	// Set maximum amount of pins that can fit in each direction.
@@ -140,7 +135,7 @@ public class BlockControl : MonoBehaviour {
 	// For testing purposes
 	public int[,,] getShapeArray(){
 		int[,,] shapeTemp = new int[20,20,20];
-		string data = "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
+		string data =  "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
 		string[] dA = data.Split('.');
 		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
@@ -168,11 +163,11 @@ public class BlockControl : MonoBehaviour {
 	 */
 	private int[,,] transformShape(int[,,] shape){
 		int[,,] shape4;
-		int minY = shape.GetLength(0);
+		int minY = shape.GetLength(1);
 		int maxY = 0;
 		int minX = shape.GetLength(0);
 		int maxX = 0;
-		int minZ = shape.GetLength(0);
+		int minZ = shape.GetLength(2);
 		int maxZ = 0;
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(1); y++){
@@ -182,13 +177,13 @@ public class BlockControl : MonoBehaviour {
 						if (y > maxY) maxY=y;
 						if (x < minX) minX=x;
 						if (x > maxX) maxX=x;
-						if (x < minZ) minZ=z;
-						if (x > maxZ) maxZ=z;
+						if (z < minZ) minZ=z;
+						if (z > maxZ) maxZ=z;
 					}
 				}
 			}
 		}
-		Debug.Log("Minmax: " + (maxY-minY+1));
+		//Debug.Log("Minmax: " + (maxY-minY+1));
 		shape4 = new int[maxX-minX+1,maxY-minY+1,maxZ-minZ+1];
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(1); y++){
@@ -279,7 +274,7 @@ public class BlockControl : MonoBehaviour {
 		}		
 	}*/
 
-	private void getRotationCentre(int[,,] shape, float halfLength){
+	private void getRotationCentre(int[,,] shape, float halfLengthX, float halfLengthZ){
 
 		float finalX, finalZ;
 		finalX = shape.GetLength(0)-1;
@@ -306,8 +301,8 @@ public class BlockControl : MonoBehaviour {
 			}
 		}
 		
-		posX = centreX-halfLength;
-		posZ = centreZ-halfLength;
+		posX = centreX-halfLengthX;
+		posZ = centreZ-halfLengthZ;
 	}
 	
 	private bool checkMoveAllowed(){
@@ -345,14 +340,13 @@ public class BlockControl : MonoBehaviour {
 			if (ys[i] < 0) return true;
 			//Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
 			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
-				Debug.Log("A collision has happened!"+xs[i]+1+":"+ys[i]+":" +zs[i]+1);
-				gameBoard.printArray();
+				//Debug.Log("A collision has happened!"+xs[i]+1+":"+ys[i]+":" +zs[i]+1);
+				//gameBoard.printArray();
 				return true;
 			}
 		}
 		return false;
 	}
-
 
 	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
 	**	 before next shape is triggered.
@@ -361,25 +355,38 @@ public class BlockControl : MonoBehaviour {
 	*/
 	IEnumerator Wait(GameObject block){
 		gameBoard.pauseGame(Time.realtimeSinceStartup);
-        Debug.Log("Wait for " + timeGap + "s");
+        Debug.Log("Wait for " + 1 + "s");
         waitActive = true;
-        yield return new WaitForSeconds(timeGap);
+
+		xTime = 0;
+		Debug.Log ("wejkjlfd");
+		while (xTime < (timeGap/0.01f)){
+			yield return new WaitForSeconds(0.01f);
+			xTime++;
+		}
+
         waitActive = false;
         Debug.Log("After waiting for " + timeGap + "s");
+		shapeFalling = false;
 
         if(block == null)
         	Debug.Log("Block is null :S !!");
 
-        triggerNextShape(block);
-		block = GameObject.Find("ActiveBlock");
-		gameBoard.unpauseGame();
+        if(xTime == 88888889){ //xTime < (timeGap / 0.01)){
+            Debug.Log("ENTER PRESSED!");
+            gameBoard.unpauseGame();
+            triggerNextShape(block);
+			block = GameObject.Find("ActiveBlock");
+        }
+        else{
+            Debug.Log("Enter not pressed?");
+            Application.LoadLevel("MainMenu");
+        }
     }
 
 
-	
-	
 	private void triggerNextShape(GameObject block){
-		for (int i = 0; i < Math.Pow(currentShapeLength, 3); i++){
+		for (int i = 0; i < Math.Pow(gameBoard.nx, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
 			if (childTransform != null){
 				int layer = (int)Math.Round(childTransform.position.y - 0.38);
@@ -410,187 +417,171 @@ public class BlockControl : MonoBehaviour {
 	}
 	// Update is called once per frame.
 	void Update () {
-		//checks if a piece has been added to the top layer of the array.
-		//if so, end game.
-		if(gameBoard.isGameOver()){
-			gameOver = true;
-			Application.LoadLevel("GameOver");
-			Debug.Log("BYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEEEEE");
+		GameObject block = GameObject.Find("ActiveBlock");
+		Vector3 translation = Vector3.zero;
+		Vector3 rotation = Vector3.zero;
+		int hasMoved = 0;
+
+        if (block == null || shadow == null) return;
+		//This keeps track of how many seconds we wait between two pieces.
+		int x = 10;
+		
+		if (firstBlock){
+			Destroy(highlight);
+			highlightLanding();
+			firstBlock = false;
+		}
+		timer -= Time.deltaTime;
+		if(timer<=0){
+			timer=1;
+			shadow.transform.Translate(0,-1,0);
+			if (checkMoveAllowed()){
+				block.transform.Translate(0,-1,0);
+			} else {
+				//Pauses game for 10 secs before the next piece is triggered
+				/* We first check if it's currently waiting or not, as
+				** Update() is called several times in the 10s period.
+				** We don't just wait for a value to be returned after the 10s
+				** as we still need to move the board.
+				*/
+				if(!waitActive)
+					StartCoroutine(Wait(block));
+				/*triggerNextShape(block);
+				block = GameObject.Find("ActiveBlock");*/
+			}
 		}
 
-		if(gameOver == false){
-			GameObject block = GameObject.Find("ActiveBlock");
-			Vector3 translation = Vector3.zero;
-			Vector3 rotation = Vector3.zero;
-			int hasMoved = 0;
-			int newblock = 0;
-
-	        if (block == null || shadow == null) return;
-			//This keeps track of how many seconds we wait between two pieces.
-			int x = 10;
-			
-			if (firstBlock){
-				Destroy(highlight);
-				highlightLanding();
-				firstBlock = false;
-			}
-			timer -= Time.deltaTime;
-			if(timer<=0){
-				timer=1;
-				shadow.transform.Translate(0,-1,0);
-				if (checkMoveAllowed()){
-					block.transform.Translate(0,-1,0);
-				} else {
-					//Pauses game for 10 secs before the next piece is triggered
-					/* We first check if it's currently waiting or not, as
-					** Update() is called several times in the 10s period.
-					** We don't just wait for a value to be returned after the 10s
-					** as we still need to move the board.
-					*/
-					if(!waitActive)
-						StartCoroutine(Wait(block));
-					/*triggerNextShape(block);
-					block = GameObject.Find("ActiveBlock");*/
-					newblock = 1;
-				}
-			}	
-			
-			//ROTATE right
-			if (Input.GetKeyDown("v")){		
-				rotation = new Vector3(0,90,0);
-				hasMoved = 1;
-			}		
-			//ROTATE left
-			if (Input.GetKeyDown("c")){
-				rotation = new Vector3(0,-90,0);
+		if(Input.GetKeyDown("return")){
+			shapeFalling = true;
+			//Unique key code. Required to check if user has run out of time.
+			xTime = 88888888;
+			Debug.Log ("ENTER");
+		}
+		
+		//ROTATE right
+		if (Input.GetKeyDown("v")){		
+			rotation = new Vector3(0,90,0);
+			hasMoved = 1;
+		}		
+		//ROTATE left
+		if (Input.GetKeyDown("c")){
+			rotation = new Vector3(0,-90,0);
+			hasMoved = 1;
+		}
+		
+		//piece falls down further with space bar
+		if(Input.GetKey("space")){
+			//check every 4 frames
+			if(shapeMove%4 == 0){
+				translation = new Vector3(0,-1,0);
 				hasMoved = 1;
 			}
-			
-			//piece falls down further with space bar
-			if(Input.GetKey("space")){
-				//check every 4 frames
-				if(shapeMove%4 == 0){
-					translation = new Vector3(0,-1,0);
-					hasMoved = 1;
+		}
+		
+		//MOVE forward
+		if (Input.GetKey("up")){
+			//check every 4 frames
+			if(shapeMove%4 == 0){
+				if (cameraScript.rotationDir == 0){
+					translation = new Vector3(0,0,1);
 				}
+				if (cameraScript.rotationDir == 1){
+					translation = new Vector3(-1,0,0);
+				}
+				if (cameraScript.rotationDir == 2){
+					translation = new Vector3(0,0,-1);
+				}
+				if (cameraScript.rotationDir == 3){
+					translation = new Vector3(1,0,0);
+				}
+				
+				hasMoved = 1;
 			}
-			
-			//MOVE forward
-			if (Input.GetKey("up")){
-				//check every 4 frames
-				if(shapeMove%4 == 0){
-					if (cameraScript.rotationDir == 0){
-						translation = new Vector3(0,0,1);
-					}
-					if (cameraScript.rotationDir == 1){
-						translation = new Vector3(-1,0,0);
-					}
-					if (cameraScript.rotationDir == 2){
-						translation = new Vector3(0,0,-1);
-					}
-					if (cameraScript.rotationDir == 3){
-						translation = new Vector3(1,0,0);
-					}
-					
-					hasMoved = 1;
+		}
+		//MOVE back
+		if (Input.GetKey("down")){
+			//check every 4 frames
+			if(shapeMove%4 == 0){
+				if (cameraScript.rotationDir == 0){
+					translation = new Vector3(0,0,-1);
 				}
+				if (cameraScript.rotationDir == 1){
+					translation = new Vector3(1,0,0);
+				}
+				if (cameraScript.rotationDir == 2){
+					translation = new Vector3(0,0,1);
+				}
+				if (cameraScript.rotationDir == 3){
+					translation = new Vector3(-1,0,0);
+				}
+				
+				hasMoved = 1;
 			}
-			//MOVE back
-			if (Input.GetKey("down")){
-				//check every 4 frames
-				if(shapeMove%4 == 0){
-					if (cameraScript.rotationDir == 0){
-						translation = new Vector3(0,0,-1);
-					}
-					if (cameraScript.rotationDir == 1){
-						translation = new Vector3(1,0,0);
-					}
-					if (cameraScript.rotationDir == 2){
-						translation = new Vector3(0,0,1);
-					}
-					if (cameraScript.rotationDir == 3){
-						translation = new Vector3(-1,0,0);
-					}
-					
-					hasMoved = 1;
+		}
+		//MOVE right
+  		if (Input.GetKey("right")){
+			//check every 4 frames
+			if(shapeMove%4 == 0){
+				if (cameraScript.rotationDir == 0){
+					translation = new Vector3(1,0,0);
 				}
+				if (cameraScript.rotationDir == 1){
+					translation = new Vector3(0,0,1);
+				}
+				if (cameraScript.rotationDir == 2){
+					translation = new Vector3(-1,0,0);
+				}
+				if (cameraScript.rotationDir == 3){
+					translation = new Vector3(0,0,-1);
+				}
+				hasMoved = 1;
 			}
-			//MOVE right
-	  		if (Input.GetKey("right")){
-				//check every 4 frames
-				if(shapeMove%4 == 0){
-					if (cameraScript.rotationDir == 0){
-						translation = new Vector3(1,0,0);
-					}
-					if (cameraScript.rotationDir == 1){
-						translation = new Vector3(0,0,1);
-					}
-					if (cameraScript.rotationDir == 2){
-						translation = new Vector3(-1,0,0);
-					}
-					if (cameraScript.rotationDir == 3){
-						translation = new Vector3(0,0,-1);
-					}
-					hasMoved = 1;
+  		}
+  		//MOVE left
+  		if (Input.GetKey("left")){
+			//check every 4 frames
+			if(shapeMove%4 == 0){
+				if (cameraScript.rotationDir == 0){
+					translation = new Vector3(-1,0,0);
 				}
-	  		}
-	  		//MOVE left
-	  		if (Input.GetKey("left")){
-				//check every 4 frames
-				if(shapeMove%4 == 0){
-					if (cameraScript.rotationDir == 0){
-						translation = new Vector3(-1,0,0);
-					}
-					if (cameraScript.rotationDir == 1){
-						translation = new Vector3(0,0,-1);
-					}
-					if (cameraScript.rotationDir == 2){
-						translation = new Vector3(1,0,0);
-					}
-					if (cameraScript.rotationDir == 3){
-						translation = new Vector3(0,0,1);
-					}
-					hasMoved = 1;
+				if (cameraScript.rotationDir == 1){
+					translation = new Vector3(0,0,-1);
 				}
+				if (cameraScript.rotationDir == 2){
+					translation = new Vector3(1,0,0);
+				}
+				if (cameraScript.rotationDir == 3){
+					translation = new Vector3(0,0,1);
+				}
+				hasMoved = 1;
 			}
+		}
+		Vector3 backupPos = shadow.transform.position;
+		Quaternion backupRot = shadow.transform.rotation;
+		shadow.transform.Rotate(rotation,Space.Self);
+		shadow.transform.Translate(translation, Space.World);
+		if (checkArrayCollisions()){
+			Debug.Log("Array collision");
+			Debug.Log("shadow");
+			printShadow(shadow);
+			Debug.Log("block");
+			printShadow(block);
+			shadow.transform.position = backupPos;
+			shadow.transform.rotation = backupRot;
+		}else{
+			block.transform.Rotate(rotation,Space.Self);
+			block.transform.Translate(translation, Space.World);
+			posX += translation.x;
+			posZ += translation.z;
+		}
 
-			//When enter is pressed, the next shape is triggered.
-			//STILL IN DEV - Aankhi.
-			if(Input.GetKey("enter") || Input.GetKey("return")){
-				Debug.Log("Enter key pressed. Wuhoo!");
-				//stop timer and make piece fall down.
-			}
-
-			if (newblock != 1){
-				Vector3 backupPos = shadow.transform.position;
-				Quaternion backupRot = shadow.transform.rotation;
-				shadow.transform.Rotate(rotation,Space.Self);
-				shadow.transform.Translate(translation, Space.World);
-				if (checkArrayCollisions()){
-					Debug.Log("Array collision");
-					Debug.Log("shadow");
-					printShadow(shadow);
-					Debug.Log("block");
-					printShadow(block);
-					shadow.transform.position = backupPos;
-					shadow.transform.rotation = backupRot;
-				}else{
-					block.transform.Rotate(rotation,Space.Self);
-					block.transform.Translate(translation, Space.World);
-					posX += translation.x;
-					posZ += translation.z;
-				}
-			}
-
-			if(hasMoved==1 || newblock==1){
-				Destroy(highlight);
-				highlightLanding();
-				hasMoved = 0;
-				newblock = 0;
-			}
-			shapeMove++;
-	  	}
-	}
+		if(hasMoved==1){
+			Destroy(highlight);
+			highlightLanding();
+			hasMoved = 0;
+		}
+		shapeMove++;
+  	}
 	
 	//creates and positions the highlighted landing for the shape
 	private void highlightLanding(){
@@ -665,19 +656,20 @@ public class BlockControl : MonoBehaviour {
 
 		/*globalX = (int)((gameBoard.nx - 2)/2);
 		globalZ = (int)((gameBoard.nz - 2)/2);*/
-		Debug.Log(globalX + " " +globalZ);
+		//Debug.Log(globalX + " " +globalZ);
 		GameObject shapeObj = new GameObject();
 		addComponents(shapeObj, shape.GetLength(0));		
-		float halfLength = shape.GetLength(0)/2;
-		getRotationCentre(shape, halfLength);
+		float halfLengthX = shape.GetLength(0)/2;	
+		float halfLengthZ = shape.GetLength(2)/2;
+		getRotationCentre(shape, halfLengthX, halfLengthZ);
 		
 		shapeObj.transform.position = new Vector3(globalX + posX, startHeight, globalZ + posZ);
-		
+			
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(1); y++){
 				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
-						GameObject currentCube = createPointCube(x-halfLength,y-1.5f,z-halfLength);
+						GameObject currentCube = createPointCube(x-halfLengthX,y-1.5f,z-halfLengthZ);
 						
 						currentCube.GetComponent<MeshRenderer>();
 						
@@ -707,8 +699,6 @@ public class BlockControl : MonoBehaviour {
 			}
 		}
 		
-		currentShapeLength = shape.GetLength(0);
-		
 		//Shadow block
 		shadow = Instantiate(shapeObj, shapeObj.transform.position, shapeObj.transform.rotation) as GameObject;
 		shadow.name = "ActiveShadow";
@@ -716,12 +706,10 @@ public class BlockControl : MonoBehaviour {
 			GameObject shadowPin = child.Find("pin").gameObject;
 			Destroy (shadowPin);
 			child.gameObject.renderer.enabled = false;
-			child.gameObject.collider.isTrigger = true;
+			//child.gameObject.collider.isTrigger = true;
 		}
 		//addToScene(shadow);
 		addToScene(shapeObj);
-		//Debug.Log(shapeObj.transform.position);
-		Debug.Log("Transform local " + shapeObj.transform.localPosition);
 		float displacement = startHeight/10-shapeObj.transform.localPosition.y;
 		shapeObj.transform.Translate(0, displacement,0);
 		shadow.transform.Translate(0, displacement,0);
@@ -733,6 +721,7 @@ public class BlockControl : MonoBehaviour {
 		addToScene(shapeObj);
 		
 		globalX=globalX+3;
+		firstBlock = true;
 	}
 	
 	// Adds necessary components and initialisation to a shape.
@@ -755,11 +744,11 @@ public class BlockControl : MonoBehaviour {
 		gameBoard.pauseGame(Time.realtimeSinceStartup);
 		//legoCode = Marshal.PtrToStringAnsi(lego());
 		
-		Debug.Log("Wait for " + seconds + "s");
+	//	Debug.Log("Wait for " + seconds + "s");
 		waitActive = true;
 		yield return new WaitForSeconds(seconds);
 		waitActive = false;
-		Debug.Log("After waiting for " + seconds + "s");
+		//Debug.Log("After waiting for " + seconds + "s");
 		
 		
 		gameBoard.unpauseGame();
@@ -805,20 +794,20 @@ public class BlockControl : MonoBehaviour {
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
-		//cam.takeSnap();
+		/*cam.takeSnap();
 		
 		// call c++ code
-		//int hello = main ();
+		int hello = main ();
 		
-		//StartCoroutine(Wait2(3));
-		//string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
-		//StartCoroutine(Wait2(1));
-		//print (legoCode);
-		//shape4 = getShapeArray(legoCode);    //If your using the webcams to get the shape
+		StartCoroutine(Wait2(3));
+		string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+		StartCoroutine(Wait2(1));
+		print (legoCode);
+		shape4 = getShapeArray(legoCode); */   //If your using the webcams to get the shape
 		
-			shape4 = getShapeArray();   //If your using a hardcoded shape
+		shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape4);
+		createShape(shape2);
 	}
 
 	

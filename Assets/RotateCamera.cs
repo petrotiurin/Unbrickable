@@ -13,7 +13,7 @@ public class RotateCamera : MonoBehaviour
 	//Maximum allowed angles on vertical camera movement. Subject to change.
 	private int maxUpAngle = 40;
 	private int maxDownAngle = -20;
-	private Board brd;
+	private BlockControl blockCtrl;
 	private GameObject topCam;
 	
 	//Initialise starting values and find the base of the gameboard
@@ -23,7 +23,6 @@ public class RotateCamera : MonoBehaviour
 //		Debug.Log("hi");
 		rotRight = false;
 		target = GameObject.Find("base");
-		brd = GameObject.Find("Scene").GetComponent<Board>();
 	}
 	
 	void processVerticalRotation(){
@@ -56,7 +55,6 @@ public class RotateCamera : MonoBehaviour
 						XrotToGo = 90;
 						rotationDir++;
 						rotationDir = rotationDir % 4;
-						brd.DrawBoundary(rotationDir);
 					}
 					//Press "z" to rotate the board CCW
 					else if( Input.GetKey("z") ){
@@ -64,7 +62,6 @@ public class RotateCamera : MonoBehaviour
 						XrotToGo = 90;
 						rotationDir--;
 						if(rotationDir < 0) rotationDir = 3;
-						brd.DrawBoundary(rotationDir);
 					}
 				}
 				
