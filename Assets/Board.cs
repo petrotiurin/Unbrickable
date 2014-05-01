@@ -374,6 +374,16 @@ public class Board : MonoBehaviour {
         countdown = false;
     }
 
+	public void createMesh(){
+		for (int i = 0; i < ny; i++){
+			CombineChildren c = blocksLayer[i].GetComponent<CombineChildren>();
+			if (c != null){
+				Destroy(c);
+			}
+			blocksLayer[i].AddComponent<CombineChildren>();
+		}
+	}
+
     //initialise textures to colour the timer and
     //  display the suggested pieces as 2D textures.
     void initTextures(){

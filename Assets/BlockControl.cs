@@ -334,7 +334,7 @@ public class BlockControl : MonoBehaviour {
 		};
 		for (int i = 0; i < xs.Count; i++){
 			if (ys[i] < 0) return false;
-			Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
+			//Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
 			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
 				//Debug.Log("collision!"+xs[i]+":"+ys[i]+":" +zs[i]);
 				return false;
@@ -382,7 +382,7 @@ public class BlockControl : MonoBehaviour {
 	
 	
 	private void triggerNextShape(GameObject block){
-		gameBoard.printArray();
+		//gameBoard.printArray();
 		for (int i = 0; i < Math.Pow(gameBoard.nx, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
 			if (childTransform != null){
@@ -394,14 +394,16 @@ public class BlockControl : MonoBehaviour {
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
 		}
+		gameBoard.createMesh();
 		gameBoard.checkFullLayers();
+		//TODO check maybe isKinematic is not needed anymore
 		block.rigidbody.isKinematic = true;
 		shadow.rigidbody.isKinematic = true;
 		//create new shape and destroy the old empty container
 		Destroy(block);
 		Destroy(shadow);
 		createShape();
-		gameBoard.printArray();
+		//gameBoard.printArray();
 	}
 
 	//prints positions of all blocks in given gameObject
