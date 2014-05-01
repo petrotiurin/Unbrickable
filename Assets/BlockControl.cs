@@ -84,6 +84,12 @@ public class BlockControl : MonoBehaviour {
 	//material for highlight
 	private Material transparentMaterial;
 
+	//materials for block colours
+	private Material RedMaterial;
+	private Material GreenMaterial;
+	private Material BlueMaterial;
+
+
 	//rotate the shape array
 	int[,,] rotateShape(int[,,] shape, bool clockwise){
 		
@@ -116,8 +122,6 @@ public class BlockControl : MonoBehaviour {
 		//cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
-		
-		transparentMaterial = (Material)Resources.LoadAssetAtPath("Assets/ShadowMaterial.mat", typeof(Material));
 
 		gameBoard = GetComponent<Board>();
 		getBoardValues();
@@ -129,8 +133,13 @@ public class BlockControl : MonoBehaviour {
 		pass = 0;	
 		timer = 1;
 		shapeMove=0;
+
+		transparentMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/ShadowMaterial.mat", typeof(Material));
+		RedMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/RedBlock.mat", typeof(Material));
+		GreenMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/GreenBlock.mat", typeof(Material));
+		BlueMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/BlueBlock.mat", typeof(Material));
+
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
-		//getShapeArray();
 	}
 	
 	// Set maximum amount of pins that can fit in each direction.
@@ -377,6 +386,10 @@ public class BlockControl : MonoBehaviour {
 		for (int i = 0; i < Math.Pow(gameBoard.nx, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
 			if (childTransform != null){
+				//switch individual renderers back on as combined mesh is destroyed
+				childTransform.renderer.enabled = true;
+				childTransform.GetChild(0).renderer.enabled = true;
+
 				int layer = (int)Math.Round(childTransform.position.y - 0.38);
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
@@ -390,13 +403,9 @@ public class BlockControl : MonoBehaviour {
 		createShape();
 		gameBoard.printArray();
 	}
-	
+
+	//prints positions of all blocks in given gameObject
 	private void printShadow(GameObject shadow){
-		//first, get all block coordinates
-		//List<int> xs = new List<int>();
-		//List<int> ys = new List<int>();
-		//List<int> zs = new List<int>();
-		return;
 		foreach (Transform child in shadow.transform){
 			Debug.Log("" + ((int)Math.Round(child.position.x) + 1) + " : " +
 			((int)Math.Round(child.position.y - 0.38)) + " : " +
@@ -550,11 +559,6 @@ public class BlockControl : MonoBehaviour {
 			shadow.transform.Rotate(rotation,Space.Self);
 			shadow.transform.Translate(translation, Space.World);
 			if (checkArrayCollisions()){
-				Debug.Log("Array collision");
-				Debug.Log("shadow");
-				printShadow(shadow);
-				Debug.Log("block");
-				printShadow(block);
 				shadow.transform.position = backupPos;
 				shadow.transform.rotation = backupRot;
 			}else{
@@ -596,10 +600,6 @@ public class BlockControl : MonoBehaviour {
 			foreach (Transform child in highlight.transform){
 				//50% opacity on highlight pins
 				child.renderer.material = transparentMaterial;
-				//child.renderer.material = new Material(Shader.Find("Transparent/Diffuse"));
-		        //child.renderer.material.color =  new Color(0.2F, 0.3F, 0.4F, 0.5F);;
-				
-				//child.renderer.material.color = Color.green;
 				child.gameObject.renderer.enabled = true;
 			}
 			shadow.transform.Translate(0,k,0);
@@ -632,7 +632,6 @@ public class BlockControl : MonoBehaviour {
 	//creates a shape out of array, consisting of 0s and 1s
 	public void createShape(int[,,] shape){
 	
-		//while (shape == null);
 		if (shape == null){
 			throw new Exception("shape is null!");
 		}
@@ -643,11 +642,8 @@ public class BlockControl : MonoBehaviour {
 		pin = 0;
 		
 		globalX = 7;
-		globalZ = 7;	
+		globalZ = 7;
 
-		/*globalX = (int)((gameBoard.nx - 2)/2);
-		globalZ = (int)((gameBoard.nz - 2)/2);*/
-		//Debug.Log(globalX + " " +globalZ);
 		GameObject shapeObj = new GameObject();
 		addComponents(shapeObj, shape.GetLength(0));		
 		float halfLengthX = shape.GetLength(0)/2;	
@@ -661,29 +657,25 @@ public class BlockControl : MonoBehaviour {
 				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
 						GameObject currentCube = createPointCube(x-halfLengthX,y-1.5f,z-halfLengthZ);
-						
-						currentCube.GetComponent<MeshRenderer>();
-						
+						GameObject child = currentCube.transform.Find("pin").gameObject;
 						//Apply colour to each block
 						switch (shape[x,y,z]){
 						
-							case 1: currentCube.renderer.material.color = Color.red;
+							case 1: currentCube.renderer.material = RedMaterial;
+									child.renderer.material = RedMaterial;
 									break;
 								
-							case 2: currentCube.renderer.material.color = Color.green;
+							case 2: currentCube.renderer.material = GreenMaterial;
+									child.renderer.material = GreenMaterial;
 									break;
 								
-							case 3: currentCube.renderer.material.color = Color.blue;
+							case 3: currentCube.renderer.material = BlueMaterial;
+									child.renderer.material = BlueMaterial;
 									break;
 								
 							default : break;
 						}
-						
-						//make pins the same material as block
-						GameObject child = currentCube.transform.Find("pin").gameObject;
-						child.renderer.material = currentCube.renderer.material;
 						addToShape(shapeObj, currentCube);
-						
 					}
 				}
 			}
@@ -709,16 +701,14 @@ public class BlockControl : MonoBehaviour {
 		globalX=globalX+3;
 		firstBlock = true;
 	}
-	
+
+	// TODO CHECK IF CAN DELETE THIS
 	// Adds necessary components and initialisation to a shape.
 	private void addComponents(GameObject shapeObj, int shapeLength){
 		Rigidbody cubeRigidBody = shapeObj.AddComponent<Rigidbody>();
 		cubeRigidBody.mass = 1;
 		cubeRigidBody.useGravity = false;
 		cubeRigidBody.drag = 4;
-		
-		//BlockCollision b = shapeObj.AddComponent<BlockCollision>();
-		//b.setShapeSize(shapeLength);
 		shapeObj.name = "ActiveBlock";
 	}
 	
