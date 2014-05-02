@@ -18,7 +18,6 @@ public class BlockControl : MonoBehaviour {
 	RotateCamera cameraScript;
 	private int globalX, globalZ;
 	private int timeGap = 0;
-	private int maxPinsX,maxPinsZ;
 	string legoCode;
 	
 	private float boundX,boundZ,boundingBox;
@@ -66,7 +65,9 @@ public class BlockControl : MonoBehaviour {
 	private int pin = 0;
 	
 	private float timer;
-	
+
+	public float moveTime = 0.07f;
+
 	private int shapeMove;
 	
 	private GameObject FragmentCube;
@@ -80,6 +81,15 @@ public class BlockControl : MonoBehaviour {
 
 	//to make sure no movement is produced while waiting for the next sahpe
 	private bool movingStopped = false;
+
+	//material for highlight
+	private Material transparentMaterial;
+
+	//materials for block colours
+	private Material RedMaterial;
+	private Material GreenMaterial;
+	private Material BlueMaterial;
+
 
 	//rotate the shape array
 	int[,,] rotateShape(int[,,] shape, bool clockwise){
@@ -115,7 +125,6 @@ public class BlockControl : MonoBehaviour {
 		globalZ = 0;
 
 		gameBoard = GetComponent<Board>();
-		getBoardValues();
 	}
 	
 	// Initialization.
@@ -124,16 +133,14 @@ public class BlockControl : MonoBehaviour {
 		pass = 0;	
 		timer = 1;
 		shapeMove=0;
-		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
-		//getShapeArray();
-	}
-	
-	// Set maximum amount of pins that can fit in each direction.
-	public void getBoardValues(){
-		maxPinsX = gameBoard.nx;
-		maxPinsZ = gameBoard.nz;
-	}
 
+		transparentMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/ShadowMaterial.mat", typeof(Material));
+		RedMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/RedBlock.mat", typeof(Material));
+		GreenMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/GreenBlock.mat", typeof(Material));
+		BlueMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/BlueBlock.mat", typeof(Material));
+
+		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
+	}
 
 	// For testing purposes
 	public int[,,] getShapeArray(){
@@ -320,7 +327,7 @@ public class BlockControl : MonoBehaviour {
 		};
 		for (int i = 0; i < xs.Count; i++){
 			if (ys[i] < 0) return false;
-			Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
+			//Debug.Log("Coord: "+(xs[i]+1)+":"+ys[i]+":" +(zs[i]+1));
 			if (gameBoard.checkPosition(xs[i] + 1,ys[i],zs[i] + 1)){
 				//Debug.Log("collision!"+xs[i]+":"+ys[i]+":" +zs[i]);
 				return false;
@@ -368,30 +375,32 @@ public class BlockControl : MonoBehaviour {
 	
 	
 	private void triggerNextShape(GameObject block){
-		gameBoard.printArray();
+		//gameBoard.printArray();
 		for (int i = 0; i < Math.Pow(gameBoard.nx, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
 			if (childTransform != null){
+				//switch individual renderers back on as combined mesh is destroyed
+				childTransform.renderer.enabled = true;
+				childTransform.GetChild(0).renderer.enabled = true;
+
 				int layer = (int)Math.Round(childTransform.position.y - 0.38);
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
 		}
+		gameBoard.createMesh();
 		gameBoard.checkFullLayers();
+		//TODO check maybe isKinematic is not needed anymore
 		block.rigidbody.isKinematic = true;
 		shadow.rigidbody.isKinematic = true;
 		//create new shape and destroy the old empty container
 		Destroy(block);
 		Destroy(shadow);
 		createShape();
-		gameBoard.printArray();
+		//gameBoard.printArray();
 	}
-	
+
+	//prints positions of all blocks in given gameObject
 	private void printShadow(GameObject shadow){
-		//first, get all block coordinates
-		//List<int> xs = new List<int>();
-		//List<int> ys = new List<int>();
-		//List<int> zs = new List<int>();
-		return;
 		foreach (Transform child in shadow.transform){
 			Debug.Log("" + ((int)Math.Round(child.position.x) + 1) + " : " +
 			((int)Math.Round(child.position.y - 0.38)) + " : " +
@@ -451,11 +460,13 @@ public class BlockControl : MonoBehaviour {
 			rotation = new Vector3(0,-90,0);
 			hasMoved = 1;
 		}
-		
+
+		moveTime -= Time.deltaTime;
+
 		//piece falls down further with space bar
 		if(Input.GetKey("space")){
 			//check every 4 frames
-			if(shapeMove%4 == 0){
+			if(moveTime <= 0){
 				translation = new Vector3(0,-1,0);
 				hasMoved = 1;
 			}
@@ -464,7 +475,7 @@ public class BlockControl : MonoBehaviour {
 		//MOVE forward
 		if (Input.GetKey("up")){
 			//check every 4 frames
-			if(shapeMove%4 == 0){
+			if(moveTime <= 0){
 				if (cameraScript.rotationDir == 0){
 					translation = new Vector3(0,0,1);
 				}
@@ -484,7 +495,7 @@ public class BlockControl : MonoBehaviour {
 		//MOVE back
 		if (Input.GetKey("down")){
 			//check every 4 frames
-			if(shapeMove%4 == 0){
+			if(moveTime <= 0){
 				if (cameraScript.rotationDir == 0){
 					translation = new Vector3(0,0,-1);
 				}
@@ -504,7 +515,7 @@ public class BlockControl : MonoBehaviour {
 		//MOVE right
   		if (Input.GetKey("right")){
 			//check every 4 frames
-			if(shapeMove%4 == 0){
+			if(moveTime <= 0){
 				if (cameraScript.rotationDir == 0){
 					translation = new Vector3(1,0,0);
 				}
@@ -523,7 +534,7 @@ public class BlockControl : MonoBehaviour {
   		//MOVE left
   		if (Input.GetKey("left")){
 			//check every 4 frames
-			if(shapeMove%4 == 0){
+			if(moveTime <= 0){
 				if (cameraScript.rotationDir == 0){
 					translation = new Vector3(-1,0,0);
 				}
@@ -539,17 +550,17 @@ public class BlockControl : MonoBehaviour {
 				hasMoved = 1;
 			}
 		}
+
+		if(moveTime <= 0 && hasMoved == 1){
+			moveTime = 0.07f;
+		}
+
 		if (!movingStopped){
 			Vector3 backupPos = shadow.transform.position;
 			Quaternion backupRot = shadow.transform.rotation;
 			shadow.transform.Rotate(rotation,Space.Self);
 			shadow.transform.Translate(translation, Space.World);
 			if (checkArrayCollisions()){
-				Debug.Log("Array collision");
-				Debug.Log("shadow");
-				printShadow(shadow);
-				Debug.Log("block");
-				printShadow(block);
 				shadow.transform.position = backupPos;
 				shadow.transform.rotation = backupRot;
 			}else{
@@ -587,17 +598,14 @@ public class BlockControl : MonoBehaviour {
 			//copy shadow
 			highlight = Instantiate(shadow, highlightPos, shadow.transform.rotation) as GameObject;
 			highlight.name = "activeHighlight";
-			
+
 			foreach (Transform child in highlight.transform){
 				//50% opacity on highlight pins
-				
-				child.renderer.material = new Material(Shader.Find("Transparent/Diffuse"));
-		        child.renderer.material.color =  new Color(0.2F, 0.3F, 0.4F, 0.5F);;
-				
-				//child.renderer.material.color = Color.green;
+				child.renderer.material = transparentMaterial;
 				child.gameObject.renderer.enabled = true;
 			}
 			shadow.transform.Translate(0,k,0);
+			highlight.AddComponent<CombineChildren>();
 		}
 	}
 	
@@ -626,7 +634,6 @@ public class BlockControl : MonoBehaviour {
 	//creates a shape out of array, consisting of 0s and 1s
 	public void createShape(int[,,] shape){
 	
-		//while (shape == null);
 		if (shape == null){
 			throw new Exception("shape is null!");
 		}
@@ -637,11 +644,8 @@ public class BlockControl : MonoBehaviour {
 		pin = 0;
 		
 		globalX = 7;
-		globalZ = 7;	
+		globalZ = 7;
 
-		/*globalX = (int)((gameBoard.nx - 2)/2);
-		globalZ = (int)((gameBoard.nz - 2)/2);*/
-		//Debug.Log(globalX + " " +globalZ);
 		GameObject shapeObj = new GameObject();
 		addComponents(shapeObj, shape.GetLength(0));		
 		float halfLengthX = shape.GetLength(0)/2;	
@@ -655,30 +659,25 @@ public class BlockControl : MonoBehaviour {
 				for (int z=0; z < shape.GetLength(2); z++){
 					if (shape[x,y,z] != 0){
 						GameObject currentCube = createPointCube(x-halfLengthX,y-1.5f,z-halfLengthZ);
-						
-						currentCube.GetComponent<MeshRenderer>();
-						
+						GameObject child = currentCube.transform.Find("pin").gameObject;
 						//Apply colour to each block
 						switch (shape[x,y,z]){
 						
-							case 1: currentCube.renderer.material.color = Color.red;
+							case 1: currentCube.renderer.material = RedMaterial;
+									child.renderer.material = RedMaterial;
 									break;
 								
-							case 2: currentCube.renderer.material.color = Color.green;
+							case 2: currentCube.renderer.material = GreenMaterial;
+									child.renderer.material = GreenMaterial;
 									break;
 								
-							case 3: currentCube.renderer.material.color = Color.blue;
+							case 3: currentCube.renderer.material = BlueMaterial;
+									child.renderer.material = BlueMaterial;
 									break;
 								
 							default : break;
 						}
-						
-						//make pins the same material as block
-						GameObject child = currentCube.transform.Find("pin").gameObject;
-						child.renderer.material = currentCube.renderer.material;
-						
 						addToShape(shapeObj, currentCube);
-						
 					}
 				}
 			}
@@ -691,33 +690,27 @@ public class BlockControl : MonoBehaviour {
 			GameObject shadowPin = child.Find("pin").gameObject;
 			Destroy (shadowPin);
 			child.gameObject.renderer.enabled = false;
-			//child.gameObject.collider.isTrigger = true;
 		}
-		//addToScene(shadow);
 		addToScene(shapeObj);
 		float displacement = startHeight/10-shapeObj.transform.localPosition.y;
 		shapeObj.transform.Translate(0, displacement,0);
 		shadow.transform.Translate(0, displacement,0);
-		//shapeObj.transform.Translate(0,20,0);
+		shapeObj.AddComponent<CombineChildren>();
 		GameObject shadowLayer = GameObject.Find("ShadowLayer");
 		Transform t = shadow.transform;
 		t.parent = shadowLayer.GetComponent<Transform>();
-		
 		addToScene(shapeObj);
-		
 		globalX=globalX+3;
 		firstBlock = true;
 	}
-	
+
+	// TODO CHECK IF CAN DELETE THIS
 	// Adds necessary components and initialisation to a shape.
 	private void addComponents(GameObject shapeObj, int shapeLength){
 		Rigidbody cubeRigidBody = shapeObj.AddComponent<Rigidbody>();
 		cubeRigidBody.mass = 1;
 		cubeRigidBody.useGravity = false;
 		cubeRigidBody.drag = 4;
-		
-		//BlockCollision b = shapeObj.AddComponent<BlockCollision>();
-		//b.setShapeSize(shapeLength);
 		shapeObj.name = "ActiveBlock";
 	}
 	
@@ -792,7 +785,7 @@ public class BlockControl : MonoBehaviour {
 		
 		shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape4);
+		createShape(shape2);
 	}
 
 	

@@ -253,7 +253,6 @@ public class Board : MonoBehaviour {
 		
 			
 		//remove the layer from the board array
-		//TODO: change so that it can delete multiple layers
 		//nx=17    x,y,z
 		for(int i=1; i< nx-1;i++){
 			for(int j=1;j < nz-1;j++){
@@ -377,6 +376,16 @@ public class Board : MonoBehaviour {
         timer = 0;
         countdown = false;
     }
+
+	public void createMesh(){
+		for (int i = 0; i < ny; i++){
+			CombineChildren c = blocksLayer[i].GetComponent<CombineChildren>();
+			if (c != null){
+				Destroy(c);
+			}
+			blocksLayer[i].AddComponent<CombineChildren>();
+		}
+	}
 
     //initialise textures to colour the timer and
     //  display the suggested pieces as 2D textures.
