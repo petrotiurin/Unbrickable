@@ -134,7 +134,7 @@ public class Board : MonoBehaviour {
         //pauseStarting(10);
         startTime = Time.realtimeSinceStartup;
         Debug.Log("Start time --> " + Time.realtimeSinceStartup);
-        StartCoroutine(InitCountdown(3));
+        StartCoroutine(InitCountdown(4));
     }
 
     // Update is called once per frame.
@@ -515,14 +515,28 @@ public class Board : MonoBehaviour {
     */
     void OnGUI () {
         //display start timer
-        if((Time.realtimeSinceStartup - startTime) < 1)
-            GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "READY");
+        if((Time.realtimeSinceStartup - startTime) < 1){
+            Texture count = Resources.Load("3") as Texture2D;//(Texture)Resources.LoadAssetAtPath /////
+            //GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "READY");
+            GUI.DrawTexture(new Rect(Screen.width/2-100, Screen.height/2-100, 200, 200), count);
+        }
         else if((Time.realtimeSinceStartup - startTime) > 1 &&
-            (Time.realtimeSinceStartup - startTime) < 2)
-            GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "SET");
+            (Time.realtimeSinceStartup - startTime) < 2){
+            //GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "SET");
+            Texture count = Resources.Load("2") as Texture2D;
+            GUI.DrawTexture(new Rect(Screen.width/2-100, Screen.height/2-100, 200, 200), count);
+        }
         else if((Time.realtimeSinceStartup - startTime) > 2 &&
-            (Time.realtimeSinceStartup - startTime) < 3 && goText == true)
-            GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "GO");
+            (Time.realtimeSinceStartup - startTime) < 3){// && goText == true){
+            //GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "GO");
+            Texture count = Resources.Load("1") as Texture2D;
+            GUI.DrawTexture(new Rect(Screen.width/2-100, Screen.height/2-100, 200, 200), count);
+        }
+        else if((Time.realtimeSinceStartup - startTime) > 3 &&
+            (Time.realtimeSinceStartup - startTime) < 4 && goText == true){
+            Texture count = Resources.Load("go") as Texture2D;
+            GUI.DrawTexture(new Rect(Screen.width/2-175, Screen.height/2-100, 350, 200), count);
+        }
         //GUIText
 
 		Texture t = (Texture)Resources.LoadAssetAtPath("Assets/TopDownView.renderTexture", typeof(Texture));
