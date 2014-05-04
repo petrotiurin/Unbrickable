@@ -28,16 +28,19 @@ public class Board : MonoBehaviour {
     int xTime = 0;
 
 	//timer progress bar
-    public float barDisplay = 1; //current progress
-    public Vector2 pos = new Vector2(50,100);
-    public Vector2 size = new Vector2(150,100);
-    public Texture2D emptyTex;
-    public Texture2D fullTex;
+    private float barDisplay = 1; //current progress
+    private Vector2 pos = new Vector2(50,100);
+    private Vector2 size = new Vector2(150,100);
+    private Texture2D emptyTex;
+    private Texture2D fullTex;
     //end timer progress bar
 
     //start display 2D images.
-    public Texture2D[] lego;
-    public int[] legoSuggestions;
+    private Texture2D[] lego;
+    int[] legoSuggestions;
+
+    //for wall, it is one unit of the walls.
+    public Transform grid;
 
 	private bool[,,] boardArray;
 	
@@ -54,8 +57,20 @@ public class Board : MonoBehaviour {
 
 	private Camera topCam;
 
+    //starting text
+    private GUIText startGameText;
+    private bool goText = true;
+
+    //start time
+    float startTime;
+
 	// Initialization.
 	void Awake () {
+        Debug.Log("Initialisation");
+        startTime = Time.realtimeSinceStartup;
+        Debug.Log("Awake Time ---> " + startTime);
+
+		GameObject.Find("Main Camera").AddComponent<AudioListener>();
 		GameObject cam = GameObject.Find("Main Camera");
 		if (cam.GetComponent<AudioListener>() == null) cam.AddComponent<AudioListener>();
 		//boardArray keeps track of which positions on the board is occupied.
@@ -107,6 +122,11 @@ public class Board : MonoBehaviour {
 		flashPass = 0;
 		
 		DrawBoard();
+		
+		GameObject block2 = (GameObject)Resources.LoadAssetAtPath("Assets/block2.prefab", typeof(GameObject));
+		grid = block2.transform;
+        //boundaries for initial orientation
+        DrawBoundary(0);
 		createTopCamera();
 
 	//	audio_source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
@@ -116,8 +136,25 @@ public class Board : MonoBehaviour {
 
 		//start gameplay.
 		blockCtrl.assignTimeGap(timeGap);
-		StartCoroutine(Wait());
 	}
+
+    void Start(){
+        //pauseStarting(10);
+        startTime = Time.realtimeSinceStartup;
+        Debug.Log("Start time --> " + Time.realtimeSinceStartup);
+        StartCoroutine(InitCountdown(4));
+    }
+
+    // Update is called once per frame.
+    void Update (){
+        if(countdown){
+            if(Input.GetKeyDown("return")){
+                xTime = 88888888;
+                shapeFalling = true;
+                Debug.Log ("ENTER");
+            }
+        }
+    }
 
 	private void createTopCamera(){
 		UnityEngine.Object cameraPrefab = Resources.LoadAssetAtPath("Assets/TopCamera.prefab", typeof(Camera));
@@ -145,15 +182,6 @@ public class Board : MonoBehaviour {
 		//if (audio_source != null) audio_source.volume = 0.1f;
 		//layer_clear_sound.Play();
 		//if (audio_source != null) Invoke( "setMaxVolume", layer_clear_sound.clip.length );
-	}
-	
-	// Update is called once per frame.
-	void Update (){
-		if(Input.GetKeyDown("return")){
-            shapeFalling = true;
-            xTime = 999999999;
-            //Debug.Log ("ENTER");
-        }
 	}
 	
 	// Create the base of the game board.
@@ -212,19 +240,58 @@ public class Board : MonoBehaviour {
 		//cube.transform.localPosition = new Vector3(cube.transform.localPosition.x, -0.1f, cube.transform.localPosition.z);
 	}
 	
+
+
+    //Create visible boundary walls.
+    public void DrawBoundary(int rotDir){
+        GameObject[] argo = GameObject.FindGameObjectsWithTag("WallPiece");
+        foreach (GameObject go in argo) {
+            Destroy(go);
+        }
+
+        for(int i=0; i< ny;i++){
+            for(int j=-1;j < nx-3;j++){
+                if(rotDir == 0){
+                    Instantiate(grid, new Vector3(j,i,nz-3),Quaternion.identity);
+                    Instantiate(grid, new Vector3(nx-3,i,j),Quaternion.identity);
+                }
+                else if(rotDir == 1){
+                    Instantiate(grid, new Vector3(j,i,nz-3),Quaternion.identity);
+                    Instantiate(grid, new Vector3(-2,i,j),Quaternion.identity);
+                }
+                else if(rotDir == 2){
+                    Instantiate(grid, new Vector3(-2,i,j),Quaternion.identity);
+                    Instantiate(grid, new Vector3(j,i,-2),Quaternion.identity);   
+                }
+                else{
+                    Instantiate(grid, new Vector3(j,i,-2),Quaternion.identity); 
+                    Instantiate(grid, new Vector3(nx-3,i,j),Quaternion.identity);
+
+                }
+            }
+        }
+    }
+
+
 	// Add a pin object to its respective layer.
 	public void FillPosition(int layer, GameObject pin) {
 		addBlocks(layer, pin);
 	}
 
 	public void checkFullLayers(){
+        int noOfLayer = 0;
 		// Destroy the layers if they are full.
 		for (int i = 0; i < blocksLayer.Length; i++){
 			if(blocksLayer[i].transform.childCount == (nx-2)*(nz-2)){
 				clearLayer(i);
 				i = -1; //will be back to 0 because of i++
+                //TODO: Add counter here to check number of layers
+                noOfLayer++;
 			}
 		}
+
+        //TODO: Find out how and whn multiple layers are being cleared. - A
+        scoring(1, noOfLayer);
 	}
 	
 	/* We currently have a very basic scoring system in which
@@ -232,10 +299,14 @@ public class Board : MonoBehaviour {
     ** 10 is a rather arbitrary number but gives a bigger sense of
     ** achievement than getting 1 point after so much effort :P
     ** TODO: Expand this to add points @ rules. (eg. 2 adjacent red pieces)
+    ** FLAGS - 0: Piece added, 1: x number of lines deleted.
+    ** Overloaded function did not work -_-
     */
-    void scoring(int flag){
+    void scoring(int flag, int addScore){
         if(flag == 0)
-            score += 10;
+            score += addScore;
+        else
+        score += addScore * 10;
     }
 
 	// Clear the layer (i.e. reset the layer count to 0).
@@ -247,8 +318,7 @@ public class Board : MonoBehaviour {
 		}
 
 		//Handle scoring when layer is deleted.
-		//TODO: Find out how and whn multiple layers are being cleared. - A
-		scoring(0);
+		
 		Destroy(blocksLayer[y]);
 		blocksLayer[y] = null; //probably redundant
 		
@@ -319,6 +389,18 @@ public class Board : MonoBehaviour {
 		else return boardArray[x,y,z];
 	}
 	
+
+    //Called from BlockControl to check if the top layer has been filled.
+    public bool isGameOver(){
+        Debug.Log("checking if game over");
+        for(int i = 1; i < nx-1; i++)
+            for(int j = 1; j < nz-1; j++)
+                if(boardArray[i,ny-1,j])
+                    return true;
+        return false;
+    }
+    
+
 	public void printArray(){
 		print("******A collision has happened,,,,,,,the board array looks like this ------->>>>>>");
 		for(int k=0;k<ny;k++){
@@ -337,6 +419,15 @@ public class Board : MonoBehaviour {
 		Transform t = o.transform;
 		t.parent = scene.GetComponent<Transform>();
 	}
+
+    /* Create a gap of x seconds to countdown 3-2-1-GO before the game
+    **   actually starts.
+    */
+    IEnumerator InitCountdown(int x){
+        yield return new WaitForSeconds(x);
+        goText = false;
+        StartCoroutine(Wait());
+    }
 
 	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
 	**	 before the first shape is triggered.
@@ -357,8 +448,17 @@ public class Board : MonoBehaviour {
             xTime++;
         }
 
-		unpauseGame();
-		blockCtrl.createShape();
+        Debug.Log("xTime = " + xTime);
+        //game over mechanism
+        if(xTime == 88888889){ //xTime < (timeGap / 0.01)){
+            //Debug.Log("ENTER PRESSED!");
+            unpauseGame();
+            blockCtrl.createShape();
+        }
+        else{
+            //Debug.Log("Enter not pressed?");
+            Application.LoadLevel("MainMenu");
+        }		
     }
 
 	public void pauseGame(float start){
@@ -372,6 +472,8 @@ public class Board : MonoBehaviour {
 
     //set the timer to 0, stop the countdown and fetch next piece.
     public void unpauseGame(){
+        Debug.Log("Points? --------> " + timer);
+        scoring(0, (int)timer);
         timer = 0;
         countdown = false;
     }
@@ -430,6 +532,31 @@ public class Board : MonoBehaviour {
     ** the piece suggestions.
     */
     void OnGUI () {
+        //display start timer
+        if((Time.realtimeSinceStartup - startTime) < 1){
+            Texture count = Resources.Load("3") as Texture2D;//(Texture)Resources.LoadAssetAtPath /////
+            //GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "READY");
+            GUI.DrawTexture(new Rect(Screen.width/2-100, Screen.height/2-100, 200, 200), count);
+        }
+        else if((Time.realtimeSinceStartup - startTime) > 1 &&
+            (Time.realtimeSinceStartup - startTime) < 2){
+            //GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "SET");
+            Texture count = Resources.Load("2") as Texture2D;
+            GUI.DrawTexture(new Rect(Screen.width/2-100, Screen.height/2-100, 200, 200), count);
+        }
+        else if((Time.realtimeSinceStartup - startTime) > 2 &&
+            (Time.realtimeSinceStartup - startTime) < 3){// && goText == true){
+            //GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "GO");
+            Texture count = Resources.Load("1") as Texture2D;
+            GUI.DrawTexture(new Rect(Screen.width/2-100, Screen.height/2-100, 200, 200), count);
+        }
+        else if((Time.realtimeSinceStartup - startTime) > 3 &&
+            (Time.realtimeSinceStartup - startTime) < 4 && goText == true){
+            Texture count = Resources.Load("go") as Texture2D;
+            GUI.DrawTexture(new Rect(Screen.width/2-175, Screen.height/2-100, 350, 200), count);
+        }
+        //GUIText
+
 		Texture t = (Texture)Resources.LoadAssetAtPath("Assets/TopDownView.renderTexture", typeof(Texture));
 		GUI.DrawTexture(new Rect ((Screen.width - 300),(Screen.height - 300),300,300),t);
 
@@ -440,6 +567,7 @@ public class Board : MonoBehaviour {
         if(countdown){
             float timediff = Time.realtimeSinceStartup - starttimer;
             if(timediff < timeGap){
+                barDisplay = 0.01f;
                 //Debug.Log("timediff = " + timediff);
                 timer = (int)timediff;
                 //Debug.Log("Timer = " + timer);
@@ -448,7 +576,6 @@ public class Board : MonoBehaviour {
             }
         }else{
                 timer = 0;
-                barDisplay = 0.01f;
         }
 
         //timer progress bar.
@@ -458,7 +585,6 @@ public class Board : MonoBehaviour {
 			GUI.DrawTexture(new Rect(0,25,150,50), emptyTex);
 			//draw the ticker
 			GUI.BeginGroup(new Rect(5,31,140,39));
-				//GUI.Box(new Rect(0,0,140*barDisplay,40), fullTex);
 				GUI.DrawTexture(new Rect(0,0,140*barDisplay,40), fullTex);//, ScaleMode.ScaleToFit, true, 10.0F);
 			GUI.EndGroup();
 		GUI.EndGroup();
