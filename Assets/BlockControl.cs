@@ -29,6 +29,7 @@ public class BlockControl : MonoBehaviour {
 	private int xTime;
 	private bool waitActive = false;
 	private bool shapeFalling = false;
+	public bool gameOver = false;
 
 	//sample shape, just fo shows
 	private int[,,] shape1 = new int[,,] {{{1,1,1},{1,1,0},{1,0,0}},
@@ -58,6 +59,7 @@ public class BlockControl : MonoBehaviour {
 	public float pinSize = 1.0f;
 	
 	Board gameBoard;
+	GameOver gOver;
 	
 	//starting height where shapes are created
 	public float startHeight = 50.0f;
@@ -113,6 +115,8 @@ public class BlockControl : MonoBehaviour {
 
 		gameBoard = GetComponent<Board>();
 		getBoardValues();
+
+		gOver = GetComponent<GameOver>();
 	}
 	
 	// Initialization.
@@ -372,19 +376,19 @@ public class BlockControl : MonoBehaviour {
         if(block == null)
         	Debug.Log("Block is null :S !!");
 
-		//game over mechanism
-        if(xTime == (timeGap / 0.01)){
-            Application.LoadLevel("MainMenu");
+        if(xTime == 88888889){ //xTime < (timeGap / 0.01)){
+            Debug.Log("ENTER PRESSED!");
+            gameBoard.unpauseGame();
+            triggerNextShape(block);
+			block = GameObject.Find("ActiveBlock");
         }
         else{
-            unpauseGame();
-            blockCtrl.createShape();
+            Debug.Log("Enter not pressed?");
+            Application.LoadLevel("MainMenu");
         }
     }
 
 
-	
-	
 	private void triggerNextShape(GameObject block){
 		for (int i = 0; i < Math.Pow(gameBoard.nx, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
@@ -417,172 +421,182 @@ public class BlockControl : MonoBehaviour {
 	}
 	// Update is called once per frame.
 	void Update () {
-		GameObject block = GameObject.Find("ActiveBlock");
-		Vector3 translation = Vector3.zero;
-		Vector3 rotation = Vector3.zero;
-		int hasMoved = 0;
-
-        if (block == null || shadow == null) return;
-		//This keeps track of how many seconds we wait between two pieces.
-		int x = 10;
-		
-		if (firstBlock){
-			Destroy(highlight);
-			highlightLanding();
-			firstBlock = false;
-		}
-		timer -= Time.deltaTime;
-		if(timer<=0){
-			timer=1;
-			shadow.transform.Translate(0,-1,0);
-			if (checkMoveAllowed()){
-				block.transform.Translate(0,-1,0);
-			} else {
-				//Pauses game for 10 secs before the next piece is triggered
-				/* We first check if it's currently waiting or not, as
-				** Update() is called several times in the 10s period.
-				** We don't just wait for a value to be returned after the 10s
-				** as we still need to move the board.
-				*/
-				if(!waitActive)
-					StartCoroutine(Wait(block));
-				/*triggerNextShape(block);
-				block = GameObject.Find("ActiveBlock");*/
-			}
+		//checks if a piece has been added to the top layer of the array.
+		//if so, end game.
+		//Can also check if index is out of bounds and handle the error.
+		if(gameBoard.isGameOver()){
+			gameOver = true;
+			Application.LoadLevel("GameOver");
+			Debug.Log("BYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEEEEE");
 		}
 
-		if(Input.GetKeyDown("return")){
-			shapeFalling = true;
-			//Unique key code. Required to check if user has run out of time.
-			xTime = 88888888;
-			Debug.Log ("ENTER");
+		if(gameOver == false){
+			GameObject block = GameObject.Find("ActiveBlock");
+			Vector3 translation = Vector3.zero;
+			Vector3 rotation = Vector3.zero;
+			int hasMoved = 0;
 
-		}
-		
-		//ROTATE right
-		if (Input.GetKeyDown("v")){		
-			rotation = new Vector3(0,90,0);
-			hasMoved = 1;
-		}		
-		//ROTATE left
-		if (Input.GetKeyDown("c")){
-			rotation = new Vector3(0,-90,0);
-			hasMoved = 1;
-		}
-		
-		//piece falls down further with space bar
-		if(Input.GetKey("space")){
-			//check every 4 frames
-			if(shapeMove%4 == 0){
-				translation = new Vector3(0,-1,0);
-				hasMoved = 1;
+	        if (block == null || shadow == null) return;
+			//This keeps track of how many seconds we wait between two pieces.
+			int x = 10;
+			
+			if (firstBlock){
+				Destroy(highlight);
+				highlightLanding();
+				firstBlock = false;
 			}
-		}
-		
-		//MOVE forward
-		if (Input.GetKey("up")){
-			//check every 4 frames
-			if(shapeMove%4 == 0){
-				if (cameraScript.rotationDir == 0){
-					translation = new Vector3(0,0,1);
+			timer -= Time.deltaTime;
+			if(timer<=0){
+				timer=1;
+				shadow.transform.Translate(0,-1,0);
+				if (checkMoveAllowed()){
+					block.transform.Translate(0,-1,0);
+				} else {
+					//Pauses game for 10 secs before the next piece is triggered
+					/* We first check if it's currently waiting or not, as
+					** Update() is called several times in the 10s period.
+					** We don't just wait for a value to be returned after the 10s
+					** as we still need to move the board.
+					*/
+					if(!waitActive)
+						StartCoroutine(Wait(block));
+					/*triggerNextShape(block);
+					block = GameObject.Find("ActiveBlock");*/
 				}
-				if (cameraScript.rotationDir == 1){
-					translation = new Vector3(-1,0,0);
-				}
-				if (cameraScript.rotationDir == 2){
-					translation = new Vector3(0,0,-1);
-				}
-				if (cameraScript.rotationDir == 3){
-					translation = new Vector3(1,0,0);
-				}
-				
-				hasMoved = 1;
 			}
-		}
-		//MOVE back
-		if (Input.GetKey("down")){
-			//check every 4 frames
-			if(shapeMove%4 == 0){
-				if (cameraScript.rotationDir == 0){
-					translation = new Vector3(0,0,-1);
-				}
-				if (cameraScript.rotationDir == 1){
-					translation = new Vector3(1,0,0);
-				}
-				if (cameraScript.rotationDir == 2){
-					translation = new Vector3(0,0,1);
-				}
-				if (cameraScript.rotationDir == 3){
-					translation = new Vector3(-1,0,0);
-				}
-				
-				hasMoved = 1;
-			}
-		}
-		//MOVE right
-  		if (Input.GetKey("right")){
-			//check every 4 frames
-			if(shapeMove%4 == 0){
-				if (cameraScript.rotationDir == 0){
-					translation = new Vector3(1,0,0);
-				}
-				if (cameraScript.rotationDir == 1){
-					translation = new Vector3(0,0,1);
-				}
-				if (cameraScript.rotationDir == 2){
-					translation = new Vector3(-1,0,0);
-				}
-				if (cameraScript.rotationDir == 3){
-					translation = new Vector3(0,0,-1);
-				}
-				hasMoved = 1;
-			}
-  		}
-  		//MOVE left
-  		if (Input.GetKey("left")){
-			//check every 4 frames
-			if(shapeMove%4 == 0){
-				if (cameraScript.rotationDir == 0){
-					translation = new Vector3(-1,0,0);
-				}
-				if (cameraScript.rotationDir == 1){
-					translation = new Vector3(0,0,-1);
-				}
-				if (cameraScript.rotationDir == 2){
-					translation = new Vector3(1,0,0);
-				}
-				if (cameraScript.rotationDir == 3){
-					translation = new Vector3(0,0,1);
-				}
-				hasMoved = 1;
-			}
-		}
-		Vector3 backupPos = shadow.transform.position;
-		Quaternion backupRot = shadow.transform.rotation;
-		shadow.transform.Rotate(rotation,Space.Self);
-		shadow.transform.Translate(translation, Space.World);
-		if (checkArrayCollisions()){
-			Debug.Log("Array collision");
-			Debug.Log("shadow");
-			printShadow(shadow);
-			Debug.Log("block");
-			printShadow(block);
-			shadow.transform.position = backupPos;
-			shadow.transform.rotation = backupRot;
-		}else{
-			block.transform.Rotate(rotation,Space.Self);
-			block.transform.Translate(translation, Space.World);
-			posX += translation.x;
-			posZ += translation.z;
-		}
 
-		if(hasMoved==1){
-			Destroy(highlight);
-			highlightLanding();
-			hasMoved = 0;
-		}
-		shapeMove++;
-  	}
+			if(Input.GetKeyDown("return")){
+				shapeFalling = true;
+				//Unique key code. Required to check if user has run out of time.
+				xTime = 88888888;
+				Debug.Log ("ENTER");
+			}
+			
+			//ROTATE right
+			if (Input.GetKeyDown("v")){		
+				rotation = new Vector3(0,90,0);
+				hasMoved = 1;
+			}		
+			//ROTATE left
+			if (Input.GetKeyDown("c")){
+				rotation = new Vector3(0,-90,0);
+				hasMoved = 1;
+			}
+			
+			//piece falls down further with space bar
+			if(Input.GetKey("space")){
+				//check every 4 frames
+				if(shapeMove%4 == 0){
+					translation = new Vector3(0,-1,0);
+					hasMoved = 1;
+				}
+			}
+			
+			//MOVE forward
+			if (Input.GetKey("up")){
+				//check every 4 frames
+				if(shapeMove%4 == 0){
+					if (cameraScript.rotationDir == 0){
+						translation = new Vector3(0,0,1);
+					}
+					if (cameraScript.rotationDir == 1){
+						translation = new Vector3(-1,0,0);
+					}
+					if (cameraScript.rotationDir == 2){
+						translation = new Vector3(0,0,-1);
+					}
+					if (cameraScript.rotationDir == 3){
+						translation = new Vector3(1,0,0);
+					}
+					
+					hasMoved = 1;
+				}
+			}
+			//MOVE back
+			if (Input.GetKey("down")){
+				//check every 4 frames
+				if(shapeMove%4 == 0){
+					if (cameraScript.rotationDir == 0){
+						translation = new Vector3(0,0,-1);
+					}
+					if (cameraScript.rotationDir == 1){
+						translation = new Vector3(1,0,0);
+					}
+					if (cameraScript.rotationDir == 2){
+						translation = new Vector3(0,0,1);
+					}
+					if (cameraScript.rotationDir == 3){
+						translation = new Vector3(-1,0,0);
+					}
+					
+					hasMoved = 1;
+				}
+			}
+			//MOVE right
+	  		if (Input.GetKey("right")){
+				//check every 4 frames
+				if(shapeMove%4 == 0){
+					if (cameraScript.rotationDir == 0){
+						translation = new Vector3(1,0,0);
+					}
+					if (cameraScript.rotationDir == 1){
+						translation = new Vector3(0,0,1);
+					}
+					if (cameraScript.rotationDir == 2){
+						translation = new Vector3(-1,0,0);
+					}
+					if (cameraScript.rotationDir == 3){
+						translation = new Vector3(0,0,-1);
+					}
+					hasMoved = 1;
+				}
+	  		}
+	  		//MOVE left
+	  		if (Input.GetKey("left")){
+				//check every 4 frames
+				if(shapeMove%4 == 0){
+					if (cameraScript.rotationDir == 0){
+						translation = new Vector3(-1,0,0);
+					}
+					if (cameraScript.rotationDir == 1){
+						translation = new Vector3(0,0,-1);
+					}
+					if (cameraScript.rotationDir == 2){
+						translation = new Vector3(1,0,0);
+					}
+					if (cameraScript.rotationDir == 3){
+						translation = new Vector3(0,0,1);
+					}
+					hasMoved = 1;
+				}
+			}
+			Vector3 backupPos = shadow.transform.position;
+			Quaternion backupRot = shadow.transform.rotation;
+			shadow.transform.Rotate(rotation,Space.Self);
+			shadow.transform.Translate(translation, Space.World);
+			if (checkArrayCollisions()){
+				Debug.Log("Array collision");
+				Debug.Log("shadow");
+				printShadow(shadow);
+				Debug.Log("block");
+				printShadow(block);
+				shadow.transform.position = backupPos;
+				shadow.transform.rotation = backupRot;
+			}else{
+				block.transform.Rotate(rotation,Space.Self);
+				block.transform.Translate(translation, Space.World);
+				posX += translation.x;
+				posZ += translation.z;
+			}
+
+			if(hasMoved==1){
+				Destroy(highlight);
+				highlightLanding();
+				hasMoved = 0;
+			}
+			shapeMove++;
+	  	}
+	}
 	
 	//creates and positions the highlighted landing for the shape
 	private void highlightLanding(){
@@ -808,7 +822,7 @@ public class BlockControl : MonoBehaviour {
 		
 		shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape4);
+		createShape(shape2);
 	}
 
 	
