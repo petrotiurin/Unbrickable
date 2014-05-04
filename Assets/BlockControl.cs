@@ -369,9 +369,6 @@ public class BlockControl : MonoBehaviour {
 		gameBoard.unpauseGame();
 		movingStopped = false;
     }
-
-
-	
 	
 	private void triggerNextShape(GameObject block){
 		//gameBoard.printArray();
@@ -436,6 +433,7 @@ public class BlockControl : MonoBehaviour {
 				** as we still need to move the board.
 				*/
 				movingStopped = true;
+				Destroy(highlight);
 				if(!waitActive)
 					StartCoroutine(Wait(block));
 				/*triggerNextShape(block);
