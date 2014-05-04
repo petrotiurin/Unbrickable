@@ -59,6 +59,7 @@
      <None Include="Assets\Standard Assets\Projectors\Guidelines.txt" />
      <None Include="Assets\Standard Assets\Toon Shading\Sources\Shaders\Toony-Basic.shader" />
      <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Multiply.shader" />
+     <None Include="Assets\Standard Assets\Scripts\Utility Scripts\Highlight.shader" />
      <None Include="Assets\Standard Assets\Tessellation Shaders\BumpedSpecularSmooth.shader" />
      <None Include="Assets\Standard Assets\Particles\Sources\Shaders\Particle Alpha Blend (Queue +100).shader" />
      <None Include="Assets\Standard Assets\Skyboxes\_skybox info.txt" />
@@ -67,6 +68,15 @@
      <None Include="Assets\Standard Assets\Toon Shading\Sources\Shaders\Toony-LightedOutline.shader" />
      <None Include="Assets\Standard Assets\Toon Shading\Sources\Shaders\Toony-Lighted.shader" />
      <None Include="Assets\Standard Assets\Tessellation Shaders\BumpedSpecularDisplacement.shader" />
+ <Reference Include="Assets\Plugins\Mono.Data.SqliteClient">
+ <HintPath>Assets\Plugins\Mono.Data.SqliteClient.dll</HintPath>
+ </Reference>
+ <Reference Include="Assets\Plugins\Mono.Data.Sqlite">
+ <HintPath>Assets\Plugins\Mono.Data.Sqlite.dll</HintPath>
+ </Reference>
+ <Reference Include="Assets\Plugins\System.Data">
+ <HintPath>Assets\Plugins\System.Data.dll</HintPath>
+ </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

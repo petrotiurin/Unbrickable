@@ -6,9 +6,6 @@ using System.Text;
 using System.IO;
 using System.Runtime.InteropServices;
 
-
-
-
 public class BlockControl : MonoBehaviour {
 	
 	private GameObject[] blocks;
@@ -28,6 +25,7 @@ public class BlockControl : MonoBehaviour {
 	private int xTime;
 	private bool waitActive = false;
 	private bool shapeFalling = false;
+	public bool gameOver = false;
 
 	//sample shape, just fo shows
 	private int[,,] shape1 = new int[,,] {{{1,1,1},{1,1,0},{1,0,0}},
@@ -57,6 +55,7 @@ public class BlockControl : MonoBehaviour {
 	public float pinSize = 1.0f;
 	
 	Board gameBoard;
+	GameOver gOver;
 	
 	//starting height where shapes are created
 	public float startHeight = 50.0f;
@@ -125,6 +124,8 @@ public class BlockControl : MonoBehaviour {
 		globalZ = 0;
 
 		gameBoard = GetComponent<Board>();
+
+		gOver = GetComponent<GameOver>();
 	}
 	
 	// Initialization.
@@ -351,7 +352,10 @@ public class BlockControl : MonoBehaviour {
 
 		xTime = 0;
 		Debug.Log ("wejkjlfd");
-		while (xTime < (timeGap/0.01f)){
+
+		float startTimerr = Time.realtimeSinceStartup;
+		while (xTime < (timeGap/0.01f) &&
+            startTimerr > (Time.realtimeSinceStartup - 10)){
 			yield return new WaitForSeconds(0.01f);
 			xTime++;
 		}
@@ -363,21 +367,28 @@ public class BlockControl : MonoBehaviour {
         if(block == null)
         	Debug.Log("Block is null :S !!");
 
-		//GAME OVER
-        triggerNextShape(block);
-		gameBoard.unpauseGame();
-		movingStopped = false;
+        if(xTime == 88888889){ //xTime < (timeGap / 0.01)){
+            Debug.Log("ENTER PRESSED!");
+            gameBoard.unpauseGame();
+            movingStopped = false;
+            triggerNextShape(block);
+			block = GameObject.Find("ActiveBlock");
+        }
+        else{
+            Debug.Log("Enter not pressed?");
+            Application.LoadLevel("MainMenu");
+        }
     }
 
+
 	private void fillBoard(GameObject block){
-		//gameBoard.printArray();
 		for (int i = 0; i < Math.Pow(gameBoard.nx, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
 			if (childTransform != null){
 				//switch individual renderers back on as combined mesh is destroyed
 				childTransform.renderer.enabled = true;
 				childTransform.GetChild(0).renderer.enabled = true;
-				
+
 				int layer = (int)Math.Round(childTransform.position.y - 0.38);
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
@@ -406,6 +417,15 @@ public class BlockControl : MonoBehaviour {
 	}
 	// Update is called once per frame.
 	void Update () {
+		//checks if a piece has been added to the top layer of the array.
+		//if so, end game.
+		//Can also check if index is out of bounds and handle the error.
+		if(gameBoard.isGameOver()){
+			gameOver = true;
+			Application.LoadLevel("GameOver");
+			Debug.Log("BYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEEEEE");
+		}
+		if (gameOver == true) return;
 		GameObject block = GameObject.Find("ActiveBlock");
 		Vector3 translation = Vector3.zero;
 		Vector3 rotation = Vector3.zero;
@@ -447,8 +467,8 @@ public class BlockControl : MonoBehaviour {
 
 		if(Input.GetKeyDown("return")){
 			shapeFalling = true;
-			xTime = 999999999;
-			Debug.Log ("ENTER");
+			xTime = 88888888;
+			//Debug.Log ("ENTER");
 		}
 		
 		//ROTATE right
