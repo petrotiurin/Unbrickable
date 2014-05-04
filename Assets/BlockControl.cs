@@ -365,12 +365,11 @@ public class BlockControl : MonoBehaviour {
 
 		//GAME OVER
         triggerNextShape(block);
-		block = GameObject.Find("ActiveBlock");
 		gameBoard.unpauseGame();
 		movingStopped = false;
     }
-	
-	private void triggerNextShape(GameObject block){
+
+	private void fillBoard(GameObject block){
 		//gameBoard.printArray();
 		for (int i = 0; i < Math.Pow(gameBoard.nx, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
@@ -378,7 +377,7 @@ public class BlockControl : MonoBehaviour {
 				//switch individual renderers back on as combined mesh is destroyed
 				childTransform.renderer.enabled = true;
 				childTransform.GetChild(0).renderer.enabled = true;
-
+				
 				int layer = (int)Math.Round(childTransform.position.y - 0.38);
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
@@ -391,8 +390,10 @@ public class BlockControl : MonoBehaviour {
 		//create new shape and destroy the old empty container
 		Destroy(block);
 		Destroy(shadow);
+	}
+	
+	private void triggerNextShape(GameObject block){
 		createShape();
-		//gameBoard.printArray();
 	}
 
 	//prints positions of all blocks in given gameObject
@@ -410,7 +411,9 @@ public class BlockControl : MonoBehaviour {
 		Vector3 rotation = Vector3.zero;
 		int hasMoved = 0;
 
-        if (block == null || shadow == null) return;
+		if (!movingStopped){
+	        if (block == null || shadow == null) return;
+		}
 		//This keeps track of how many seconds we wait between two pieces.
 		int x = 10;
 		
@@ -434,6 +437,7 @@ public class BlockControl : MonoBehaviour {
 				*/
 				movingStopped = true;
 				Destroy(highlight);
+				fillBoard(block);
 				if(!waitActive)
 					StartCoroutine(Wait(block));
 				/*triggerNextShape(block);
@@ -444,7 +448,7 @@ public class BlockControl : MonoBehaviour {
 		if(Input.GetKeyDown("return")){
 			shapeFalling = true;
 			xTime = 999999999;
-			//Debug.Log ("ENTER");
+			Debug.Log ("ENTER");
 		}
 		
 		//ROTATE right
