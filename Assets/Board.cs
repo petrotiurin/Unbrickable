@@ -443,20 +443,26 @@ public class Board : MonoBehaviour {
 
         xTime = 0;
 
-        while(xTime < (timeGap / 0.01)){
+        float startTimerr = Time.realtimeSinceStartup;
+        while(xTime < (timeGap / 0.01) &&
+            startTimerr > (Time.realtimeSinceStartup - 10)){
             yield return new WaitForSeconds(0.01f);
+            Debug.Log("1");
             xTime++;
         }
 
+        Debug.Log("2");
+
         Debug.Log("xTime = " + xTime);
+        unpauseGame();
+            
         //game over mechanism
         if(xTime == 88888889){ //xTime < (timeGap / 0.01)){
             //Debug.Log("ENTER PRESSED!");
-            unpauseGame();
             blockCtrl.createShape();
         }
         else{
-            //Debug.Log("Enter not pressed?");
+            Debug.Log("Enter not pressed?");
             Application.LoadLevel("MainMenu");
         }		
     }

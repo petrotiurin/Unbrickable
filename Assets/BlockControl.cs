@@ -6,9 +6,6 @@ using System.Text;
 using System.IO;
 using System.Runtime.InteropServices;
 
-
-
-
 public class BlockControl : MonoBehaviour {
 	
 	private GameObject[] blocks;
@@ -355,7 +352,10 @@ public class BlockControl : MonoBehaviour {
 
 		xTime = 0;
 		Debug.Log ("wejkjlfd");
-		while (xTime < (timeGap/0.01f)){
+
+		float startTimerr = Time.realtimeSinceStartup;
+		while (xTime < (timeGap/0.01f) &&
+            startTimerr > (Time.realtimeSinceStartup - 10)){
 			yield return new WaitForSeconds(0.01f);
 			xTime++;
 		}
@@ -370,6 +370,7 @@ public class BlockControl : MonoBehaviour {
         if(xTime == 88888889){ //xTime < (timeGap / 0.01)){
             Debug.Log("ENTER PRESSED!");
             gameBoard.unpauseGame();
+            movingStopped = false;
             triggerNextShape(block);
 			block = GameObject.Find("ActiveBlock");
         }
@@ -460,7 +461,7 @@ public class BlockControl : MonoBehaviour {
 
 		if(Input.GetKeyDown("return")){
 			shapeFalling = true;
-			xTime = 999999999;
+			xTime = 88888888;
 			//Debug.Log ("ENTER");
 		}
 		
