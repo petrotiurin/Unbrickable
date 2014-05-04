@@ -41,7 +41,8 @@ public class RotateCamera : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-			if( target != null ){
+		if (topCam == null) topCam = GameObject.Find("Top Cam");
+		if( target != null && topCam != null){
 				
 				//Always focus on the centre of the gameboard base
 				transform.LookAt(target.transform);
@@ -78,8 +79,7 @@ public class RotateCamera : MonoBehaviour
 					}
 					XrotToGo -= rot;
 				}
-			}
 		}
-
+	}
 }
 

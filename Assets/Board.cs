@@ -56,7 +56,8 @@ public class Board : MonoBehaviour {
 
 	// Initialization.
 	void Awake () {
-		GameObject.Find("Main Camera").AddComponent<AudioListener>();
+		GameObject cam = GameObject.Find("Main Camera");
+		if (cam.GetComponent<AudioListener>() == null) cam.AddComponent<AudioListener>();
 		//boardArray keeps track of which positions on the board is occupied.
 		boardArray = new bool[nx,ny,nz];
 		Array.Clear(boardArray, 0, boardArray.Length);
@@ -151,7 +152,7 @@ public class Board : MonoBehaviour {
 		if(Input.GetKeyDown("return")){
             shapeFalling = true;
             xTime = 999999999;
-            Debug.Log ("ENTER");
+            //Debug.Log ("ENTER");
         }
 	}
 	
@@ -349,8 +350,6 @@ public class Board : MonoBehaviour {
         else
             pauseGame(0f);
 
-        Debug.Log("TIME --------------> " + Time.realtimeSinceStartup);
-
         xTime = 0;
 
         while(xTime < (timeGap / 0.01)){
@@ -467,7 +466,6 @@ public class Board : MonoBehaviour {
         
         // The next bit of the code deals with piece suggestions and displaying them.
         if(pieceSuggestor){
-            Debug.Log("Piece suggestions...");
            	//This is where piece suggestions will be made to display them
            	//	in the following boxes.
 
@@ -477,7 +475,7 @@ public class Board : MonoBehaviour {
 
 			legoSuggestions = showPieceScript.suggestedPieces;
 			for(int i = 0; i < 3; i++)
-				Debug.Log("Lego pc suggestion (" + i + ") = " + legoSuggestions[i]);
+				//Debug.Log("Lego pc suggestion (" + i + ") = " + legoSuggestions[i]);
 
 			pieceSuggestor = false;
         }

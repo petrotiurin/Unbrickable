@@ -72,7 +72,7 @@ public class Array_GameObj : MonoBehaviour {
 		{
 			//flashPieces(i);
 	        suggestedPiece = Random.Range(0, piecesNum);
-	        Debug.Log("Piece no = " + suggestedPiece);
+	        //Debug.Log("Piece no = " + suggestedPiece);
 	        suggestedPieces[i] = suggestedPiece;
 			//InvokePiece(i, suggestedPiece, position[i]);
 		}

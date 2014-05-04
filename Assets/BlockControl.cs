@@ -296,7 +296,6 @@ public class BlockControl : MonoBehaviour {
 			//both even or both odd
 			centreX = finalX/2;
 			centreZ = finalZ/2;
-			print(finalX + "/2=" + centreX);
 		}
 		else{
 			//one even side, one odd side - reduce shortest dimension by 1
@@ -447,7 +446,7 @@ public class BlockControl : MonoBehaviour {
 		if(Input.GetKeyDown("return")){
 			shapeFalling = true;
 			xTime = 999999999;
-			Debug.Log ("ENTER");
+			//Debug.Log ("ENTER");
 		}
 		
 		//ROTATE right
