@@ -392,7 +392,7 @@ public class Board : MonoBehaviour {
 
     //Called from BlockControl to check if the top layer has been filled.
     public bool isGameOver(){
-        Debug.Log("checking if game over");
+    //    Debug.Log("checking if game over");
         for(int i = 1; i < nx-1; i++)
             for(int j = 1; j < nz-1; j++)
                 if(boardArray[i,ny-1,j])
