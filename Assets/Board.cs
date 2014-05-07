@@ -372,6 +372,10 @@ public class Board : MonoBehaviour {
 	
 	// Add blocks to the layer.
 	private void addBlocks(int layer, GameObject cube){
+		if (layer >= ny){
+			Application.LoadLevel("GameOver");
+			return;
+		}
 		cube.name = "Block";
 	    cube.transform.parent = blocksLayer[layer].transform;
 		int x = (int)Math.Round(cube.transform.position.x + (nx - 17)/2) + 2;
