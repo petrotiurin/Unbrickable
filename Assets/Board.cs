@@ -149,7 +149,7 @@ public class Board : MonoBehaviour {
     void Update (){
         if(countdown){
             if(Input.GetKeyDown("return")){
-                xTime = 88888888;
+				blockCtrl.enterPressed = true;
                 shapeFalling = true;
                 Debug.Log ("ENTER");
             }
@@ -445,7 +445,7 @@ public class Board : MonoBehaviour {
 
         float startTimerr = Time.realtimeSinceStartup;
         while(xTime < (timeGap / 0.01) &&
-            startTimerr > (Time.realtimeSinceStartup - 10)){
+            startTimerr > (Time.realtimeSinceStartup - 10) && blockCtrl.enterPressed == false){
             yield return new WaitForSeconds(0.01f);
             Debug.Log("1");
             xTime++;
@@ -457,8 +457,9 @@ public class Board : MonoBehaviour {
         unpauseGame();
             
         //game over mechanism
-        if(xTime == 88888889){ //xTime < (timeGap / 0.01)){
+		if(blockCtrl.enterPressed == true){ //xTime < (timeGap / 0.01)){
             //Debug.Log("ENTER PRESSED!");
+			blockCtrl.enterPressed = false;
             blockCtrl.createShape();
         }
         else{

@@ -16,7 +16,7 @@ public class BlockControl : MonoBehaviour {
 	private int globalX, globalZ;
 	private int timeGap = 0;
 	string legoCode;
-	
+	public bool enterPressed = false;
 	private float boundX,boundZ,boundingBox;
 	
 	private int pass;
@@ -118,8 +118,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		//cam = new setUpWebcam();
-		//cam.setUpCams();
+		cam = new setUpWebcam();
+		cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -351,11 +351,12 @@ public class BlockControl : MonoBehaviour {
         waitActive = true;
 
 		xTime = 0;
+		enterPressed = false;
 		Debug.Log ("wejkjlfd");
 
 		float startTimerr = Time.realtimeSinceStartup;
 		while (xTime < (timeGap/0.01f) &&
-            startTimerr > (Time.realtimeSinceStartup - 10)){
+            startTimerr > (Time.realtimeSinceStartup - 10) && enterPressed == false){
 			yield return new WaitForSeconds(0.01f);
 			xTime++;
 		}
@@ -367,12 +368,14 @@ public class BlockControl : MonoBehaviour {
         if(block == null)
         	Debug.Log("Block is null :S !!");
 
-        if(xTime == 88888889){ //xTime < (timeGap / 0.01)){
+
+        if(enterPressed){ //xTime < (timeGap / 0.01)){
             Debug.Log("ENTER PRESSED!");
             gameBoard.unpauseGame();
             movingStopped = false;
             triggerNextShape(block);
 			block = GameObject.Find("ActiveBlock");
+			enterPressed = false;
         }
         else{
             Debug.Log("Enter not pressed?");
@@ -467,7 +470,7 @@ public class BlockControl : MonoBehaviour {
 
 		if(Input.GetKeyDown("return")){
 			shapeFalling = true;
-			xTime = 88888888;
+			enterPressed = true;
 			//Debug.Log ("ENTER");
 		}
 		
@@ -793,20 +796,20 @@ public class BlockControl : MonoBehaviour {
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
-		/*cam.takeSnap();
+		cam.takeSnap();
 		
-		// call c++ code
+		//call c++ code
 		int hello = main ();
 		
-		StartCoroutine(Wait2(3));
+		//StartCoroutine(Wait2(3));
 		string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
-		StartCoroutine(Wait2(1));
+	//	StartCoroutine(Wait2(1));
 		print (legoCode);
-		shape4 = getShapeArray(legoCode); */   //If your using the webcams to get the shape
+		shape4 = getShapeArray(legoCode);   //If your using the webcams to get the shape
 		
-		shape4 = getShapeArray();   //If your using a hardcoded shape
+		//shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape2);
+		createShape(shape4);
 	}
 
 	
