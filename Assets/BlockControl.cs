@@ -805,9 +805,9 @@ public class BlockControl : MonoBehaviour {
 		//call c++ code
 		int hello = main ();
 		
-		//StartCoroutine(Wait2(3));
+	//	StartCoroutine(Wait2(3));
 		string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
-	//	StartCoroutine(Wait2(1));
+     //	StartCoroutine(Wait2(1));
 		print (legoCode);
 		shape4 = getShapeArray(legoCode);   //If your using the webcams to get the shape
 		
