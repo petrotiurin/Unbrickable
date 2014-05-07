@@ -809,7 +809,7 @@ public class BlockControl : MonoBehaviour {
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
-		cam.takeSnap();
+		/*cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();
@@ -826,10 +826,10 @@ public class BlockControl : MonoBehaviour {
 
 		}else{
 			print("right shape");
-		}
-		//shape4 = getShapeArray();   //If your using a hardcoded shape
+		} */
+		shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape4);
+		createShape(shape2);
 	}
 
 	
