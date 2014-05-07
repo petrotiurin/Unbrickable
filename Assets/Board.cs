@@ -16,7 +16,7 @@ public class Board : MonoBehaviour {
 	
 	private int flashPass;
 
-	int timeGap = 10; //default value. Change gap here!
+	int timeGap = 20; //default value. Change gap here!
     int timer = 0;
     int score = 0;
     float starttimer = 0.0f;
@@ -449,7 +449,7 @@ public class Board : MonoBehaviour {
 
         float startTimerr = Time.realtimeSinceStartup;
         while(xTime < (timeGap / 0.01) &&
-            startTimerr > (Time.realtimeSinceStartup - 10) && blockCtrl.enterPressed == false){
+            startTimerr > (Time.realtimeSinceStartup - timeGap) && blockCtrl.enterPressed == false){
             yield return new WaitForSeconds(0.01f);
             Debug.Log("1");
             xTime++;
