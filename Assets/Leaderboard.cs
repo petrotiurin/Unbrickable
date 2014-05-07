@@ -11,6 +11,8 @@ public class Leaderboard : MonoBehaviour {
     private IDataReader reader;
     private string connectionString;
 
+    private string uname = "Anon";
+
 	// Use this for initialization
 	void Start () {
         string name = Application.dataPath + "/dbtest1.db";
@@ -51,6 +53,11 @@ public class Leaderboard : MonoBehaviour {
 	}
 
 
+    void Update(){
+        //if(Input.GetKeyDown("return"))
+    }
+
+
     void AddScore(string name, int scr, int level, int rounds){
         string sql = "INSERT INTO highscores (name, score, level, rounds) VALUES ('"
             + name + "'," + scr + "," + level + "," + rounds + ")";
@@ -62,17 +69,28 @@ public class Leaderboard : MonoBehaviour {
 
     //for debugging & testing purposes.
     void AddScore(string name, int scr) {
-        string sql = "INSERT INTO highscores(name, score) VALUES (name, scr)";
+        string sql = "INSERT INTO highscores(name, score) VALUES ('" + name + "'," + scr + ")";
         cmd.CommandText = sql;
         reader = cmd.ExecuteReader();
     }
 
-    void DisplayScores(){
-        string sql = "SELECT name, score FROM highscores";
-    }
-/*
-    void OnGUI(){
 
+    void DisplayScores(){
+        string sql = "SELECT * FROM highscores";
+        cmd.CommandText = sql;
+        reader = cmd.ExecuteReader();
+        ArrayList readArray = new ArrayList();
+
+        while(reader.Read()) { 
+            ArrayList lineArray = new ArrayList();
+            for (int i = 0; i < reader.FieldCount; i++)
+                lineArray.Add(reader.GetValue(i)); // This reads the entries in a row
+            readArray.Add(lineArray); // This makes an array of all the rows
+        }
     }
-    */
+
+
+    void OnGUI(){
+        
+    }
 }

@@ -16,7 +16,7 @@ public class Board : MonoBehaviour {
 	
 	private int flashPass;
 
-	int timeGap = 10; //default value. Change gap here!
+	int timeGap = 3; //default value. Change gap here!
     int timer = 0;
     float starttimer = 0.0f;
     bool countdown = false;
@@ -24,6 +24,10 @@ public class Board : MonoBehaviour {
 
     //scoring stuff
     public int score = 0;
+    private bool viewLBoard = false;
+
+    private string uname = "Voldemort";
+
     //1-easy, 2-intermediate, 3-expert
     public int level = 1; 
     //stores number of times the player has constructed a piece
@@ -60,6 +64,7 @@ public class Board : MonoBehaviour {
 
 
 	private BlockControl blockCtrl;
+    private GameOver gOver;
 
 	private Camera topCam;
 
@@ -141,6 +146,10 @@ public class Board : MonoBehaviour {
 //		startMusic("Theme1");
 
 		//start gameplay.
+
+
+        gOver = GetComponent<GameOver>();
+
 		blockCtrl.assignTimeGap(timeGap);
 	}
 
@@ -159,6 +168,11 @@ public class Board : MonoBehaviour {
                 shapeFalling = true;
                 Debug.Log ("ENTER");
             }
+        }
+
+        if(blockCtrl.gameOver){
+            Debug.Log("Score--------->" + score);
+            gOver.endGame(score);
         }
     }
 
@@ -309,8 +323,10 @@ public class Board : MonoBehaviour {
     ** Overloaded function did not work -_-
     */
     void scoring(int flag, int addScore){
-        if(flag == 0)
-            score += addScore;
+        if(flag == 0){
+            score += 1000/timeGap * addScore;
+            //score += addScore;
+        }
         else
         score += addScore * 10;
     }
@@ -469,7 +485,9 @@ public class Board : MonoBehaviour {
         }
         else{
             Debug.Log("Enter not pressed?");
-            Application.LoadLevel("MainMenu");
+            Time.timeScale = 0;
+            blockCtrl.gameOver = true;
+            //Application.LoadLevel("GameOver");
         }		
     }
 
@@ -588,7 +606,7 @@ public class Board : MonoBehaviour {
                 barDisplay = 1 - timediff * 1.0f/timeGap;//0.1f;
             }
         }else{
-                timer = 0;
+            timer = 0;
         }
 
         //timer progress bar.
@@ -622,5 +640,26 @@ public class Board : MonoBehaviour {
         GUI.Box(new Rect((Screen.width/2 - 250), 10, 150, 100), lego[legoSuggestions[0]]);
         GUI.Box(new Rect((Screen.width/2 - 75), 10, 150, 100), lego[legoSuggestions[1]]);
         GUI.Box(new Rect((Screen.width/2 + 100), 10, 150, 100), lego[legoSuggestions[2]]);
+
+        //Game over overlay graphics
+        if(blockCtrl.gameOver && !viewLBoard){
+            Texture gameOverTexture = Resources.Load("gameover") as Texture2D;
+            GUI.DrawTexture(new Rect(Screen.width/2-200, 120, 400, 250), gameOverTexture);
+
+            GUI.Label(new Rect(Screen.width/2-100,380,200,25), "Your score was "+ score + ". Your position on the Leaderboard is " + "00");
+            GUI.Label(new Rect(Screen.width/2-100,40,200,25), "Type your name to add to the leaderboard.");
+            uname = GUI.TextField (new Rect (50,50,250,50), uname);
+            
+            if(GUI.Button(new Rect(Screen.width/2-200, 450, 150, 75), "View Leaderboard"))
+                viewLBoard = true;
+
+            if(GUI.Button(new Rect(Screen.width/2+50,450,150,75), "Click to restart game"))
+                Application.LoadLevel("MainMenu");
+        }
+
+        //Leaderboard graphics
+        if(viewLBoard){
+            //display stuff
+        }
     }
 }

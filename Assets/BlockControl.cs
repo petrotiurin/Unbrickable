@@ -55,7 +55,6 @@ public class BlockControl : MonoBehaviour {
 	public float pinSize = 1.0f;
 	
 	Board gameBoard;
-	GameOver gOver;
 	
 	//starting height where shapes are created
 	public float startHeight = 50.0f;
@@ -124,8 +123,6 @@ public class BlockControl : MonoBehaviour {
 		globalZ = 0;
 
 		gameBoard = GetComponent<Board>();
-
-		gOver = GetComponent<GameOver>();
 	}
 	
 	// Initialization.
@@ -376,7 +373,9 @@ public class BlockControl : MonoBehaviour {
         }
         else{
             Debug.Log("Enter not pressed?");
-            Application.LoadLevel("MainMenu");
+            Time.timeScale = 0;
+            gameOver = true;
+            //Application.LoadLevel("GameOver");
         }
     }
 
@@ -420,7 +419,8 @@ public class BlockControl : MonoBehaviour {
 		//Can also check if index is out of bounds and handle the error.
 		if(gameBoard.isGameOver()){
 			gameOver = true;
-			Application.LoadLevel("GameOver");
+			Time.timeScale = 0;
+			//Application.LoadLevel("GameOver");
 			Debug.Log("BYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEEEEE");
 		}
 		if (gameOver == true) return;
