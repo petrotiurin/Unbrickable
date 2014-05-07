@@ -451,7 +451,7 @@ public class Board : MonoBehaviour {
 
         float startTimerr = Time.realtimeSinceStartup;
         while(xTime < (timeGap / 0.01) &&
-            startTimerr > (Time.realtimeSinceStartup - 10)){
+            startTimerr > (Time.realtimeSinceStartup - timeGap)){
             yield return new WaitForSeconds(0.01f);
             Debug.Log("1");
             xTime++;

@@ -14,7 +14,7 @@ public class BlockControl : MonoBehaviour {
 	private ShadowCollision sh;
 	RotateCamera cameraScript;
 	private int globalX, globalZ;
-	private int timeGap = 0;
+	private int timeGap = 10;
 	string legoCode;
 	
 	private float boundX,boundZ,boundingBox;
@@ -355,7 +355,7 @@ public class BlockControl : MonoBehaviour {
 
 		float startTimerr = Time.realtimeSinceStartup;
 		while (xTime < (timeGap/0.01f) &&
-            startTimerr > (Time.realtimeSinceStartup - 10)){
+            startTimerr > (Time.realtimeSinceStartup - timeGap)){
 			yield return new WaitForSeconds(0.01f);
 			xTime++;
 		}
@@ -363,6 +363,7 @@ public class BlockControl : MonoBehaviour {
         waitActive = false;
         Debug.Log("After waiting for " + timeGap + "s");
 		shapeFalling = false;
+		gameBoard.unpauseGame();
 
         if(block == null)
         	Debug.Log("Block is null :S !!");
