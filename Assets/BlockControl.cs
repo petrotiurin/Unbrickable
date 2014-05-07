@@ -118,8 +118,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		cam = new setUpWebcam();
-		cam.setUpCams();
+		//cam = new setUpWebcam();
+		//cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -800,7 +800,7 @@ public class BlockControl : MonoBehaviour {
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
-		cam.takeSnap();
+		/*cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();
@@ -810,10 +810,10 @@ public class BlockControl : MonoBehaviour {
 	//	StartCoroutine(Wait2(1));
 		print (legoCode);
 		shape4 = getShapeArray(legoCode);   //If your using the webcams to get the shape
-		
+		*/
 		//shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape4);
+		createShape(shape2);
 	}
 
 	

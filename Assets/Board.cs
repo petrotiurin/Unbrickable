@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 public class Board : MonoBehaviour {
 	
 	private GameObject[] blocksLayer;
+	private int[] blocksInLayer;
 	
 	// Dimensions of the board in "shapes".
 	public int nx = 17;	// width
@@ -79,6 +80,8 @@ public class Board : MonoBehaviour {
 		blockCtrl = GetComponent<BlockControl>();
 		//pinsPerShape = blockCtrl.getShapeSize();
 		blocksLayer = new GameObject [ny];
+		blocksInLayer = new int[ny];
+		Array.Clear(blocksInLayer, 0, blocksInLayer.Length);
 		
 		//creating the bounding walls in the array
 		for(int i=0; i< ny;i++){
@@ -282,7 +285,7 @@ public class Board : MonoBehaviour {
         int noOfLayer = 0;
 		// Destroy the layers if they are full.
 		for (int i = 0; i < blocksLayer.Length; i++){
-			if(blocksLayer[i].transform.childCount == (nx-2)*(nz-2)){
+			if(blocksInLayer[i] == (nx-2)*(nz-2)){
 				clearLayer(i);
 				i = -1; //will be back to 0 because of i++
                 //TODO: Add counter here to check number of layers
@@ -353,8 +356,9 @@ public class Board : MonoBehaviour {
 		for (int k = y + 1; k < ny; k++){
 			if (blocksLayer[k] != null){
 				blocksLayer[k-1] = blocksLayer[k];
+				blocksInLayer[k-1] = blocksInLayer[k];
 				// Translate down only if blocks present.
-				if (blocksLayer[k-1].transform.childCount > 0){
+				if (blocksInLayer[k-1] > 0){
 					// Easy to make smooth fall with "lerp".
 					blocksLayer[k-1].transform.Translate(new Vector3(0, -1, 0)); //assuming size 1
 				}
@@ -381,6 +385,7 @@ public class Board : MonoBehaviour {
 		int x = (int)Math.Round(cube.transform.position.x + (nx - 17)/2) + 2;
 		int z = (int)Math.Round(cube.transform.position.z + (nz - 17)/2) + 2;
 		boardArray[x,layer,z] = true;
+		blocksInLayer[layer]++;
 		//Debug.Log(x+" "+layer+" "+z);
 	}
 	
