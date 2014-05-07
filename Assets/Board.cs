@@ -18,10 +18,16 @@ public class Board : MonoBehaviour {
 
 	int timeGap = 10; //default value. Change gap here!
     int timer = 0;
-    int score = 0;
     float starttimer = 0.0f;
     bool countdown = false;
     bool pieceSuggestor = false;
+
+    //scoring stuff
+    public int score = 0;
+    //1-easy, 2-intermediate, 3-expert
+    public int level = 1; 
+    //stores number of times the player has constructed a piece
+    public int rounds = 0; 
 
     //Make shape fall when enter is pressed
     bool shapeFalling = false;
@@ -480,6 +486,7 @@ public class Board : MonoBehaviour {
     public void unpauseGame(){
         Debug.Log("Points? --------> " + timer);
         scoring(0, (int)timer);
+        rounds++;
         timer = 0;
         countdown = false;
     }

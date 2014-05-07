@@ -369,7 +369,6 @@ public class BlockControl : MonoBehaviour {
 
         if(xTime == 88888889){ //xTime < (timeGap / 0.01)){
             Debug.Log("ENTER PRESSED!");
-            gameBoard.unpauseGame();
             movingStopped = false;
             triggerNextShape(block);
 			block = GameObject.Find("ActiveBlock");
