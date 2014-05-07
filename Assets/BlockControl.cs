@@ -451,6 +451,10 @@ public class BlockControl : MonoBehaviour {
 			shadow.transform.Translate(0,-1,0);
 			if (checkMoveAllowed()){
 				block.transform.Translate(0,-1,0);
+				//if sitting on top of highlight - disable its rendering
+				if (highlight.transform.position.y == block.transform.position.y){
+					highlight.renderer.enabled = false;
+				}
 			} else {
 				//Pauses game for 10 secs before the next piece is triggered
 				/* We first check if it's currently waiting or not, as
