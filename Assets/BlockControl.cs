@@ -222,8 +222,8 @@ public class BlockControl : MonoBehaviour {
 	}*/
 	
 	//check the pieces that the user uses against the allowed pieces
-	public int checkPieces(int[,,] shape){
-
+	public bool checkPieces(int[,,] shape){
+	
 		Array_GameObj pieceArray;
 		//access Array_GameObj through this
 		pieceArray = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
@@ -261,15 +261,24 @@ public class BlockControl : MonoBehaviour {
 			case 3: suggestedRed++; break;//red
 			}
 		}
+
+		print("red = " + red);
+		print("suggested red = "+ suggestedRed*8);
+		print("yellow = " + yellow);
+		print("suggested yellow = "+ suggestedYellow*8);
+		print("Blue = " + blue);
+		print("suggested blue = "+ suggestedBlue*8);
+		print("Green = " + green);
+		print("suggested green = "+ suggestedGreen*8);
 		//amountColour - amount of the certain colour the user has used
 		//suggestedColour - amount of certain colour the computer has used
 		if(!(red==suggestedRed*8 && blue==suggestedBlue*6 && green==suggestedGreen*4 && yellow==suggestedYellow*2)){
 
-			print ("THE USER HAS NOT USED THE CORRECT SHAPES!!!");
+			return false;
 		}
 
 
-		return 0;
+		return true;
 	}
 	
 	/*public void getShapeArray(){
@@ -356,7 +365,7 @@ public class BlockControl : MonoBehaviour {
 
 		float startTimerr = Time.realtimeSinceStartup;
 		while (xTime < (timeGap/0.01f) &&
-            startTimerr > (Time.realtimeSinceStartup - 10) && enterPressed == false){
+            startTimerr > (Time.realtimeSinceStartup - timeGap) && enterPressed == false){
 			yield return new WaitForSeconds(0.01f);
 			xTime++;
 		}
@@ -800,20 +809,27 @@ public class BlockControl : MonoBehaviour {
 	// For demonstration purposes.
 	public void createShape(){
 		// Add here shape creation code.
-		/*cam.takeSnap();
+		cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();
 		
-		//StartCoroutine(Wait2(3));
+	//	StartCoroutine(Wait2(3));
 		string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
-	//	StartCoroutine(Wait2(1));
+
+
+     //	StartCoroutine(Wait2(1));
 		print (legoCode);
 		shape4 = getShapeArray(legoCode);   //If your using the webcams to get the shape
-		*/
+		if(!checkPieces(shape4)){
+			print ("wrong shape");
+
+		}else{
+			print("right shape");
+		}
 		//shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape2);
+		createShape(shape4);
 	}
 
 	
