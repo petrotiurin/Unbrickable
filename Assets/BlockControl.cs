@@ -42,12 +42,13 @@ public class BlockControl : MonoBehaviour {
 									      {{1,1,1},{0,0,0},{0,0,0}}};
 
 	//private int[,,] shapeTemp = new int[20,20,20];
-
+	private bool isCams = false;
 	private int[,,] shape4;
 
-	[DllImport ("make2")]
-	private static extern int main();
-
+	if(isCams == true){
+		[DllImport ("make2")]
+		private static extern int main();
+	}
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
 	public float pinSize = 1.0f;
@@ -115,8 +116,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		cam = new setUpWebcam();
-		cam.setUpCams();
+	//	cam = new setUpWebcam();
+	//s	cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -808,7 +809,7 @@ public class BlockControl : MonoBehaviour {
 	public void createShape(){
 
 		// Add here shape creation code.
-		cam.takeSnap();
+	/*	cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();
@@ -832,17 +833,17 @@ public class BlockControl : MonoBehaviour {
 			}
 
 
-		}
+		}*/
 
 
 
 	//	StartCoroutine(Wait2(3));
-	    legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+	//    legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
 
 
      //	StartCoroutine(Wait2(1));
-		print (legoCode);
- 	    shape4 = getShapeArray(legoCode);   //If your using the webcams to get the shape
+	//	print (legoCode);
+ 	   // shape4 = getShapeArray(legoCode);   //If your using the webcams to get the shape
 	//	if(!checkPieces(shape4)){
 //			print ("wrong shape");
 
@@ -851,7 +852,7 @@ public class BlockControl : MonoBehaviour {
 ///		} */
 		//shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape4);
+		createShape(shape2);
 	}
 
 	
