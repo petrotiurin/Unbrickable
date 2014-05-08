@@ -42,13 +42,12 @@ public class BlockControl : MonoBehaviour {
 									      {{1,1,1},{0,0,0},{0,0,0}}};
 
 	//private int[,,] shapeTemp = new int[20,20,20];
-	private bool isCams = false;
+
 	private int[,,] shape4;
 
-	if(isCams == true){
-		[DllImport ("make2")]
-		private static extern int main();
-	}
+	//[DllImport ("make2")]
+	//private static extern int main();
+
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
 	public float pinSize = 1.0f;
@@ -117,7 +116,7 @@ public class BlockControl : MonoBehaviour {
 	void Awake(){
 		Debug.Log("initialise cam");
 	//	cam = new setUpWebcam();
-	//s	cam.setUpCams();
+	//	cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
