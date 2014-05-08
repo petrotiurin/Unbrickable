@@ -25,6 +25,7 @@ public class RotateCamera : MonoBehaviour
 		rotRight = false;
 		target = GameObject.Find("base");
 		brd = GameObject.Find("Scene").GetComponent<Board>();
+		transform.RotateAround( target.transform.position, Vector3.up, -30);
 	}
 	
 	void processVerticalRotation(){

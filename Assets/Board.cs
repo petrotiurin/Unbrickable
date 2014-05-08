@@ -17,12 +17,25 @@ public class Board : MonoBehaviour {
 	
 	private int flashPass;
 
-	int timeGap = 20; //default value. Change gap here!
+	int timeGap = 3; //default value. Change gap here!
     int timer = 0;
-    int score = 0;
     float starttimer = 0.0f;
     bool countdown = false;
     bool pieceSuggestor = false;
+
+    //scoring stuff
+    public int score = 0;
+    private bool viewLBoard = false;
+    private bool scoreSubmitted = false;
+    private bool receivedLboard = false;
+    ArrayList dispScores = new ArrayList();
+
+    private string uname = "Voldemort";
+
+    //1-easy, 2-intermediate, 3-expert
+    public int level = 1; 
+    //stores number of times the player has constructed a piece
+    public int rounds = 0; 
 
     //Make shape fall when enter is pressed
     bool shapeFalling = false;
@@ -55,6 +68,8 @@ public class Board : MonoBehaviour {
 
 
 	private BlockControl blockCtrl;
+    private GameOver gOver;
+    private Leaderboard lboard;
 
 	private Camera topCam;
 
@@ -67,6 +82,7 @@ public class Board : MonoBehaviour {
 
 	// Initialization.
 	void Awake () {
+
         Debug.Log("Initialisation");
         startTime = Time.realtimeSinceStartup;
         Debug.Log("Awake Time ---> " + startTime);
@@ -78,6 +94,7 @@ public class Board : MonoBehaviour {
 		boardArray = new bool[nx,ny,nz];
 		Array.Clear(boardArray, 0, boardArray.Length);
 		blockCtrl = GetComponent<BlockControl>();
+		blockCtrl.enterPressed = false;
 		//pinsPerShape = blockCtrl.getShapeSize();
 		blocksLayer = new GameObject [ny];
 		blocksInLayer = new int[ny];
@@ -138,6 +155,11 @@ public class Board : MonoBehaviour {
 //		startMusic("Theme1");
 
 		//start gameplay.
+
+
+        gOver = GetComponent<GameOver>();
+        lboard = GetComponent<Leaderboard>();
+
 		blockCtrl.assignTimeGap(timeGap);
 	}
 
@@ -150,13 +172,20 @@ public class Board : MonoBehaviour {
 
     // Update is called once per frame.
     void Update (){
+	
         if(countdown){
+
             if(Input.GetKeyDown("return")){
 				blockCtrl.enterPressed = true;
                 shapeFalling = true;
                 Debug.Log ("ENTER");
             }
         }
+
+        /*if(blockCtrl.gameOver){
+            Debug.Log("Score--------->" + score);
+            gOver.endGame(score);
+        }*/
     }
 
 	private void createTopCamera(){
@@ -309,8 +338,10 @@ public class Board : MonoBehaviour {
     ** Overloaded function did not work -_-
     */
     void scoring(int flag, int addScore){
-        if(flag == 0)
-            score += addScore;
+        if(flag == 0){
+            score += 1000/timeGap * addScore;
+            //score += addScore;
+        }
         else
         score += addScore * 10;
     }
@@ -459,8 +490,8 @@ public class Board : MonoBehaviour {
         while(xTime < (timeGap / 0.01) &&
             startTimerr > (Time.realtimeSinceStartup - timeGap) && blockCtrl.enterPressed == false){
             yield return new WaitForSeconds(0.01f);
-            Debug.Log("1");
-            xTime++;
+			//Debug.Log(blockCtrl.enterPressed);
+			xTime++;
         }
 
         Debug.Log("2");
@@ -476,7 +507,9 @@ public class Board : MonoBehaviour {
         }
         else{
             Debug.Log("Enter not pressed?");
-            Application.LoadLevel("MainMenu");
+            Time.timeScale = 0;
+            blockCtrl.gameOver = true;
+            //Application.LoadLevel("GameOver");
         }		
     }
 
@@ -493,6 +526,7 @@ public class Board : MonoBehaviour {
     public void unpauseGame(){
         Debug.Log("Points? --------> " + timer);
         scoring(0, (int)timer);
+        rounds++;
         timer = 0;
         countdown = false;
     }
@@ -594,7 +628,7 @@ public class Board : MonoBehaviour {
                 barDisplay = 1 - timediff * 1.0f/timeGap;//0.1f;
             }
         }else{
-                timer = 0;
+            timer = 0;
         }
 
         //timer progress bar.
@@ -628,5 +662,67 @@ public class Board : MonoBehaviour {
         GUI.Box(new Rect((Screen.width/2 - 250), 10, 150, 100), lego[legoSuggestions[0]]);
         GUI.Box(new Rect((Screen.width/2 - 75), 10, 150, 100), lego[legoSuggestions[1]]);
         GUI.Box(new Rect((Screen.width/2 + 100), 10, 150, 100), lego[legoSuggestions[2]]);
+
+        //Game over overlay graphics
+        if(blockCtrl.gameOver && !viewLBoard){
+            Texture gameOverTexture = Resources.Load("gameover") as Texture2D;
+            GUI.DrawTexture(new Rect(Screen.width/2-250, 140, 450, 250), gameOverTexture);
+
+            GUI.Label(new Rect(Screen.width/2-150,450,200,25), "Your score was " + score);
+
+            if(!scoreSubmitted){
+                GUI.Label(new Rect(Screen.width/2-150,470,300,25), "Type your name to add to the leaderboard.");
+                uname = GUI.TextField (new Rect (Screen.width/2-150,510,300,30), uname);
+                
+                if(GUI.Button(new Rect(Screen.width/2-150,560,300,25), "Submit score to leaderboard.")){
+                    lboard.AddScore(uname, score);
+                    scoreSubmitted = true;
+                    Debug.Log("Score submitted = " + scoreSubmitted);
+                }
+            }else{
+                int position = 99999;
+                GUI.Label(new Rect(Screen.width/2-150,450,200,25), uname + " has been added to leaderboard.");
+                GUI.Label(new Rect(Screen.width/2-150,450,100,25), "You are position " + position + "!");
+            }
+
+            if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View Leaderboard"))
+                viewLBoard = true;
+
+            if(GUI.Button(new Rect(Screen.width/2+50, Screen.height - 100, 150,75), "Click to restart game")){
+                Time.timeScale = 1;
+                Application.LoadLevel("MainMenu");
+            }
+        }
+
+        //Leaderboard graphics
+        if(viewLBoard){
+            if(!receivedLboard){
+                dispScores = lboard.DisplayScores();
+                receivedLboard = true; //!receivedLboard;
+            }
+
+            GUI.Label(new Rect(Screen.width/2 - 200, 100, 400, 25), "Position");
+            GUI.Label(new Rect(Screen.width/2 - 50, 100, 100, 25), "Name");
+            GUI.Label(new Rect(Screen.width/2 + 200, 100, 400, 25), "Scores");
+
+            
+            for(int i = 0; i < dispScores.Count; i+=2){
+                // Debug.Log("TEST -------- " + dispScores[i]);
+                GUI.Label(new Rect(Screen.width/2 - 200, 100 + i*35, 400, 25), ""+(i+1));
+                GUI.Label(new Rect(Screen.width/2 - 50, 150 + i*35, 400, 25), "" + dispScores[i]);
+                GUI.Label(new Rect(Screen.width/2 + 200, 150 + i*35, 400, 25), "" + dispScores[i+1]);
+            }
+
+
+            GUI.Box(new Rect(Screen.width/2 - 300, 40, 600, Screen.height-150), "LEADERBOARD OF SHAME AND FAME");
+
+            if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View Game Over"))
+                viewLBoard = false;
+
+            if(GUI.Button(new Rect(Screen.width/2+50,Screen.height - 100,150,75), "Click to restart game")){
+                Time.timeScale = 1;
+                Application.LoadLevel("MainMenu");
+            }
+        }
     }
 }

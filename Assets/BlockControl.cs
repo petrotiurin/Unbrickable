@@ -14,7 +14,7 @@ public class BlockControl : MonoBehaviour {
 	private ShadowCollision sh;
 	RotateCamera cameraScript;
 	private int globalX, globalZ;
-	private int timeGap = 0;
+	private int timeGap = 10;
 	string legoCode;
 	public bool enterPressed = false;
 	private float boundX,boundZ,boundingBox;
@@ -44,8 +44,6 @@ public class BlockControl : MonoBehaviour {
 	//private int[,,] shapeTemp = new int[20,20,20];
 
 	private int[,,] shape4;
-	[DllImport ("make2")]
-	private static extern IntPtr lego();
 
 	[DllImport ("make2")]
 	private static extern int main();
@@ -55,7 +53,6 @@ public class BlockControl : MonoBehaviour {
 	public float pinSize = 1.0f;
 	
 	Board gameBoard;
-	GameOver gOver;
 	
 	//starting height where shapes are created
 	public float startHeight = 50.0f;
@@ -118,14 +115,12 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		//cam = new setUpWebcam();
-		//cam.setUpCams();
+		cam = new setUpWebcam();
+		cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
 		gameBoard = GetComponent<Board>();
-
-		gOver = GetComponent<GameOver>();
 	}
 	
 	// Initialization.
@@ -263,14 +258,14 @@ public class BlockControl : MonoBehaviour {
 			}
 		}
 
-		print("red = " + red);
-		print("suggested red = "+ suggestedRed*8);
-		print("yellow = " + yellow);
-		print("suggested yellow = "+ suggestedYellow*8);
-		print("Blue = " + blue);
-		print("suggested blue = "+ suggestedBlue*8);
-		print("Green = " + green);
-		print("suggested green = "+ suggestedGreen*8);
+	//	print("red = " + red);
+//		print("suggested red = "+ suggestedRed*8);
+///		print("yellow = " + yellow);
+//		print("suggested yellow = "+ suggestedYellow*8);
+//		print("Blue = " + blue);
+//		print("suggested blue = "+ suggestedBlue*8);
+//		print("Green = " + green);
+//		print("suggested green = "+ suggestedGreen*8);
 		//amountColour - amount of the certain colour the user has used
 		//suggestedColour - amount of certain colour the computer has used
 		if(!(red==suggestedRed*8 && blue==suggestedBlue*6 && green==suggestedGreen*4 && yellow==suggestedYellow*2)){
@@ -374,22 +369,22 @@ public class BlockControl : MonoBehaviour {
         waitActive = false;
         Debug.Log("After waiting for " + timeGap + "s");
 		shapeFalling = false;
+		gameBoard.unpauseGame();
 
         if(block == null)
         	Debug.Log("Block is null :S !!");
 
-
-        if(enterPressed){ //xTime < (timeGap / 0.01)){
+		if(enterPressed){ //xTime < (timeGap / 0.01)){
             Debug.Log("ENTER PRESSED!");
-            gameBoard.unpauseGame();
             movingStopped = false;
             triggerNextShape(block);
 			block = GameObject.Find("ActiveBlock");
-			enterPressed = false;
         }
         else{
             Debug.Log("Enter not pressed?");
-            Application.LoadLevel("MainMenu");
+            Time.timeScale = 0;
+            gameOver = true;
+            //Application.LoadLevel("GameOver");
         }
     }
 
@@ -415,10 +410,11 @@ public class BlockControl : MonoBehaviour {
 		Destroy(block);
 		Destroy(shadow);
 	}
-	
+
 	private void triggerNextShape(GameObject block){
 		createShape();
 	}
+
 
 	//prints positions of all blocks in given gameObject
 	private void printShadow(GameObject shadow){
@@ -435,7 +431,8 @@ public class BlockControl : MonoBehaviour {
 		//Can also check if index is out of bounds and handle the error.
 		if(gameBoard.isGameOver()){
 			gameOver = true;
-			Application.LoadLevel("GameOver");
+			Time.timeScale = 0;
+			//Application.LoadLevel("GameOver");
 			Debug.Log("BYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEEEEE");
 		}
 		if (gameOver == true) return;
@@ -809,28 +806,52 @@ public class BlockControl : MonoBehaviour {
 	
 	// For demonstration purposes.
 	public void createShape(){
+
 		// Add here shape creation code.
-		/*cam.takeSnap();
+		cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();
-		
+		int count = 0;
+		string legoCode;
+		while (hello == 1 && count < 4){
+			print ("entering loop");
+
+			cam.takeSnap();
+
+			hello = main ();
+			legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+			shape4 = getShapeArray(legoCode); 
+
+			if(!checkPieces(shape4) && hello == 0){
+				print ("wrong shape oops");
+				count ++;
+				hello = 1;
+				StartCoroutine(Wait2(5));
+				
+			}
+
+
+		}
+
+
+
 	//	StartCoroutine(Wait2(3));
-		string legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+	    legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
 
 
      //	StartCoroutine(Wait2(1));
 		print (legoCode);
-		shape4 = getShapeArray(legoCode);   //If your using the webcams to get the shape
-		if(!checkPieces(shape4)){
-			print ("wrong shape");
+ 	    shape4 = getShapeArray(legoCode);   //If your using the webcams to get the shape
+	//	if(!checkPieces(shape4)){
+//			print ("wrong shape");
 
-		}else{
-			print("right shape");
-		} */
-		shape4 = getShapeArray();   //If your using a hardcoded shape
+//		}else{
+//			print("right shape");
+///		} */
+		//shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape2);
+		createShape(shape4);
 	}
 
 	
