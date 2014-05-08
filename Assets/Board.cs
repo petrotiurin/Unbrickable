@@ -67,6 +67,7 @@ public class Board : MonoBehaviour {
 
 	// Initialization.
 	void Awake () {
+
         Debug.Log("Initialisation");
         startTime = Time.realtimeSinceStartup;
         Debug.Log("Awake Time ---> " + startTime);
@@ -78,6 +79,7 @@ public class Board : MonoBehaviour {
 		boardArray = new bool[nx,ny,nz];
 		Array.Clear(boardArray, 0, boardArray.Length);
 		blockCtrl = GetComponent<BlockControl>();
+		blockCtrl.enterPressed = false;
 		//pinsPerShape = blockCtrl.getShapeSize();
 		blocksLayer = new GameObject [ny];
 		blocksInLayer = new int[ny];
@@ -150,7 +152,9 @@ public class Board : MonoBehaviour {
 
     // Update is called once per frame.
     void Update (){
+	
         if(countdown){
+
             if(Input.GetKeyDown("return")){
 				blockCtrl.enterPressed = true;
                 shapeFalling = true;
@@ -456,8 +460,8 @@ public class Board : MonoBehaviour {
         while(xTime < (timeGap / 0.01) &&
             startTimerr > (Time.realtimeSinceStartup - timeGap) && blockCtrl.enterPressed == false){
             yield return new WaitForSeconds(0.01f);
-            Debug.Log("1");
-            xTime++;
+			//Debug.Log(blockCtrl.enterPressed);
+			xTime++;
         }
 
         Debug.Log("2");
