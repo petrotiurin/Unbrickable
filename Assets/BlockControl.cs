@@ -5,6 +5,7 @@ using System;
 using System.Text;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 public class BlockControl : MonoBehaviour {
 	
@@ -138,8 +139,18 @@ public class BlockControl : MonoBehaviour {
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
 	}
 
+	public bool checkString(string data){
+
+
+		if(Regex.IsMatch(data,@"^(\d+\.\d+\.\d+\.\d+\.)+$"))return true;
+
+		return false;
+	}
+
 	// For testing purposes
 	public int[,,] getShapeArray(){
+		
+
 		int[,,] shapeTemp = new int[20,20,20];
 		string data =  "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
 		string[] dA = data.Split('.');
@@ -154,6 +165,8 @@ public class BlockControl : MonoBehaviour {
 
 	// Get the shape from the computer vision stuff and puts in to the shape array
 	public int[,,] getShapeArray(string data){
+		if(!checkString(data))("bad string");
+
 		int[,,] shapeTemp = new int[20,20,20];
 		string[] dA = data.Split('.');
 		for (int i = 0; i < dA.Length - 1; i+=4){
@@ -807,7 +820,8 @@ public class BlockControl : MonoBehaviour {
 	public void createShape(){
 
 		// Add here shape creation code.
-		cam.takeSnap();
+
+		//cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();
@@ -816,17 +830,19 @@ public class BlockControl : MonoBehaviour {
 		while (hello == 1 && count < 4){
 			print ("entering loop");
 
-			cam.takeSnap();
+			//cam.takeSnap();
 
-			hello = main ();
-			legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
-			shape4 = getShapeArray(legoCode); 
+//			hello = main ();
+//			legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+//			shape4 = getShapeArray(legoCode);
 
+			shape4=getShapeArray("1.1.1.1.");
+//
 			if(!checkPieces(shape4) && hello == 0){
 				print ("wrong shape oops");
 				count ++;
 				hello = 1;
-				StartCoroutine(Wait2(5));
+				StartCoroutine(Wait2(1));
 				
 			}
 

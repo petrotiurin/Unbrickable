@@ -17,7 +17,7 @@ public class Board : MonoBehaviour {
 	
 	private int flashPass;
 
-	int timeGap = 3; //default value. Change gap here!
+	int timeGap = 20; //default value. Change gap here!
     int timer = 0;
     float starttimer = 0.0f;
     bool countdown = false;
