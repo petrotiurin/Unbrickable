@@ -45,44 +45,54 @@ public class RotateCamera : MonoBehaviour
 	{
 		if (topCam == null) topCam = GameObject.Find("Top Cam");
 		if( target != null && topCam != null){
+
+			bool rotFinished = false;
 				
-				//Always focus on the centre of the gameboard base
-				transform.LookAt(target.transform);
-				
-				processVerticalRotation();
-				
-				if (XrotToGo <= 0) {
-					//Press "w" to rotate the board CW
-					if( Input.GetKey("x") ){
-						rotRight = true;
-						XrotToGo = 90;
-						rotationDir++;
-						rotationDir = rotationDir % 4;
-						brd.DrawBoundary(rotationDir);
-					}
-					//Press "z" to rotate the board CCW
-					else if( Input.GetKey("z") ){
-						rotRight = false;
-						XrotToGo = 90;
-						rotationDir--;
-						if(rotationDir < 0) rotationDir = 3;
-						brd.DrawBoundary(rotationDir);
-					}
+			//Always focus on the centre of the gameboard base
+			transform.LookAt(target.transform);
+			
+			processVerticalRotation();
+			
+			if (XrotToGo <= 0) {
+				//Press "x" to rotate the board CW
+				if( Input.GetKey("x") ){
+					rotRight = true;
+					XrotToGo = 90;
+					rotationDir++;
+					rotationDir = rotationDir % 4;
+					brd.destroyBoundary();
+					rotFinished=false;
 				}
-				
+				//Press "z" to rotate the board CCW
+				else if( Input.GetKey("z") ){
+					rotRight = false;
+					XrotToGo = 90;
+					rotationDir--;
+					if(rotationDir < 0) rotationDir = 3;
+					brd.destroyBoundary();
+					rotFinished=false;
+				}
+			}
+			else{
 				//Make the position change
-				if (XrotToGo >= 0){
-					float rot = Time.deltaTime * XrotSpeed;
-					if (XrotToGo < rot) rot = XrotToGo;
-					if(rotRight){
-						transform.RotateAround( target.transform.position, Vector3.down, rot);
-						topCam.transform.RotateAround( topCam.transform.position, Vector3.down, rot);
-					} else {
-						transform.RotateAround( target.transform.position, Vector3.up, rot);
-						topCam.transform.RotateAround( topCam.transform.position, Vector3.up, rot);
-					}
-					XrotToGo -= rot;
+				float rot = Time.deltaTime * XrotSpeed;
+				if (XrotToGo < rot) rot = XrotToGo;
+				if(rotRight){
+					transform.RotateAround( target.transform.position, Vector3.down, rot);
+					topCam.transform.RotateAround( topCam.transform.position, Vector3.down, rot);
+				} else {
+					transform.RotateAround( target.transform.position, Vector3.up, rot);
+					topCam.transform.RotateAround( topCam.transform.position, Vector3.up, rot);
 				}
+				XrotToGo -= rot;
+				if (XrotToGo <= 0) {
+					rotFinished=true;
+				}
+			}
+			if(rotFinished) {
+				brd.DrawBoundary(rotationDir);
+				rotFinished=false;
+			}
 		}
 	}
 }

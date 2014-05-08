@@ -143,6 +143,7 @@ public class BlockControl : MonoBehaviour {
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
 	}
 
+
 	// For testing purposes
 	public int[,,] getShapeArray(){
 		int[,,] shapeTemp = new int[20,20,20];
