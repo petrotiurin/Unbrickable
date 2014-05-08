@@ -671,8 +671,10 @@ public class Board : MonoBehaviour {
             if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View Leaderboard"))
                 viewLBoard = true;
 
-            if(GUI.Button(new Rect(Screen.width/2+50, Screen.height - 100, 150,75), "Click to restart game"))
+            if(GUI.Button(new Rect(Screen.width/2+50, Screen.height - 100, 150,75), "Click to restart game")){
+                Time.timeScale = 1;
                 Application.LoadLevel("MainMenu");
+            }
         }
 
         //Leaderboard graphics
@@ -700,8 +702,10 @@ public class Board : MonoBehaviour {
             if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View Game Over"))
                 viewLBoard = false;
 
-            if(GUI.Button(new Rect(Screen.width/2+50,Screen.height - 100,150,75), "Click to restart game"))
+            if(GUI.Button(new Rect(Screen.width/2+50,Screen.height - 100,150,75), "Click to restart game")){
+                Time.timeScale = 1;
                 Application.LoadLevel("MainMenu");
+            }
         }
     }
 }
