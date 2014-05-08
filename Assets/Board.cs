@@ -252,7 +252,7 @@ public class Board : MonoBehaviour {
             Destroy(go);
         }
 
-        for(int i=0; i< ny;i++){
+        for(int i=0; i< ny-3;i++){
             for(int j=-1;j < nx-3;j++){
                 if(rotDir == 0){
                     Instantiate(grid, new Vector3(j,i,nz-3),Quaternion.identity);
@@ -404,7 +404,7 @@ public class Board : MonoBehaviour {
     //    Debug.Log("checking if game over");
         for(int i = 1; i < nx-1; i++)
             for(int j = 1; j < nz-1; j++)
-                if(boardArray[i,ny-1,j])
+                if(boardArray[i,ny-3,j])
                     return true;
         return false;
     }

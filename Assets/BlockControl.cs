@@ -829,7 +829,7 @@ public class BlockControl : MonoBehaviour {
 		} */
 		shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape2);
+		createShape(shape3);
 	}
 
 	
