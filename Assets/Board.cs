@@ -25,6 +25,9 @@ public class Board : MonoBehaviour {
     //scoring stuff
     public int score = 0;
     private bool viewLBoard = false;
+    private bool scoreSubmitted = false;
+    private bool receivedLboard = false;
+    ArrayList dispScores = new ArrayList();
 
     private string uname = "Voldemort";
 
@@ -65,6 +68,7 @@ public class Board : MonoBehaviour {
 
 	private BlockControl blockCtrl;
     private GameOver gOver;
+    private Leaderboard lboard;
 
 	private Camera topCam;
 
@@ -149,6 +153,7 @@ public class Board : MonoBehaviour {
 
 
         gOver = GetComponent<GameOver>();
+        lboard = GetComponent<Leaderboard>();
 
 		blockCtrl.assignTimeGap(timeGap);
 	}
@@ -170,10 +175,10 @@ public class Board : MonoBehaviour {
             }
         }
 
-        if(blockCtrl.gameOver){
+        /*if(blockCtrl.gameOver){
             Debug.Log("Score--------->" + score);
             gOver.endGame(score);
-        }
+        }*/
     }
 
 	private void createTopCamera(){
@@ -644,22 +649,59 @@ public class Board : MonoBehaviour {
         //Game over overlay graphics
         if(blockCtrl.gameOver && !viewLBoard){
             Texture gameOverTexture = Resources.Load("gameover") as Texture2D;
-            GUI.DrawTexture(new Rect(Screen.width/2-200, 120, 400, 250), gameOverTexture);
+            GUI.DrawTexture(new Rect(Screen.width/2-250, 140, 450, 250), gameOverTexture);
 
-            GUI.Label(new Rect(Screen.width/2-100,380,200,25), "Your score was "+ score + ". Your position on the Leaderboard is " + "00");
-            GUI.Label(new Rect(Screen.width/2-100,40,200,25), "Type your name to add to the leaderboard.");
-            uname = GUI.TextField (new Rect (50,50,250,50), uname);
-            
-            if(GUI.Button(new Rect(Screen.width/2-200, 450, 150, 75), "View Leaderboard"))
+            GUI.Label(new Rect(Screen.width/2-150,450,200,25), "Your score was " + score);
+
+            if(!scoreSubmitted){
+                GUI.Label(new Rect(Screen.width/2-150,470,300,25), "Type your name to add to the leaderboard.");
+                uname = GUI.TextField (new Rect (Screen.width/2-150,510,300,30), uname);
+                
+                if(GUI.Button(new Rect(Screen.width/2-150,560,300,25), "Submit score to leaderboard.")){
+                    lboard.AddScore(uname, score);
+                    scoreSubmitted = true;
+                    Debug.Log("Score submitted = " + scoreSubmitted);
+                }
+            }else{
+                int position = 99999;
+                GUI.Label(new Rect(Screen.width/2-150,450,200,25), uname + " has been added to leaderboard.");
+                GUI.Label(new Rect(Screen.width/2-150,450,100,25), "You are position " + position + "!");
+            }
+
+            if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View Leaderboard"))
                 viewLBoard = true;
 
-            if(GUI.Button(new Rect(Screen.width/2+50,450,150,75), "Click to restart game"))
+            if(GUI.Button(new Rect(Screen.width/2+50, Screen.height - 100, 150,75), "Click to restart game"))
                 Application.LoadLevel("MainMenu");
         }
 
         //Leaderboard graphics
         if(viewLBoard){
-            //display stuff
+            if(!receivedLboard){
+                dispScores = lboard.DisplayScores();
+                receivedLboard = true; //!receivedLboard;
+            }
+
+            GUI.Label(new Rect(Screen.width/2 - 200, 100, 400, 25), "Position");
+            GUI.Label(new Rect(Screen.width/2 - 50, 100, 100, 25), "Name");
+            GUI.Label(new Rect(Screen.width/2 + 200, 100, 400, 25), "Scores");
+
+            
+            for(int i = 0; i < dispScores.Count; i+=2){
+                // Debug.Log("TEST -------- " + dispScores[i]);
+                GUI.Label(new Rect(Screen.width/2 - 200, 100 + i*35, 400, 25), ""+(i+1));
+                GUI.Label(new Rect(Screen.width/2 - 50, 150 + i*35, 400, 25), "" + dispScores[i]);
+                GUI.Label(new Rect(Screen.width/2 + 200, 150 + i*35, 400, 25), "" + dispScores[i+1]);
+            }
+
+
+            GUI.Box(new Rect(Screen.width/2 - 300, 40, 600, Screen.height-150), "LEADERBOARD OF SHAME AND FAME");
+
+            if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View Game Over"))
+                viewLBoard = false;
+
+            if(GUI.Button(new Rect(Screen.width/2+50,Screen.height - 100,150,75), "Click to restart game"))
+                Application.LoadLevel("MainMenu");
         }
     }
 }
