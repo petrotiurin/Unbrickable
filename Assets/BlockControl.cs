@@ -6,9 +6,6 @@ using System.Text;
 using System.IO;
 using System.Runtime.InteropServices;
 
-
-
-
 public class BlockControl : MonoBehaviour {
 	
 	private GameObject[] blocks;
