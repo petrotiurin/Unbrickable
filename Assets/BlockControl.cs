@@ -46,8 +46,8 @@ public class BlockControl : MonoBehaviour {
 
 	private int[,,] shape4;
 
-	[DllImport ("make2")]
-	private static extern int main();
+	//[DllImport ("make2")]
+	//private static extern int main();
 
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
@@ -116,8 +116,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		cam = new setUpWebcam();
-		cam.setUpCams();
+	//	cam = new setUpWebcam();
+	//	cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -139,13 +139,6 @@ public class BlockControl : MonoBehaviour {
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
 	}
 
-	public bool checkString(string data){
-
-
-		if(Regex.IsMatch(data,@"^(\d+\.\d+\.\d+\.\d+\.)+$"))return true;
-
-		return false;
-	}
 
 	// For testing purposes
 	public int[,,] getShapeArray(){
@@ -820,8 +813,7 @@ public class BlockControl : MonoBehaviour {
 	public void createShape(){
 
 		// Add here shape creation code.
-
-		//cam.takeSnap();
+	/*	cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();

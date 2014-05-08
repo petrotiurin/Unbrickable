@@ -274,12 +274,15 @@ public class Board : MonoBehaviour {
 	
 
 
+	public void destroyBoundary(){
+		GameObject[] argo = GameObject.FindGameObjectsWithTag("WallPiece");
+		foreach (GameObject go in argo) {
+			Destroy(go);
+		}
+	}
+
     //Create visible boundary walls.
     public void DrawBoundary(int rotDir){
-        GameObject[] argo = GameObject.FindGameObjectsWithTag("WallPiece");
-        foreach (GameObject go in argo) {
-            Destroy(go);
-        }
 
         for(int i=0; i< ny;i++){
             for(int j=-1;j < nx-3;j++){

@@ -1,15 +1,19 @@
 using UnityEngine;
 using System.Collections;
 
-public class MenuOptionSelected : MonoBehaviour{
-	
+public class MenuOptionSelected : MonoBehaviour
+{	
 	public GameObject option;
 	
 	void Update(){
 		if(Input.GetMouseButtonDown(0)){
 			
-			if(tag == "NewGame")
-				Application.LoadLevel("Scene1");
+			if(tag == "Easy")
+				Application.LoadLevel("space");
+			else if(tag == "Medium")
+				Application.LoadLevel("pirate");
+			else if(tag == "Hard")
+				Application.LoadLevel("space");
 			else if(tag == "Finish")
 				Application.Quit();
 		}
@@ -17,6 +21,6 @@ public class MenuOptionSelected : MonoBehaviour{
 	
 	void OnMouseExit(){
 		this.gameObject.SetActive(false);
-		option.renderer.enabled = true;
+		option.gameObject.SetActive(true);
 	}
 }
