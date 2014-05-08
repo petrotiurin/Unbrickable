@@ -25,6 +25,7 @@ public class RotateCamera : MonoBehaviour
 		rotRight = false;
 		target = GameObject.Find("base");
 		brd = GameObject.Find("Scene").GetComponent<Board>();
+		transform.RotateAround( target.transform.position, Vector3.up, -30);
 	}
 	
 	void processVerticalRotation(){
@@ -53,7 +54,7 @@ public class RotateCamera : MonoBehaviour
 				
 				if (XrotToGo <= 0) {
 					//Press "w" to rotate the board CW
-					if( Input.GetKey("x") ){
+					if( Input.GetKey("d") ){
 						rotRight = true;
 						XrotToGo = 90;
 						rotationDir++;
@@ -61,7 +62,7 @@ public class RotateCamera : MonoBehaviour
 						brd.DrawBoundary(rotationDir);
 					}
 					//Press "z" to rotate the board CCW
-					else if( Input.GetKey("z") ){
+					else if( Input.GetKey("a") ){
 						rotRight = false;
 						XrotToGo = 90;
 						rotationDir--;
