@@ -46,8 +46,8 @@ public class BlockControl : MonoBehaviour {
 
 	private int[,,] shape4;
 
-	[DllImport ("make2")]
-	private static extern int main();
+	//[DllImport ("make2")]
+	//private static extern int main();
 
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
@@ -116,8 +116,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		cam = new setUpWebcam();
-		cam.setUpCams();
+	//	cam = new setUpWebcam();
+	//	cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -823,7 +823,7 @@ public class BlockControl : MonoBehaviour {
 	public void createShape(){
 
 		// Add here shape creation code.
-		cam.takeSnap();
+	/*	cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();
@@ -832,13 +832,13 @@ public class BlockControl : MonoBehaviour {
 		while (hello == 1 && count < 4){
 			print ("entering loop");
 
-			cam.takeSnap();
+			//cam.takeSnap();
 
-			hello = main ();
-			legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
-			shape4 = getShapeArray(legoCode);
+//			hello = main ();
+//			legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+//			shape4 = getShapeArray(legoCode);
 
-		//	shape4=getShapeArray("1.1.1.1.");
+			shape4=getShapeArray("1.1.1.1.");
 //
 			if(!checkPieces(shape4) && hello == 0){
 				print ("wrong shape oops");
@@ -868,7 +868,7 @@ public class BlockControl : MonoBehaviour {
 ///		} */
 		//shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape4);
+		createShape(shape2);
 	}
 
 	

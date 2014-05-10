@@ -149,10 +149,11 @@ public class Board : MonoBehaviour {
         DrawBoundary(0);
 		createTopCamera();
 
-	//	audio_source = GameObject.Find("Main Camera").AddComponent<AudioSource>();
 //		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
 //		layer_clear_sound.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/Triumph.wav", typeof(AudioClip));
-//		startMusic("Theme1");
+
+		// Only uncomment if you want to *change* the music
+		//		startMusic("Theme1");
 
 		//start gameplay.
 
@@ -199,7 +200,8 @@ public class Board : MonoBehaviour {
 		topCam.name = "Top Cam";
 		//topCam.transform.Rotate()
 	}
-	
+
+	// Used to change the track playing
 	private void startMusic(String track){
 		if (audio_source.isPlaying) audio_source.Stop();
 		audio_source.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/" + track + ".wav", typeof(AudioClip));
