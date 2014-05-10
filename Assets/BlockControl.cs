@@ -375,10 +375,15 @@ public class BlockControl : MonoBehaviour {
 		Debug.Log ("Xtime = " + xTime);
 
 		float startTimerr = Time.realtimeSinceStartup;
-		while (
-            startTimerr > (Time.realtimeSinceStartup - timeGap) && enterPressed == false){
+		while (startTimerr > (Time.realtimeSinceStartup - timeGap) && enterPressed == false){
 			yield return new WaitForSeconds(0.01f);
-			xTime++;
+			if(enterPressed)
+				if(createShape())
+					break;
+				else
+					enterPressed = false;
+			print ("still in loop");
+//			xTime++;
 		}
 
         waitActive = false;
@@ -391,10 +396,10 @@ public class BlockControl : MonoBehaviour {
 		if(enterPressed){ //xTime < (timeGap / 0.01)){
             Debug.Log("ENTER PRESSED!");
             movingStopped = false;
-			createShape ();
+//			createShape ();
 
         }
-        else{
+        else if(startTimerr < (Time.realtimeSinceStartup - timeGap)){
             Debug.Log("Enter not pressed?");
             Time.timeScale = 0;
             gameOver = true;
@@ -428,9 +433,9 @@ public class BlockControl : MonoBehaviour {
 		Destroy(shadow);
 	}
 
-	private void triggerNextShape(GameObject block){
+	/*private void triggerNextShape(GameObject block){
 		createShape();
-	}
+	}*/
 
 
 	//prints positions of all blocks in given gameObject
@@ -822,7 +827,7 @@ public class BlockControl : MonoBehaviour {
 	
 	
 	// For demonstration purposes.
-	public void createShape(){
+	public bool createShape(){
 
 		// Add here shape creation code.
 		cam.takeSnap();
@@ -847,8 +852,10 @@ public class BlockControl : MonoBehaviour {
 				count ++;
 				hello = 1;
 				StartCoroutine(Wait2(1));
-				
+
 			}
+
+		
 
 
 		}
@@ -860,22 +867,24 @@ public class BlockControl : MonoBehaviour {
 
 		if(!checkString(legoCode)){
 			print ("format is wrong");
-			StartCoroutine(Wait(xTime));
+			return false;
 		}else{
 			//	StartCoroutine(Wait2(1));
 			print (legoCode);
- 	   		shape4 = getShapeArray(legoCode);   //If your using the webcams to get the shape
+ 	   		shape4 = getShapeArray(legoCode);   //If you're using the webcams to get the shape
 
 			if(!checkPieces(shape4)){
 				print ("wrong shape");
 				print (xTime);
-				StartCoroutine(Wait(xTime));	
+				return false;	
 			}else{
 				print("right shape");
 				xTime = 0;
 				createShape(shape4);
 			}
 		}
+
+		return true;
 
 		//shape4 = getShapeArray();   //If your using a hardcoded shape
 		
