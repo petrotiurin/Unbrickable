@@ -71,6 +71,11 @@ public class Leaderboard : MonoBehaviour {
     }
 
 
+    public void getPosition(string name, int scr){
+        
+    }
+
+
     public ArrayList DisplayScores(){
         //Debug.Log("ARRAYLIST ----------> " + reader.FieldCount);
 

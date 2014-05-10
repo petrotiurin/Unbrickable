@@ -681,7 +681,7 @@ public class Board : MonoBehaviour {
         if(viewLBoard){
             if(!receivedLboard){
                 dispScores = lboard.DisplayScores();
-                receivedLboard = true; //!receivedLboard;
+                receivedLboard = true;
             }
 
             GUI.Label(new Rect(Screen.width/2 - 200, 100, 400, 25), "Position");
