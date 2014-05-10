@@ -23,7 +23,7 @@ public class BlockControl : MonoBehaviour {
 	private int pass;
 
 	private bool firstBlock = true;
-	private int xTime;
+	public int xTime;
 	private bool waitActive = false;
 	private bool shapeFalling = false;
 	public bool gameOver = false;
@@ -69,8 +69,8 @@ public class BlockControl : MonoBehaviour {
 	
 	private GameObject FragmentCube;
 
-	//[DllImport ("make2")]
-	//private static extern IntPtr lego();
+	[DllImport ("make2")]
+	private static extern int main();
 
 	//for moving the shapes need to know the centre of shape
 	private float posX,posZ;	
@@ -116,8 +116,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-	//	cam = new setUpWebcam();
-	//	cam.setUpCams();
+		cam = new setUpWebcam();
+		cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 
@@ -140,7 +140,7 @@ public class BlockControl : MonoBehaviour {
 	}
 
 	public bool checkString(string data){
-
+		if(data == null) return false;
 		if(Regex.IsMatch(data, @"^(\d+\.\d+\.\d+\.\d+\.)+$"))return true;
 
 		return false;
@@ -365,17 +365,17 @@ public class BlockControl : MonoBehaviour {
 	** The game is "paused" -- the shape doesn't descend but you can still
 	**   rotate the board, if you need to see where you'd place the blocks.
 	*/
-	IEnumerator Wait(GameObject block){
+	IEnumerator Wait(int curTime){
 		gameBoard.pauseGame(Time.realtimeSinceStartup);
         Debug.Log("Wait for " + 1 + "s");
         waitActive = true;
 
-		xTime = 0;
+		xTime = curTime;
 		enterPressed = false;
-		Debug.Log ("wejkjlfd");
+		Debug.Log ("Xtime = " + xTime);
 
 		float startTimerr = Time.realtimeSinceStartup;
-		while (xTime < (timeGap/0.01f) &&
+		while (
             startTimerr > (Time.realtimeSinceStartup - timeGap) && enterPressed == false){
 			yield return new WaitForSeconds(0.01f);
 			xTime++;
@@ -386,14 +386,13 @@ public class BlockControl : MonoBehaviour {
 		shapeFalling = false;
 		gameBoard.unpauseGame();
 
-        if(block == null)
-        	Debug.Log("Block is null :S !!");
+
 
 		if(enterPressed){ //xTime < (timeGap / 0.01)){
             Debug.Log("ENTER PRESSED!");
             movingStopped = false;
-            triggerNextShape(block);
-			block = GameObject.Find("ActiveBlock");
+			createShape ();
+
         }
         else{
             Debug.Log("Enter not pressed?");
@@ -403,6 +402,9 @@ public class BlockControl : MonoBehaviour {
         }
     }
 
+	public void linkBlock(int time){
+		StartCoroutine(Wait (time));
+	}
 
 	private void fillBoard(GameObject block){
 		for (int i = 0; i < Math.Pow(gameBoard.nx, 3); i++){
@@ -488,7 +490,7 @@ public class BlockControl : MonoBehaviour {
 				Destroy(highlight);
 				fillBoard(block);
 				if(!waitActive)
-					StartCoroutine(Wait(block));
+					StartCoroutine(Wait(xTime));
 				/*triggerNextShape(block);
 				block = GameObject.Find("ActiveBlock");*/
 			}
@@ -823,7 +825,7 @@ public class BlockControl : MonoBehaviour {
 	public void createShape(){
 
 		// Add here shape creation code.
-	/*	cam.takeSnap();
+		cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();
@@ -832,13 +834,13 @@ public class BlockControl : MonoBehaviour {
 		while (hello == 1 && count < 4){
 			print ("entering loop");
 
-			//cam.takeSnap();
+			cam.takeSnap();
 
-//			hello = main ();
-//			legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
-//			shape4 = getShapeArray(legoCode);
+			hello = main ();
+			legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+			shape4 = getShapeArray(legoCode);
 
-			shape4=getShapeArray("1.1.1.1.");
+//			shape4=getShapeArray("1.1.1.1.");
 //
 			if(!checkPieces(shape4) && hello == 0){
 				print ("wrong shape oops");
@@ -856,19 +858,28 @@ public class BlockControl : MonoBehaviour {
 	//	StartCoroutine(Wait2(3));
 	    legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
 
+		if(!checkString(legoCode)){
+			print ("format is wrong");
+			StartCoroutine(Wait(xTime));
+		}else{
+			//	StartCoroutine(Wait2(1));
+			print (legoCode);
+ 	   		shape4 = getShapeArray(legoCode);   //If your using the webcams to get the shape
 
-     //	StartCoroutine(Wait2(1));
-		print (legoCode);
- 	    shape4 = getShapeArray(legoCode);   //If your using the webcams to get the shape
-	//	if(!checkPieces(shape4)){
-//			print ("wrong shape");
+			if(!checkPieces(shape4)){
+				print ("wrong shape");
+				print (xTime);
+				StartCoroutine(Wait(xTime));	
+			}else{
+				print("right shape");
+				xTime = 0;
+				createShape(shape4);
+			}
+		}
 
-//		}else{
-//			print("right shape");
-///		} */
 		//shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape2);
+
 	}
 
 	
