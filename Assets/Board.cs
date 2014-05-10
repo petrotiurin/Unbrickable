@@ -81,6 +81,8 @@ public class Board : MonoBehaviour {
 
     //start time
     float startTime;
+	
+	public GameObject LBoard_BG;
 
 	// Initialization.
 	void Awake () {
@@ -182,10 +184,10 @@ public class Board : MonoBehaviour {
             }
         }
 
-        /*if(blockCtrl.gameOver){
-            Debug.Log("Score--------->" + score);
-            gOver.endGame(score);
-        }*/
+        if (!viewLBoard && LBoard_BG.active)
+			LBoard_BG.SetActive(false);
+		else if(viewLBoard && !LBoard_BG.active)
+			LBoard_BG.SetActive(true);	
     }
 
 	private void createTopCamera(){
@@ -674,6 +676,17 @@ public class Board : MonoBehaviour {
 		input_text.fontSize = 25;
 		input_text.normal.textColor = Color.white;
 		
+		GUIStyle LBoard_title = new GUIStyle();
+		LBoard_title.fontSize = 40;
+		score_style.alignment = TextAnchor.MiddleCenter;
+		LBoard_title.fontStyle = FontStyle.Bold;
+		LBoard_title.normal.textColor = Color.white;
+		
+		GUIStyle LBoard_header = new GUIStyle();
+		LBoard_header.fontSize = 30;
+		LBoard_header.fontStyle = FontStyle.Bold;
+		LBoard_header.normal.textColor = Color.white;
+		
     	// The following line of code displays the current score.
         GUI.Box(new Rect (50,10,150,100), "Score: " + score, score_style);
 
@@ -714,11 +727,12 @@ public class Board : MonoBehaviour {
 			showPieceScript.SuggestLegoPiece();
 
 			legoSuggestions = showPieceScript.suggestedPieces;
-			for(int i = 0; i < 3; i++)
-				//Debug.Log("Lego pc suggestion (" + i + ") = " + legoSuggestions[i]);
 
 			pieceSuggestor = false;
         }
+		
+		
+		
 		
 		GUIStyle suggest_style = new GUIStyle();
         GUI.Box(new Rect((Screen.width - 260), 50, 405, 270), lego[legoSuggestions[0]],suggest_style);
@@ -744,11 +758,7 @@ public class Board : MonoBehaviour {
             }else{
 				viewLBoard = true;
             }
-
-           // if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View Leaderboard"))
-            
         }
-
 		
         //Leaderboard graphics
         if(viewLBoard){
@@ -756,24 +766,26 @@ public class Board : MonoBehaviour {
                 dispScores = lboard.DisplayScores(5);
                 receivedLboard = true; //!receivedLboard;
             }
-
-            GUI.Label(new Rect(Screen.width/2 - 200, 100, 400, 25), "Position");
-            GUI.Label(new Rect(Screen.width/2 - 50, 100, 100, 25), "Name");
-            GUI.Label(new Rect(Screen.width/2 + 200, 100, 400, 25), "Scores");
+			
+			
+            GUI.Label(new Rect(Screen.width/2 - 250, 150, 400, 25), "Position", LBoard_header);
+            GUI.Label(new Rect(Screen.width/2 - 75, 150, 100, 25), "Name", LBoard_header);
+            GUI.Label(new Rect(Screen.width/2 + 150, 150, 400, 25), "Scores", LBoard_header);
             
-            for(int i = 0; i < dispScores.Count; i+=2){
+            for(int i = 0; i < 5; i++){
                 // Debug.Log("TEST -------- " + dispScores[i]);
-                GUI.Label(new Rect(Screen.width/2 - 200, 150 + i*35, 400, 25), ""+(i+1), gameover_message);
-                GUI.Label(new Rect(Screen.width/2 - 50, 150 + i*35, 400, 25), "" + dispScores[i], gameover_message);
-                GUI.Label(new Rect(Screen.width/2 + 200, 150 + i*35, 400, 25), "" + dispScores[i+1], gameover_message);
+                GUI.Label(new Rect(Screen.width/2 - 200, 200 + i*50, 400, 25), ""+(i+1), gameover_message);
+                GUI.Label(new Rect(Screen.width/2 - 75, 200 + i*50, 400, 25), "" + dispScores[2*i], gameover_message);
+                GUI.Label(new Rect(Screen.width/2 + 150, 200 + i*50, 400, 25), "" + dispScores[2*i+1], gameover_message);
             }
 
-            GUI.Box(new Rect(Screen.width/2 - 300, 40, 600, Screen.height-200), "High Scores");
+            GUI.Box(new Rect(Screen.width/2 - 250, 75, 600, Screen.height-200), "Leaderboard Position", LBoard_title);
 
-            if(GUI.Button(new Rect(Screen.width/2-75,Screen.height - 100,150,75), "Continue")){
+            if(GUI.Button(new Rect(Screen.width/2-75,Screen.height - 200,150,75), "Continue")){
                 Time.timeScale = 1;
                 Application.LoadLevel("MainMenu");
             }
         }
     }
 }
+
