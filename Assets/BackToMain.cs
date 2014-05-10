@@ -1,8 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class BackToMain : MonoBehaviour
-{
+public class BackToMain : MonoBehaviour{
 	public GameObject play;
 	public GameObject scores;
 	public GameObject quit;

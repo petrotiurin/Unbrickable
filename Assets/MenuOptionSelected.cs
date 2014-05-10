@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 public class MenuOptionSelected : MonoBehaviour
-{	
+{
 	public GameObject option;
 	
 	void Update(){

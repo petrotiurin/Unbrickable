@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 public class RotateCamera : MonoBehaviour
-{	
+{
 	private GameObject target = null;
 	private bool rotRight;
 	private float XrotToGo = 0;
@@ -47,8 +47,6 @@ public class RotateCamera : MonoBehaviour
 		if (topCam == null) topCam = GameObject.Find("Top Cam");
 		if( target != null && topCam != null){
 
-			bool rotFinished = false;
-				
 			//Always focus on the centre of the gameboard base
 			transform.LookAt(target.transform);
 			
@@ -61,8 +59,6 @@ public class RotateCamera : MonoBehaviour
 					XrotToGo = 90;
 					rotationDir++;
 					rotationDir = rotationDir % 4;
-					brd.destroyBoundary();
-					rotFinished=false;
 				}
 				//Press "z" to rotate the board CCW
 				else if( Input.GetKey("z") ){
@@ -70,8 +66,6 @@ public class RotateCamera : MonoBehaviour
 					XrotToGo = 90;
 					rotationDir--;
 					if(rotationDir < 0) rotationDir = 3;
-					brd.destroyBoundary();
-					rotFinished=false;
 				}
 			}
 			else{
@@ -86,13 +80,6 @@ public class RotateCamera : MonoBehaviour
 					topCam.transform.RotateAround( topCam.transform.position, Vector3.up, rot);
 				}
 				XrotToGo -= rot;
-				if (XrotToGo <= 0) {
-					rotFinished=true;
-				}
-			}
-			if(rotFinished) {
-				brd.DrawBoundary(rotationDir);
-				rotFinished=false;
 			}
 		}
 	}
