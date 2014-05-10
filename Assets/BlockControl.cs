@@ -158,7 +158,7 @@ public class BlockControl : MonoBehaviour {
 
 	// Get the shape from the computer vision stuff and puts in to the shape array
 	public int[,,] getShapeArray(string data){
-		if(!checkString(data))("bad string");
+		//if(!checkString(data))print("bad string");
 
 		int[,,] shapeTemp = new int[20,20,20];
 		string[] dA = data.Split('.');
@@ -858,7 +858,7 @@ public class BlockControl : MonoBehaviour {
 ///		} */
 		//shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-		createShape(shape4);
+		createShape(shape2);
 	}
 
 	
