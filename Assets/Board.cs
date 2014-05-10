@@ -504,6 +504,8 @@ public class Board : MonoBehaviour {
             //Debug.Log("ENTER PRESSED!");
 			blockCtrl.enterPressed = false;
             blockCtrl.createShape();
+
+
         }
         else{
             Debug.Log("Enter not pressed?");
