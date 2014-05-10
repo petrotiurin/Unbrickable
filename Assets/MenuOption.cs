@@ -10,4 +10,3 @@ public class MenuOption : MonoBehaviour
 		selected.gameObject.SetActive(true);
 	}	
 }
-

@@ -10,7 +10,6 @@ public class Array_GameObj : MonoBehaviour {
 	//number of pieces that are suggested to player.
 	public int noOfSuggestedPieces = 3;
 	
-
 	// Use this for initialization
 	void Start () {
 		piecesNum = 4;

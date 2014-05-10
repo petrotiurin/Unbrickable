@@ -10,7 +10,7 @@ public class select_difficulty : MonoBehaviour
 	public GameObject medium;
 	public GameObject hard;
 	public GameObject back;
-
+	
 	void Update(){
 		if(Input.GetMouseButtonDown(0)){
 			play.gameObject.SetActive(false);

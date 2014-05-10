@@ -29,7 +29,7 @@ public class Board : MonoBehaviour {
     private bool scoreSubmitted = false;
     private bool receivedLboard = false;
     ArrayList dispScores = new ArrayList();
-
+	
     private string uname = "Voldemort";
 
     //1-easy, 2-intermediate, 3-expert
@@ -54,7 +54,7 @@ public class Board : MonoBehaviour {
     int[] legoSuggestions;
 
     //for wall, it is one unit of the walls.
-    public Transform grid;
+    private UnityEngine.Object grid;
 
 	private bool[,,] boardArray;
 	
@@ -65,7 +65,9 @@ public class Board : MonoBehaviour {
 	//Audio stuff
 	public AudioSource audio_source;
 	public AudioSource layer_clear_sound;
-
+	
+	// Four boundary walls
+	private GameObject A,B,C,D;
 
 	private BlockControl blockCtrl;
     private GameOver gOver;
@@ -120,16 +122,15 @@ public class Board : MonoBehaviour {
 		//initialise textures for the GUI.
         initTextures();
 
-
         //Creates an array to store the 4 images of the lego pieces.
         //Number of pieces that are suggested and number of total pieces
         //  are currently hard-coded.
         lego = new Texture2D[4];
  
-        lego[0] = Resources.Load("L2x1") as Texture2D;
-        lego[1] = Resources.Load("L2x2") as Texture2D;
-        lego[2] = Resources.Load("L3x2") as Texture2D;
-        lego[3] = Resources.Load("L4x2") as Texture2D;
+        lego[0] = Resources.Load("L2x1lit") as Texture2D;
+        lego[1] = Resources.Load("L2x2lit") as Texture2D;
+        lego[2] = Resources.Load("L3x2lit") as Texture2D;
+        lego[3] = Resources.Load("L4x2lit") as Texture2D;
 
         legoSuggestions = new int[3];
 
@@ -143,10 +144,9 @@ public class Board : MonoBehaviour {
 		
 		DrawBoard();
 		
-		GameObject block2 = (GameObject)Resources.LoadAssetAtPath("Assets/block2.prefab", typeof(GameObject));
-		grid = block2.transform;
+		grid = Resources.LoadAssetAtPath("Assets/Resources/grid_square.prefab", typeof(GameObject));
         //boundaries for initial orientation
-        DrawBoundary(0);
+        DrawBoundaries();
 		createTopCamera();
 
 //		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
@@ -155,8 +155,7 @@ public class Board : MonoBehaviour {
 		// Only uncomment if you want to *change* the music
 		//		startMusic("Theme1");
 
-		//start gameplay.
-
+		//start gameplay
 
         gOver = GetComponent<GameOver>();
         lboard = GetComponent<Leaderboard>();
@@ -274,39 +273,84 @@ public class Board : MonoBehaviour {
 		//cube.transform.localPosition = new Vector3(cube.transform.localPosition.x, -0.1f, cube.transform.localPosition.z);
 	}
 	
-
-
-	public void destroyBoundary(){
-		GameObject[] argo = GameObject.FindGameObjectsWithTag("WallPiece");
-		foreach (GameObject go in argo) {
-			Destroy(go);
+	public void DrawBoundaries(){
+		
+		A = new GameObject();
+		A.name = "Wall A";
+		B = new GameObject();
+		B.name = "Wall B";
+		C = new GameObject();
+		C.name = "Wall C";
+		D = new GameObject();
+		D.name = "Wall D";
+	
+        for(int i=0; i< ny;i++){
+            for(int j=-1;j < nx-3;j++){	
+			
+				GameObject A_square = GameObject.Instantiate(grid, new Vector3(j,i+0.5f,nz-3.5f), Quaternion.Euler(new Vector3(-90, 0, 0))) as GameObject;
+				A_square.transform.parent = A.GetComponent<Transform>();
+				
+				GameObject B_square = GameObject.Instantiate(grid, new Vector3(nx-3.5f,i+0.5f,j),Quaternion.Euler(new Vector3(0, 0, 90))) as GameObject;
+				B_square.transform.parent = B.GetComponent<Transform>();
+				
+				GameObject C_square = GameObject.Instantiate(grid, new Vector3(-1.5f,i+0.5f,j),Quaternion.Euler(new Vector3(0, 0, -90))) as GameObject;
+				C_square.transform.parent = C.GetComponent<Transform>();
+				
+				GameObject D_square = GameObject.Instantiate(grid, new Vector3(j,i+0.5f,-1.5f),Quaternion.Euler(new Vector3(90, 0, 0))) as GameObject;
+				D_square.transform.parent = D.GetComponent<Transform>();
+				
+			}	
+		}
+		
+		A.AddComponent<CombineChildren>();
+		foreach(Transform child_A in A.transform){
+		    Destroy(child_A.gameObject);
+		}
+		
+		B.AddComponent<CombineChildren>();
+		foreach(Transform child_B in B.transform){
+		    Destroy(child_B.gameObject);
+		}
+		
+		C.AddComponent<CombineChildren>();
+		foreach(Transform child_C in C.transform){
+		    Destroy(child_C.gameObject);
+		}
+		
+		D.AddComponent<CombineChildren>();
+		foreach(Transform child_D in D.transform){
+		    Destroy(child_D.gameObject);
 		}
 	}
-
+	
     //Create visible boundary walls.
-    public void DrawBoundary(int rotDir){
-
-        for(int i=0; i< ny;i++){
-            for(int j=-1;j < nx-3;j++){
+    public void changeBoundaries(int rotDir){
+				/*
                 if(rotDir == 0){
-                    Instantiate(grid, new Vector3(j,i,nz-3),Quaternion.identity);
-                    Instantiate(grid, new Vector3(nx-3,i,j),Quaternion.identity);
+					A.renderer.enabled = true;
+					B.renderer.enabled = true;
+                    //A.gameObject.SetActive(true);
+					//B.gameObject.SetActive(true);
                 }
                 else if(rotDir == 1){
-                    Instantiate(grid, new Vector3(j,i,nz-3),Quaternion.identity);
-                    Instantiate(grid, new Vector3(-2,i,j),Quaternion.identity);
+					A.renderer.enabled = true;
+					C.renderer.enabled = true;
+                   	//A.gameObject.SetActive(true);
+                    //C.gameObject.SetActive(true);
                 }
                 else if(rotDir == 2){
-                    Instantiate(grid, new Vector3(-2,i,j),Quaternion.identity);
-                    Instantiate(grid, new Vector3(j,i,-2),Quaternion.identity);   
+					C.renderer.enabled = true;
+					D.renderer.enabled = true;
+                    //C.gameObject.SetActive(true);
+                    //D.gameObject.SetActive(true);  
                 }
                 else{
-                    Instantiate(grid, new Vector3(j,i,-2),Quaternion.identity); 
-                    Instantiate(grid, new Vector3(nx-3,i,j),Quaternion.identity);
+					D.renderer.enabled = true;
+					B.renderer.enabled = true;
+                	//D.gameObject.SetActive(true);
+                	//B.gameObject.SetActive(true);
+                }*/
 
-                }
-            }
-        }
     }
 
 
@@ -593,32 +637,45 @@ public class Board : MonoBehaviour {
         if((Time.realtimeSinceStartup - startTime) < 1){
             Texture count = Resources.Load("3") as Texture2D;//(Texture)Resources.LoadAssetAtPath /////
             //GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "READY");
-            GUI.DrawTexture(new Rect(Screen.width/2-100, Screen.height/2-100, 200, 200), count);
+            GUI.DrawTexture(new Rect(Screen.width/2-215.5f, Screen.height/2-225, 431, 450), count);
         }
         else if((Time.realtimeSinceStartup - startTime) > 1 &&
             (Time.realtimeSinceStartup - startTime) < 2){
             //GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "SET");
             Texture count = Resources.Load("2") as Texture2D;
-            GUI.DrawTexture(new Rect(Screen.width/2-100, Screen.height/2-100, 200, 200), count);
+            GUI.DrawTexture(new Rect(Screen.width/2-218.5f, Screen.height/2-225, 437, 450), count);
         }
         else if((Time.realtimeSinceStartup - startTime) > 2 &&
             (Time.realtimeSinceStartup - startTime) < 3){// && goText == true){
             //GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "GO");
             Texture count = Resources.Load("1") as Texture2D;
-            GUI.DrawTexture(new Rect(Screen.width/2-100, Screen.height/2-100, 200, 200), count);
+            GUI.DrawTexture(new Rect(Screen.width/2-115.5f, Screen.height/2-225, 231, 450), count);
         }
         else if((Time.realtimeSinceStartup - startTime) > 3 &&
             (Time.realtimeSinceStartup - startTime) < 4 && goText == true){
             Texture count = Resources.Load("go") as Texture2D;
-            GUI.DrawTexture(new Rect(Screen.width/2-175, Screen.height/2-100, 350, 200), count);
+            GUI.DrawTexture(new Rect(Screen.width/2-460, Screen.height/2-196.5f, 920, 393), count);
         }
+		
         //GUIText
-
 		Texture t = (Texture)Resources.LoadAssetAtPath("Assets/TopDownView.renderTexture", typeof(Texture));
 		GUI.DrawTexture(new Rect ((Screen.width - 300),(Screen.height - 300),300,300),t);
-
+		
+		GUIStyle score_style = new GUIStyle();
+		score_style.fontSize = 40;
+		score_style.fontStyle = FontStyle.Bold;
+		score_style.normal.textColor = Color.white;
+		
+		GUIStyle gameover_message = new GUIStyle();
+		gameover_message.fontSize = 25;
+		gameover_message.normal.textColor = Color.white;
+		
+		GUIStyle input_text = new GUIStyle();
+		input_text.fontSize = 25;
+		input_text.normal.textColor = Color.white;
+		
     	// The following line of code displays the current score.
-        GUI.Box(new Rect (50,10,150,100), "Score " + score);
+        GUI.Box(new Rect (50,10,150,100), "Score: " + score, score_style);
 
         // The following lines of code deals with the countdown timers.
         if(countdown){
@@ -662,68 +719,58 @@ public class Board : MonoBehaviour {
 
 			pieceSuggestor = false;
         }
-
-        GUI.Box(new Rect((Screen.width/2 - 250), 10, 150, 100), lego[legoSuggestions[0]]);
-        GUI.Box(new Rect((Screen.width/2 - 75), 10, 150, 100), lego[legoSuggestions[1]]);
-        GUI.Box(new Rect((Screen.width/2 + 100), 10, 150, 100), lego[legoSuggestions[2]]);
+		
+		GUIStyle suggest_style = new GUIStyle();
+        GUI.Box(new Rect((Screen.width - 260), 50, 405, 270), lego[legoSuggestions[0]],suggest_style);
+        GUI.Box(new Rect((Screen.width - 260), 200, 405, 270), lego[legoSuggestions[1]],suggest_style);
+        GUI.Box(new Rect((Screen.width - 260), 350, 405, 270), lego[legoSuggestions[2]],suggest_style);
 
         //Game over overlay graphics
         if(blockCtrl.gameOver && !viewLBoard){
             Texture gameOverTexture = Resources.Load("gameover") as Texture2D;
-            GUI.DrawTexture(new Rect(Screen.width/2-250, 140, 450, 250), gameOverTexture);
-
-            GUI.Label(new Rect(Screen.width/2-150,450,200,25), "Your score was " + score);
+            GUI.DrawTexture(new Rect(Screen.width/2-305.2f, 100, 610.4f, 297.6f), gameOverTexture);			
+			
+            GUI.Label(new Rect(Screen.width/2-150,450,200,25), "Final score: " + score, gameover_message);
 
             if(!scoreSubmitted){
-                GUI.Label(new Rect(Screen.width/2-150,470,300,25), "Type your name to add to the leaderboard.");
-                uname = GUI.TextField (new Rect (Screen.width/2-150,510,300,30), uname);
+                GUI.Label(new Rect(Screen.width/2-150,500,300,25), "Type your name to add your score to the leaderboard:", gameover_message);
+                uname = GUI.TextField (new Rect (Screen.width/2-150,550,300,40), uname, input_text);
                 
-                if(GUI.Button(new Rect(Screen.width/2-150,560,300,25), "Submit score to leaderboard.")){
+                if(GUI.Button(new Rect(Screen.width/2-150,600,300,25), "Submit Score")){
                     lboard.AddScore(uname, score);
                     scoreSubmitted = true;
                     Debug.Log("Score submitted = " + scoreSubmitted);
                 }
             }else{
-                int position = 99999;
-                GUI.Label(new Rect(Screen.width/2-150,450,200,25), uname + " has been added to leaderboard.");
-                GUI.Label(new Rect(Screen.width/2-150,450,100,25), "You are position " + position + "!");
+				viewLBoard = true;
             }
 
-            if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View Leaderboard"))
-                viewLBoard = true;
-
-            if(GUI.Button(new Rect(Screen.width/2+50, Screen.height - 100, 150,75), "Click to restart game")){
-                Time.timeScale = 1;
-                Application.LoadLevel("MainMenu");
-            }
+           // if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View Leaderboard"))
+            
         }
 
+		
         //Leaderboard graphics
         if(viewLBoard){
             if(!receivedLboard){
-                dispScores = lboard.DisplayScores();
+                dispScores = lboard.DisplayScores(5);
                 receivedLboard = true; //!receivedLboard;
             }
 
             GUI.Label(new Rect(Screen.width/2 - 200, 100, 400, 25), "Position");
             GUI.Label(new Rect(Screen.width/2 - 50, 100, 100, 25), "Name");
             GUI.Label(new Rect(Screen.width/2 + 200, 100, 400, 25), "Scores");
-
             
             for(int i = 0; i < dispScores.Count; i+=2){
                 // Debug.Log("TEST -------- " + dispScores[i]);
-                GUI.Label(new Rect(Screen.width/2 - 200, 100 + i*35, 400, 25), ""+(i+1));
-                GUI.Label(new Rect(Screen.width/2 - 50, 150 + i*35, 400, 25), "" + dispScores[i]);
-                GUI.Label(new Rect(Screen.width/2 + 200, 150 + i*35, 400, 25), "" + dispScores[i+1]);
+                GUI.Label(new Rect(Screen.width/2 - 200, 150 + i*35, 400, 25), ""+(i+1), gameover_message);
+                GUI.Label(new Rect(Screen.width/2 - 50, 150 + i*35, 400, 25), "" + dispScores[i], gameover_message);
+                GUI.Label(new Rect(Screen.width/2 + 200, 150 + i*35, 400, 25), "" + dispScores[i+1], gameover_message);
             }
 
+            GUI.Box(new Rect(Screen.width/2 - 300, 40, 600, Screen.height-200), "High Scores");
 
-            GUI.Box(new Rect(Screen.width/2 - 300, 40, 600, Screen.height-150), "LEADERBOARD OF SHAME AND FAME");
-
-            if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View Game Over"))
-                viewLBoard = false;
-
-            if(GUI.Button(new Rect(Screen.width/2+50,Screen.height - 100,150,75), "Click to restart game")){
+            if(GUI.Button(new Rect(Screen.width/2-75,Screen.height - 100,150,75), "Continue")){
                 Time.timeScale = 1;
                 Application.LoadLevel("MainMenu");
             }

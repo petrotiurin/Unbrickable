@@ -71,10 +71,10 @@ public class Leaderboard : MonoBehaviour {
     }
 
 
-    public ArrayList DisplayScores(){
+    public ArrayList DisplayScores(int numScores){
         //Debug.Log("ARRAYLIST ----------> " + reader.FieldCount);
 
-        string sql = "SELECT * FROM highscores ORDER BY score DESC";
+        string sql = "SELECT * FROM highscores ORDER BY score DESC LIMIT " + numScores;
 
         cmd = dbcon.CreateCommand();
         cmd.CommandText = sql;
