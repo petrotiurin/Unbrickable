@@ -21,7 +21,6 @@ public class Leaderboard : MonoBehaviour {
 
         Debug.Log("Helloooo scoreboard");
 
-
         //check if the file/db exists already.
         flag = File.Exists(name);
 
@@ -38,36 +37,41 @@ public class Leaderboard : MonoBehaviour {
             cmd.CommandText = sql;
             reader = cmd.ExecuteReader();
         }
-        
-        
-        //Board brd = GameObject.Find("Scene").GetComponent<Board>();
-        //AddScore("InsertNameHere", brd.score, brd.level, brd.rounds);
-        //AddScore("BOO",58,1,2);
-        //closeDb();
 	}
 
 
-    void Update(){
-        //if(Input.GetKeyDown("return"))
-    }
+    int getPosition(string name, int scr){
+        string sql = "SELECT COUNT(rowid) FROM highscores WHERE score > " + scr;
 
+        Debug.Log("SQL = " + sql);
 
-    void AddScore(string name, int scr, int level, int rounds){
-        string sql = "INSERT INTO highscores (name, score, level, rounds) VALUES ('"
-            + name + "'," + scr + "," + level + "," + rounds + ")";
-        //Debug.Log(sql);
         cmd = dbcon.CreateCommand();
         cmd.CommandText = sql;
         reader = cmd.ExecuteReader();
+
+        Debug.Log("READER.FIELDCOUNT = " + reader.FieldCount);
+
+        int pos = 0;
+        while(reader.Read()){
+            pos = reader.GetInt32(0);// readArray[0];
+            Debug.Log("pos-------------->" + (pos+1));
+            return (pos+1);
+        }
+        return 0;
     }
 
 
-    //for debugging & testing purposes.
-    public void AddScore(string name, int scr) {
+    //Add username and score to the database.
+    public int AddScore(string name, int scr) {
         string sql = "INSERT INTO highscores(name, score) VALUES ('" + name + "'," + scr + ")";
         cmd = dbcon.CreateCommand();
         cmd.CommandText = sql;
         reader = cmd.ExecuteReader();
+
+        int pos = getPosition(name,scr);
+
+        // Debug.Log("pos ======= " + pos);
+        return pos;
     }
 
 
@@ -80,7 +84,26 @@ public class Leaderboard : MonoBehaviour {
         cmd.CommandText = sql;
         reader = cmd.ExecuteReader();
 
-        Debug.Log("ARRAYLIST ----------> " + reader.FieldCount);
+        ArrayList readArray = new ArrayList();
+
+         while(reader.Read())
+            for (int i = 0; i < reader.FieldCount; i++)
+                readArray.Add(reader.GetValue(i));
+
+        return readArray;
+    }
+
+
+        public ArrayList DisplayScores(){
+        //Debug.Log("ARRAYLIST ----------> " + reader.FieldCount);
+
+        string sql = "SELECT * FROM highscores ORDER BY score DESC";
+
+        cmd = dbcon.CreateCommand();
+        cmd.CommandText = sql;
+        reader = cmd.ExecuteReader();
+
+        // Debug.Log("ARRAYLIST ----------> " + reader.FieldCount);
 
         ArrayList readArray = new ArrayList();
 
@@ -88,14 +111,11 @@ public class Leaderboard : MonoBehaviour {
             for (int i = 0; i < reader.FieldCount; i++)
                 readArray.Add(reader.GetValue(i));
 
-        // for(int i = 0; i < readArray.Count; i++){
-        //     Debug.Log("Reader scores ===== " + trial[i]);
-        // }
-
         return readArray;
     }
 
-/*
+
+    /*
     void closeDb(){
         reader.Close();
         reader = null;
@@ -105,9 +125,4 @@ public class Leaderboard : MonoBehaviour {
         dbcon = null;
     }
     */
-
-
-    void OnGUI(){
-        
-    }
 }
