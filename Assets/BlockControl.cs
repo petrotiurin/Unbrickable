@@ -136,7 +136,7 @@ public class BlockControl : MonoBehaviour {
 		RedMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/RedBlock.mat", typeof(Material));
 		GreenMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/GreenBlock.mat", typeof(Material));
 		BlueMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/BlueBlock.mat", typeof(Material));
-		YellowMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/YelloeBlock.mat", typeof(Material));
+		YellowMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/YellowBlock.mat", typeof(Material));
 
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
 	}
@@ -849,16 +849,23 @@ public class BlockControl : MonoBehaviour {
 
 			hello = main ();
 			legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
-			shape4 = getShapeArray(legoCode);
-
-//			shape4=getShapeArray("1.1.1.1.");
-//
-			if(!checkPieces(shape4) && hello == 0){
-				print ("wrong shape oops");
+			if(!checkString(legoCode)){
+				print ("format is wrong");
 				count ++;
 				hello = 1;
 				StartCoroutine(Wait2(1));
+			}else{
+				shape4 = getShapeArray(legoCode);
 
+//			shape4=getShapeArray("1.1.1.1.");
+//
+				if(!checkPieces(shape4) && hello == 0){
+					print ("wrong shape oops");
+					count ++;
+					hello = 1;
+					StartCoroutine(Wait2(1));
+
+				}
 			}
 
 		

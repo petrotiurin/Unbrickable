@@ -8,7 +8,7 @@ public class Array_GameObj : MonoBehaviour {
 	//total number of pieces to choose from.
 	public int piecesNum = 4;
 	//number of pieces that are suggested to player.
-	public int noOfSuggestedPieces = 3;
+	public int noOfSuggestedPieces = 2;
 	
 	// Use this for initialization
 	void Start () {
@@ -21,6 +21,9 @@ public class Array_GameObj : MonoBehaviour {
 	// Creates an array that holds the indices of lego pieces generated
 	// 	pseudo-randomly. This is accessed from Board.cs and displayed.
 	public void SuggestLegoPiece () {
+		suggestedPieces = new int[noOfSuggestedPieces];
+		Debug.Log("no of pieces - " + noOfSuggestedPieces);
+
 		for (int i = 0; i < noOfSuggestedPieces; i++)
 	        suggestedPieces[i] = Random.Range(0, piecesNum);
 	}

@@ -54,14 +54,14 @@ public class RotateCamera : MonoBehaviour
 			
 			if (XrotToGo <= 0) {
 				//Press "x" to rotate the board CW
-				if( Input.GetKey("x") ){
+				if( Input.GetKey("d") ){
 					rotRight = true;
 					XrotToGo = 90;
 					rotationDir++;
 					rotationDir = rotationDir % 4;
 				}
 				//Press "z" to rotate the board CCW
-				else if( Input.GetKey("z") ){
+				else if( Input.GetKey("a") ){
 					rotRight = false;
 					XrotToGo = 90;
 					rotationDir--;

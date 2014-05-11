@@ -17,7 +17,7 @@ public class Board : MonoBehaviour {
 	
 	private int flashPass;
 
-	int timeGap = 20; //default value. Change gap here!
+	int timeGap = 6; //default value. Change gap here!
     int timer = 0;
     float starttimer = 0.0f;
     bool countdown = false;
@@ -148,7 +148,7 @@ public class Board : MonoBehaviour {
 		
 		grid = Resources.LoadAssetAtPath("Assets/Resources/grid_square.prefab", typeof(GameObject));
         //boundaries for initial orientation
-        DrawBoundaries();
+       // DrawBoundaries();
 		createTopCamera();
 
 //		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
@@ -735,7 +735,7 @@ public class Board : MonoBehaviour {
 		GUIStyle suggest_style = new GUIStyle();
         GUI.Box(new Rect((Screen.width - 260), 50, 405, 270), lego[legoSuggestions[0]],suggest_style);
         GUI.Box(new Rect((Screen.width - 260), 200, 405, 270), lego[legoSuggestions[1]],suggest_style);
-        GUI.Box(new Rect((Screen.width - 260), 350, 405, 270), lego[legoSuggestions[2]],suggest_style);
+//        GUI.Box(new Rect((Screen.width - 260), 350, 405, 270), lego[legoSuggestions[2]],suggest_style);
 
         //Game over overlay graphics
         if(blockCtrl.gameOver && !viewLBoard){
