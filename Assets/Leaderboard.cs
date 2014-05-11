@@ -13,9 +13,9 @@ public class Leaderboard : MonoBehaviour {
 
     private string uname = "Anon";
 
-	// Use this for initialization
-	void Start () {
-        string name = Application.dataPath + "/scores1.db";
+    // Use this for initialization
+    void Start () {
+        string name = Application.dataPath + "/lololololololololol.db";
         connectionString = "URI=file:" + name;
         bool flag;
 
@@ -44,7 +44,7 @@ public class Leaderboard : MonoBehaviour {
         //AddScore("InsertNameHere", brd.score, brd.level, brd.rounds);
         //AddScore("BOO",58,1,2);
         //closeDb();
-	}
+    }
 
 
     void Update(){
@@ -52,28 +52,79 @@ public class Leaderboard : MonoBehaviour {
     }
 
 
-    void AddScore(string name, int scr, int level, int rounds){
-        string sql = "INSERT INTO highscores (name, score, level, rounds) VALUES ('"
-            + name + "'," + scr + "," + level + "," + rounds + ")";
-        //Debug.Log(sql);
+    // int AddScore(string name, int scr, int level, int rounds){
+    //     string sql = "INSERT INTO highscores (name, score, level, rounds) VALUES ('"
+    //         + name + "'," + scr + "," + level + "," + rounds + ")";
+    //     //Debug.Log(sql);
+    //     cmd = dbcon.CreateCommand();
+    //     cmd.CommandText = sql;
+    //     reader = cmd.ExecuteReader();
+
+    //     return getPosition();
+    // }
+
+    int getPosition(string name, int scr){
+        string sql = "SELECT COUNT(rowid) FROM highscores WHERE score > " + scr;
+
+        Debug.Log("SQL = " + sql);
+
         cmd = dbcon.CreateCommand();
         cmd.CommandText = sql;
         reader = cmd.ExecuteReader();
+
+        Debug.Log("READER.FIELDCOUNT = " + reader.FieldCount);
+
+        int pos = 0;
+        while(reader.Read()){
+            pos = reader.GetInt32(0);// readArray[0];
+            Debug.Log("pos-------------->" + (pos+1));
+            return (pos+1);
+        }
+        return 0;//pos;
     }
 
 
     //for debugging & testing purposes.
-    public void AddScore(string name, int scr) {
+    public int AddScore(string name, int scr) {
         string sql = "INSERT INTO highscores(name, score) VALUES ('" + name + "'," + scr + ")";
         cmd = dbcon.CreateCommand();
         cmd.CommandText = sql;
         reader = cmd.ExecuteReader();
+
+        int pos = getPosition(name,scr);
+
+        // Debug.Log("pos ======= " + pos);
+        return pos;
     }
 
+    // public ArrayList DisplayInLeaderboard(int pos, int scr){
+    //     ArrayList readArray = new ArrayList();
 
-    public void getPosition(string name, int scr){
-        
-    }
+    //     string sql = "SELECT rowid, * FROM highscores WHERE score >= " + scr + " ORDER BY score DESC";
+    //     cmd = dbcon.CreateCommand();
+    //     cmd.CommandText = sql;
+    //     reader = cmd.ExecuteReader();
+
+    //     while(reader.Read())
+    //         for(int i = 0; i < reader.FieldCount; i++){
+    //             readArray.Add(reader.GetValue(i));
+    //             Debug.Log("urgh - " + reader.GetValue(i));
+    //         }
+
+    //     //Get the two rows with score higher than user's score
+    //     sql = "SELECT * FROM highscores WHERE score < " + scr + " ORDER BY score DESC";
+    //     cmd = dbcon.CreateCommand();
+    //     cmd.CommandText = sql;
+    //     reader = cmd.ExecuteReader();
+
+    //     while(reader.Read())
+    //         for(int i = 0; i < reader.FieldCount; i++){
+    //             readArray.Add(reader.GetValue(i));
+    //             Debug.Log("urgh - " + reader.GetValue(i));
+    //         }
+
+    //     return readArray;
+    // }
 
 
     public ArrayList DisplayScores(){
@@ -85,17 +136,13 @@ public class Leaderboard : MonoBehaviour {
         cmd.CommandText = sql;
         reader = cmd.ExecuteReader();
 
-        Debug.Log("ARRAYLIST ----------> " + reader.FieldCount);
+        // Debug.Log("ARRAYLIST ----------> " + reader.FieldCount);
 
         ArrayList readArray = new ArrayList();
 
          while(reader.Read())
             for (int i = 0; i < reader.FieldCount; i++)
                 readArray.Add(reader.GetValue(i));
-
-        // for(int i = 0; i < readArray.Count; i++){
-        //     Debug.Log("Reader scores ===== " + trial[i]);
-        // }
 
         return readArray;
     }

@@ -16,7 +16,7 @@ public class Board : MonoBehaviour {
 	
 	private int flashPass;
 
-	int timeGap = 3; //default value. Change gap here!
+	int timeGap = 5; //default value. Change gap here!
     int timer = 0;
     float starttimer = 0.0f;
     bool countdown = false;
@@ -25,9 +25,13 @@ public class Board : MonoBehaviour {
     //scoring stuff
     public int score = 0;
     private bool viewLBoard = false;
+    private bool viewPartLBoard = false;
     private bool scoreSubmitted = false;
     private bool receivedLboard = false;
+    private bool rcvdPartScoreboard = false;
     ArrayList dispScores = new ArrayList();
+    ArrayList dispPartScores = new ArrayList();
+    private int lboardPosition = 0;
 
     private string uname = "Voldemort";
 
@@ -420,11 +424,15 @@ public class Board : MonoBehaviour {
     //Called from BlockControl to check if the top layer has been filled.
     public bool isGameOver(){
         Debug.Log("checking if game over");
-        for(int i = 1; i < nx-1; i++)
-            for(int j = 1; j < nz-1; j++)
-                if(boardArray[i,ny-1,j])
-                    return true;
-        return false;
+        if(!blockCtrl.gameOver){
+            for(int i = 1; i < nx-1; i++)
+                for(int j = 1; j < nz-1; j++)
+                    if(boardArray[i,ny-1,j])
+                        return true;
+            return false;
+        }
+
+        return true;
     }
     
 
@@ -647,65 +655,124 @@ public class Board : MonoBehaviour {
         GUI.Box(new Rect((Screen.width/2 + 100), 10, 150, 100), lego[legoSuggestions[2]]);
 
         //Game over overlay graphics
-        if(blockCtrl.gameOver && !viewLBoard){
-            Texture gameOverTexture = Resources.Load("gameover") as Texture2D;
-            GUI.DrawTexture(new Rect(Screen.width/2-250, 140, 450, 250), gameOverTexture);
-
-            GUI.Label(new Rect(Screen.width/2-150,450,200,25), "Your score was " + score);
-
-            if(!scoreSubmitted){
-                GUI.Label(new Rect(Screen.width/2-150,470,300,25), "Type your name to add to the leaderboard.");
-                uname = GUI.TextField (new Rect (Screen.width/2-150,510,300,30), uname);
-                
-                if(GUI.Button(new Rect(Screen.width/2-150,560,300,25), "Submit score to leaderboard.")){
-                    lboard.AddScore(uname, score);
-                    scoreSubmitted = true;
-                    Debug.Log("Score submitted = " + scoreSubmitted);
-                }
-            }else{
-                int position = 99999;
-                GUI.Label(new Rect(Screen.width/2-150,450,200,25), uname + " has been added to leaderboard.");
-                GUI.Label(new Rect(Screen.width/2-150,450,100,25), "You are position " + position + "!");
-            }
-
-            if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View Leaderboard"))
-                viewLBoard = true;
-
+        //Display saying "Game over" and options to restart or enter score to leaderboard.
+        if(blockCtrl.gameOver){
+            //Display this Button all the time once game is over
             if(GUI.Button(new Rect(Screen.width/2+50, Screen.height - 100, 150,75), "Click to restart game")){
                 Time.timeScale = 1;
                 Application.LoadLevel("MainMenu");
             }
-        }
 
-        //Leaderboard graphics
-        if(viewLBoard){
-            if(!receivedLboard){
-                dispScores = lboard.DisplayScores();
-                receivedLboard = true;
+            //Main screen where user enters score or restarts game
+            if(!viewLBoard && !viewPartLBoard){
+                Texture gameOverTexture = Resources.Load("gameover") as Texture2D;
+                GUI.DrawTexture(new Rect(Screen.width/2-250, 140, 450, 250), gameOverTexture);
+
+                GUI.Label(new Rect(Screen.width/2-150,450,200,25), "Your score was " + score);
+
+                if(!scoreSubmitted){
+                    GUI.Label(new Rect(Screen.width/2-150,470,300,25), "Type your name to add to the leaderboard.");
+                    uname = GUI.TextField (new Rect (Screen.width/2-150,510,300,30), uname);
+                    
+                    if(GUI.Button(new Rect(Screen.width/2-150,560,300,25), "Submit score to leaderboard.")){
+                        lboardPosition = lboard.AddScore(uname, score);
+                        scoreSubmitted = true;
+                        Debug.Log("Score submitted = " + scoreSubmitted);
+                        viewPartLBoard = true;
+                    }
+                }
+
+                if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View top 10 scores")){
+                    viewLBoard = true;
+                    viewPartLBoard = false;
+                }
             }
 
-            GUI.Label(new Rect(Screen.width/2 - 200, 100, 400, 25), "Position");
-            GUI.Label(new Rect(Screen.width/2 - 50, 100, 100, 25), "Name");
-            GUI.Label(new Rect(Screen.width/2 + 200, 100, 400, 25), "Scores");
+            //Display the player's score and the two higher & lower than his/hers.
+            if(viewPartLBoard && !viewLBoard){
+                if(!receivedLboard){
+                    dispScores = lboard.DisplayScores();
+                    receivedLboard = true;
+                }
 
-            
-            for(int i = 0; i < dispScores.Count; i+=2){
-                // Debug.Log("TEST -------- " + dispScores[i]);
-                GUI.Label(new Rect(Screen.width/2 - 200, 100 + i*35, 400, 25), ""+(i+1));
-                GUI.Label(new Rect(Screen.width/2 - 50, 150 + i*35, 400, 25), "" + dispScores[i]);
-                GUI.Label(new Rect(Screen.width/2 + 200, 150 + i*35, 400, 25), "" + dispScores[i+1]);
+                //when score is submitted, we want the small leaderboard to be displayed.
+
+                // //retrieve values only once
+                // if(!rcvdPartScoreboard){
+                //   dispPartScores = lboard.DisplayInLeaderboard(lboardPosition, score);
+                //    rcvdPartScoreboard = true;
+                // }
+
+                GUI.Label(new Rect(Screen.width/2 - 200, 100, 400, 25), "Position");
+                GUI.Label(new Rect(Screen.width/2 - 50, 100, 100, 25), "Name");
+                GUI.Label(new Rect(Screen.width/2 + 200, 100, 400, 25), "Scores");
+             
+                Debug.Log("lboardPosition = " + lboardPosition + ";;;;" + dispScores.Count);
+
+                int iStart = (lboardPosition-3)*2 > 0? (lboardPosition-3)*2 : 0;
+                int iFinish = ((lboardPosition+2)*2) < dispScores.Count ? (lboardPosition+2)*2 : dispScores.Count;
+
+                //Deals with special circumstances to show 5 entries,
+                //  unless there is less than 5 entries present.
+                //if the person's position is 1 or 2.
+                if(iStart == 0)
+                    iFinish = 10 < (dispScores.Count/2)? 10 : dispScores.Count;
+
+                //if the player is in the bottom 2.
+                if(iFinish == (dispScores.Count))
+                    iStart = ((iFinish - 10) > 0) ? (iFinish - 10) : 0;
+
+
+                int c = 0;
+                for(int i = iStart; i < iFinish; i+=2){
+                    GUI.Label(new Rect(Screen.width/2 - 200, 150 + c*35, 400, 25), "" + (i/2 + 1));
+                    GUI.Label(new Rect(Screen.width/2 - 50, 150 + c*35, 400, 25), "" + dispScores[i]);
+                    GUI.Label(new Rect(Screen.width/2 + 200, 150 + c*35, 400, 25), "" + dispScores[i+1]);
+                    Debug.Log("data = " + dispScores[i] + "   score = " + dispScores[i+1]);
+                    c++;
+                }
+
+                GUI.Box(new Rect(Screen.width/2 - 300, 40, 600, Screen.height-150), "LEADERBOARD OF SHAME AND FAME");
+
+                if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View top 10 scores")){
+                    viewLBoard = true;
+                    viewPartLBoard = false;
+                }
             }
 
+            //Leaderboard graphics
+            if(viewLBoard){
+                //retrieve data for leaderboard only once.
+                if(!receivedLboard){
+                    dispScores = lboard.DisplayScores();
+                    receivedLboard = true;
+                }
 
-            GUI.Box(new Rect(Screen.width/2 - 300, 40, 600, Screen.height-150), "LEADERBOARD OF SHAME AND FAME");
+                GUI.Label(new Rect(Screen.width/2 - 200, 100, 400, 25), "Position");
+                GUI.Label(new Rect(Screen.width/2 - 50, 100, 100, 25), "Name");
+                GUI.Label(new Rect(Screen.width/2 + 200, 100, 400, 25), "Scores");
 
-            if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View Game Over"))
-                viewLBoard = false;
+                
+                for(int i = 0; i < 20; i+=2){//dispScores.Count; i+=2){
+                    // Debug.Log("TEST -------- " + dispScores[i]);
+                    GUI.Label(new Rect(Screen.width/2 - 200, 150 + i*35, 400, 25), ""+(i+1));
+                    GUI.Label(new Rect(Screen.width/2 - 50, 150 + i*35, 400, 25), "" + dispScores[i]);
+                    GUI.Label(new Rect(Screen.width/2 + 200, 150 + i*35, 400, 25), "" + dispScores[i+1]);
+                }
 
-            if(GUI.Button(new Rect(Screen.width/2+50,Screen.height - 100,150,75), "Click to restart game")){
-                Time.timeScale = 1;
-                Application.LoadLevel("MainMenu");
+
+                GUI.Box(new Rect(Screen.width/2 - 300, 40, 600, Screen.height-150), "LEADERBOARD OF SHAME AND FAME");
+
+                if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "See Own Score")){
+                    viewLBoard = false;
+                    viewPartLBoard = true;
+                }
+
+                if(GUI.Button(new Rect(Screen.width/2+50, Screen.height - 100, 150,75), "Click to restart game")){
+                    Time.timeScale = 1;
+                    Application.LoadLevel("MainMenu");
+                }
             }
-        }
-    }
-}
+        } //end of gameover display
+    }//end of ongui function
+}//end of class
