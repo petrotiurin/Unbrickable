@@ -22,9 +22,14 @@ public class Array_GameObj : MonoBehaviour {
 	// 	pseudo-randomly. This is accessed from Board.cs and displayed.
 	public void SuggestLegoPiece () {
 		suggestedPieces = new int[noOfSuggestedPieces];
-		Debug.Log("no of pieces - " + noOfSuggestedPieces);
 
-		for (int i = 0; i < noOfSuggestedPieces; i++)
+		for (int i = 0; i < noOfSuggestedPieces; i++){
 	        suggestedPieces[i] = Random.Range(0, piecesNum);
+		}
+		if(noOfSuggestedPieces == 2){
+			while (suggestedPieces[1] == suggestedPieces[0]){
+				suggestedPieces[1] = Random.Range(0, piecesNum);
+			}
+		}
 	}
 }
