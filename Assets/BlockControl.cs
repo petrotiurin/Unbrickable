@@ -275,23 +275,23 @@ public class BlockControl : MonoBehaviour {
 			}
 		}
 		
-		//	print("red = " + red);
-		//		print("suggested red = "+ suggestedRed*8);
-		///		print("yellow = " + yellow);
-		//		print("suggested yellow = "+ suggestedYellow*8);
-		//		print("Blue = " + blue);
-		//		print("suggested blue = "+ suggestedBlue*8);
-		//		print("Green = " + green);
-		//		print("suggested green = "+ suggestedGreen*8);
+			print("red = " + red);
+				print("suggested red = "+ suggestedRed*8);
+				print("yellow = " + yellow);
+				print("suggested yellow = "+ suggestedYellow*2);
+				print("Blue = " + blue);
+				print("suggested blue = "+ suggestedBlue*6);
+				print("Green = " + green);
+				print("suggested green = "+ suggestedGreen*4);
 		//amountColour - amount of the certain colour the user has used
 		//suggestedColour - amount of certain colour the computer has used
 		if(!(red==suggestedRed*8 && blue==suggestedBlue*6 && green==suggestedGreen*4 && yellow==suggestedYellow*2)){
-			
+			print ("WROONNGG");
 			return false;
+		}else{
+		
+			return true;
 		}
-		
-		
-		return true;
 	}
 	
 	/*public void getShapeArray(){
@@ -752,6 +752,23 @@ public class BlockControl : MonoBehaviour {
 			}
 		}
 		
+		//A little bit of magic ;)
+		GameObject br = GameObject.Find("base");
+		shapeObj.transform.Translate(-shapeObj.transform.position.x + br.transform.position.x,0,
+		                             -shapeObj.transform.position.z + br.transform.position.z);
+		
+		if (gameBoard.nx%2 == 0){
+			if ((shape.GetLength(0)%2 == 0 && shape.GetLength(2)%2 != 0) ||
+			    (shape.GetLength(0)%2 != 0 && shape.GetLength(2)%2 == 0)){
+				shapeObj.transform.Translate(0.5f,0,0.5f);
+			}
+		} else {
+			if ((shape.GetLength(0)%2 == 0 && shape.GetLength(2)%2 == 0) ||
+				(shape.GetLength(0)%2 != 0 && shape.GetLength(2)%2 != 0)){
+				shapeObj.transform.Translate(0.5f,0,0.5f);
+			}
+		}
+		
 		//Shadow block
 		shadow = Instantiate(shapeObj, shapeObj.transform.position, shapeObj.transform.rotation) as GameObject;
 		shadow.name = "ActiveShadow";
@@ -771,6 +788,42 @@ public class BlockControl : MonoBehaviour {
 		addToScene(shapeObj);
 		globalX=globalX+3;
 		firstBlock = true;
+		if (checkArrayCollisions()){
+			fixShapeSpawn(shapeObj, shadow);
+		}
+	}
+	
+	private void fixShapeSpawn(GameObject shape, GameObject shadow){
+		shadow.transform.Translate(-1,0,0);
+		if (!checkArrayCollisions()){
+			shape.transform.Translate(-1,0,0);
+			return;
+		}
+		shadow.transform.Translate(2,0,0);
+		if (!checkArrayCollisions()){
+			shape.transform.Translate(1,0,0);
+			return;
+		}
+		shadow.transform.Translate(-1,0,1);
+		if (!checkArrayCollisions()){
+			shape.transform.Translate(0,0,1);
+			return;
+		}
+		shadow.transform.Translate(0,0,-2);
+		if (!checkArrayCollisions()){
+			shape.transform.Translate(0,0,-1);
+			return;
+		}
+		shadow.transform.Translate(-1,0,0);
+		if (!checkArrayCollisions()){
+			shape.transform.Translate(-1,0,-1);
+			return;
+		}
+		shadow.transform.Translate(2,0,2);
+		if (!checkArrayCollisions()){
+			shape.transform.Translate(1,0,1);
+			return;
+		}
 	}
 	
 	// TODO CHECK IF CAN DELETE THIS
