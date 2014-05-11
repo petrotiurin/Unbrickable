@@ -11,6 +11,10 @@ public class MenuPause : MonoBehaviour
 	
 	private float timeLeft;
 
+	void Awake(){
+		Time.timeScale = 1;
+	}
+
 	void Start(){
 		timeLeft = 3.0f;
 	}
