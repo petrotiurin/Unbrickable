@@ -687,6 +687,7 @@ public class Board : MonoBehaviour {
 		LBoard_header.fontStyle = FontStyle.Bold;
 		LBoard_header.normal.textColor = Color.white;
 		
+		
     	// The following line of code displays the current score.
         GUI.Box(new Rect (50,10,150,100), "Score: " + score, score_style);
 
@@ -731,9 +732,6 @@ public class Board : MonoBehaviour {
 			pieceSuggestor = false;
         }
 		
-		
-		
-		
 		GUIStyle suggest_style = new GUIStyle();
         GUI.Box(new Rect((Screen.width - 260), 50, 405, 270), lego[legoSuggestions[0]],suggest_style);
         GUI.Box(new Rect((Screen.width - 260), 200, 405, 270), lego[legoSuggestions[1]],suggest_style);
@@ -744,16 +742,15 @@ public class Board : MonoBehaviour {
             Texture gameOverTexture = Resources.Load("gameover") as Texture2D;
             GUI.DrawTexture(new Rect(Screen.width/2-305.2f, 100, 610.4f, 297.6f), gameOverTexture);			
 			
-            GUI.Label(new Rect(Screen.width/2-150,450,200,25), "Final score: " + score, gameover_message);
+            GUI.Label(new Rect(Screen.width/2-200,450,200,25), "Final score: " + score, gameover_message);
 
             if(!scoreSubmitted){
-                GUI.Label(new Rect(Screen.width/2-150,500,300,25), "Type your name to add your score to the leaderboard:", gameover_message);
-                uname = GUI.TextField (new Rect (Screen.width/2-150,550,300,40), uname, input_text);
+                GUI.Label(new Rect(Screen.width/2-200,500,300,25), "Type your name to add your score to the leaderboard:", gameover_message);
+				uname = GUI.TextField (new Rect (Screen.width/2-200,550,300,40), uname, input_text);
                 
                 if(GUI.Button(new Rect(Screen.width/2-150,600,300,25), "Submit Score")){
                     lboard.AddScore(uname, score);
                     scoreSubmitted = true;
-                    Debug.Log("Score submitted = " + scoreSubmitted);
                 }
             }else{
 				viewLBoard = true;
