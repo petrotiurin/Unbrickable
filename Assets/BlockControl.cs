@@ -86,6 +86,7 @@ public class BlockControl : MonoBehaviour {
 	private Material RedMaterial;
 	private Material GreenMaterial;
 	private Material BlueMaterial;
+	private Material YellowMaterial;
 
 
 	//rotate the shape array
@@ -135,6 +136,7 @@ public class BlockControl : MonoBehaviour {
 		RedMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/RedBlock.mat", typeof(Material));
 		GreenMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/GreenBlock.mat", typeof(Material));
 		BlueMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/BlueBlock.mat", typeof(Material));
+		YellowMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/YelloeBlock.mat", typeof(Material));
 
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
 	}
@@ -724,7 +726,11 @@ public class BlockControl : MonoBehaviour {
 							case 3: currentCube.renderer.material = BlueMaterial;
 									child.renderer.material = BlueMaterial;
 									break;
-								
+
+							case 4: currentCube.renderer.material = YellowMaterial;
+									child.renderer.material = YellowMaterial;
+									break;
+							
 							default : break;
 						}
 						addToShape(shapeObj, currentCube);
