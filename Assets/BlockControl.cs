@@ -154,7 +154,8 @@ public class BlockControl : MonoBehaviour {
 		
 		
 		int[,,] shapeTemp = new int[20,20,20];
-		string data =  "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
+		string data =  "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.9.1.10.1.8.1.10.1.7.1.10.1.6.1.10.1";
+		//string data =  "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.9.1.10.1.8.1.10.1.7.1.10.1.";
 		string[] dA = data.Split('.');
 		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
@@ -747,11 +748,16 @@ public class BlockControl : MonoBehaviour {
 		}
 
 
-		GameObject b = GameObject.Find("base");
-		Vector3 t_s = new Vector3(-shapeObj.transform.position.x + b.transform.position.x, 0,
-		                          -shapeObj.transform.position.z + b.transform.position.z);
+		GameObject br = GameObject.Find("base");
+		shapeObj.transform.Translate(-shapeObj.transform.position.x + br.transform.position.x,0,
+		                             -shapeObj.transform.position.z + br.transform.position.z);
 
-		shapeObj.transform.Translate(t_s);
+		if (gameBoard.nx%2 == 0 && shape.GetLength(0)%2 != 0){
+			shapeObj.transform.Translate(0.5f,0,0);
+		}
+		if (gameBoard.nz%2 == 0 && shape.GetLength(2)%2 != 0){
+			shapeObj.transform.Translate(0,0,0.5f);
+		}
 
 		//Shadow block
 		shadow = Instantiate(shapeObj, shapeObj.transform.position, shapeObj.transform.rotation) as GameObject;
@@ -772,8 +778,44 @@ public class BlockControl : MonoBehaviour {
 		addToScene(shapeObj);
 		globalX=globalX+3;
 		firstBlock = true;
+		if (checkArrayCollisions()){
+			fixShapeSpawn(shapeObj, shadow);
+		}
 	}
-	
+
+	private void fixShapeSpawn(GameObject shape, GameObject shadow){
+		shadow.transform.Translate(-1,0,0);
+		if (!checkArrayCollisions()){
+			shape.transform.Translate(-1,0,0);
+			return;
+		}
+		shadow.transform.Translate(2,0,0);
+		if (!checkArrayCollisions()){
+			shape.transform.Translate(1,0,0);
+			return;
+		}
+		shadow.transform.Translate(-1,0,1);
+		if (!checkArrayCollisions()){
+			shape.transform.Translate(0,0,1);
+			return;
+		}
+		shadow.transform.Translate(0,0,-2);
+		if (!checkArrayCollisions()){
+			shape.transform.Translate(0,0,-1);
+			return;
+		}
+		shadow.transform.Translate(-1,0,0);
+		if (!checkArrayCollisions()){
+			shape.transform.Translate(-1,0,-1);
+			return;
+		}
+		shadow.transform.Translate(2,0,2);
+		if (!checkArrayCollisions()){
+			shape.transform.Translate(1,0,1);
+			return;
+		}
+	}
+
 	// TODO CHECK IF CAN DELETE THIS
 	// Adds necessary components and initialisation to a shape.
 	private void addComponents(GameObject shapeObj, int shapeLength){
@@ -903,12 +945,13 @@ public class BlockControl : MonoBehaviour {
 				createShape(shape4);
 			}
 		}*/
-		createShape(shape2);
+
+		shape4 = getShapeArray();   //If your using a hardcoded shape
+		
+		
+		createShape(shape4);
 		return true;
-		
-		//shape4 = getShapeArray();   //If your using a hardcoded shape
-		
-		
+
 	}
 	
 	
