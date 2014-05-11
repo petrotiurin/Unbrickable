@@ -21,34 +21,34 @@ public class BlockControl : MonoBehaviour {
 	private float boundX,boundZ,boundingBox;
 	
 	private int pass;
-
+	
 	private bool firstBlock = true;
 	public int xTime;
 	private bool waitActive = false;
 	private bool shapeFalling = false;
 	public bool gameOver = false;
-
+	
 	//sample shape, just fo shows
 	private int[,,] shape1 = new int[,,] {{{1,1,1},{1,1,0},{1,0,0}},
-									   	  {{0,0,0},{0,0,0},{0,0,0}},
-									      {{0,0,0},{0,0,0},{0,0,0}}};
+		{{0,0,0},{0,0,0},{0,0,0}},
+		{{0,0,0},{0,0,0},{0,0,0}}};
 	
 	private int[,,] shape2 = new int[,,] {{{1,1,1},{1,1,1},{0,0,0}},
-									   	  {{1,1,1},{1,1,1},{0,0,0}},
-									      {{1,1,1},{1,1,1},{0,0,0}}};
+		{{1,1,1},{1,1,1},{0,0,0}},
+		{{1,1,1},{1,1,1},{0,0,0}}};
 	
 	//[,,]full outer number, middle inner, inside the smallest
 	private int[,,] shape3 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
-									   	  {{1,1,1},{0,0,0},{0,0,0}},
-									      {{1,1,1},{0,0,0},{0,0,0}}};
-
+		{{1,1,1},{0,0,0},{0,0,0}},
+		{{1,1,1},{0,0,0},{0,0,0}}};
+	
 	//private int[,,] shapeTemp = new int[20,20,20];
-
+	
 	private int[,,] shape4;
-
+	
 	//[DllImport ("make2")]
 	//private static extern int main();
-
+	
 	/* size of a single "pin", i.e. a cube 
 	 * that makes a building block of a shape. */
 	public float pinSize = 1.0f;
@@ -62,39 +62,39 @@ public class BlockControl : MonoBehaviour {
 	private int pin = 0;
 	
 	private float timer;
-
+	
 	public float moveTime = 0.07f;
-
+	
 	private int shapeMove;
 	
 	private GameObject FragmentCube;
-
+	
 	[DllImport ("make2")]
 	private static extern int main();
-
+	
 	//for moving the shapes need to know the centre of shape
 	private float posX,posZ;	
 	private Vector3 centreRotation = new Vector3 (2,1,2);
-
+	
 	//to make sure no movement is produced while waiting for the next sahpe
 	private bool movingStopped = false;
-
+	
 	//material for highlight
 	private Material transparentMaterial;
-
+	
 	//materials for block colours
 	private Material RedMaterial;
 	private Material GreenMaterial;
 	private Material BlueMaterial;
 	private Material YellowMaterial;
-
-
+	
+	
 	//rotate the shape array
 	int[,,] rotateShape(int[,,] shape, bool clockwise){
 		
 		int [,,] newShape = new int[,,]{{{0,0,0},{0,0,0},{0,0,0}},
-									   	{{0,0,0},{0,0,0},{0,0,0}},
-									    {{0,0,0},{0,0,0},{0,0,0}}};
+			{{0,0,0},{0,0,0},{0,0,0}},
+			{{0,0,0},{0,0,0},{0,0,0}}};
 		
 		//loop through shape array
 		for(int i=0; i< shape.GetLength(2); i++){
@@ -110,10 +110,10 @@ public class BlockControl : MonoBehaviour {
 		}
 		return newShape;
 	}
-
-
-
-
+	
+	
+	
+	
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
@@ -121,38 +121,38 @@ public class BlockControl : MonoBehaviour {
 		cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
-
+		
 		gameBoard = GetComponent<Board>();
 	}
 	
 	// Initialization.
 	void Start () {
-
+		
 		pass = 0;	
 		timer = 1;
 		shapeMove=0;
-
+		
 		transparentMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/ShadowMaterial.mat", typeof(Material));
 		RedMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/RedBlock.mat", typeof(Material));
 		GreenMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/GreenBlock.mat", typeof(Material));
 		BlueMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/BlueBlock.mat", typeof(Material));
 		YellowMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/YellowBlock.mat", typeof(Material));
-
+		
 		cameraScript = GameObject.Find("Main Camera").GetComponent<RotateCamera>();
 	}
-
+	
 	public bool checkString(string data){
 		if(data == null) return false;
 		if(Regex.IsMatch(data, @"^(\d+\.\d+\.\d+\.\d+\.)+$"))return true;
-
+		
 		return false;
 	}
-
-
+	
+	
 	// For testing purposes
 	public int[,,] getShapeArray(){
 		
-
+		
 		int[,,] shapeTemp = new int[20,20,20];
 		string data =  "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
 		string[] dA = data.Split('.');
@@ -164,14 +164,14 @@ public class BlockControl : MonoBehaviour {
 		}
 		return transformShape(shapeTemp);
 	}
-
+	
 	// Get the shape from the computer vision stuff and puts in to the shape array
 	public int[,,] getShapeArray(string data){
-
+		
 		print ("checking the string: "+checkString("1.1.1.1."));
-
+		
 		if(!checkString(data))print("bad string");
-
+		
 		int[,,] shapeTemp = new int[20,20,20];
 		string[] dA = data.Split('.');
 		for (int i = 0; i < dA.Length - 1; i+=4){
@@ -236,16 +236,16 @@ public class BlockControl : MonoBehaviour {
 	
 	//check the pieces that the user uses against the allowed pieces
 	public bool checkPieces(int[,,] shape){
-	
+		
 		Array_GameObj pieceArray;
 		//access Array_GameObj through this
 		pieceArray = GameObject.Find("Allowed pieces").GetComponent<Array_GameObj>();
-
+		
 		//number of suggested pieces for looping through the suggested pieces
 		int numberOfPieces = pieceArray.noOfSuggestedPieces;
-
+		
 		int yellow=0 , green=0, blue=0, red=0;
-
+		
 		//count the amount of colours from the shape array
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(1); y++){
@@ -261,7 +261,7 @@ public class BlockControl : MonoBehaviour {
 				}
 			}
 		}
-
+		
 		//for the pieces that are suggested
 		int suggestedRed=0,suggestedGreen=0,suggestedBlue=0, suggestedYellow=0;
 		//count the amount of colours from the pieces suggested
@@ -274,23 +274,23 @@ public class BlockControl : MonoBehaviour {
 			case 3: suggestedRed++; break;//red
 			}
 		}
-
-	//	print("red = " + red);
-//		print("suggested red = "+ suggestedRed*8);
-///		print("yellow = " + yellow);
-//		print("suggested yellow = "+ suggestedYellow*8);
-//		print("Blue = " + blue);
-//		print("suggested blue = "+ suggestedBlue*8);
-//		print("Green = " + green);
-//		print("suggested green = "+ suggestedGreen*8);
+		
+		//	print("red = " + red);
+		//		print("suggested red = "+ suggestedRed*8);
+		///		print("yellow = " + yellow);
+		//		print("suggested yellow = "+ suggestedYellow*8);
+		//		print("Blue = " + blue);
+		//		print("suggested blue = "+ suggestedBlue*8);
+		//		print("Green = " + green);
+		//		print("suggested green = "+ suggestedGreen*8);
 		//amountColour - amount of the certain colour the user has used
 		//suggestedColour - amount of certain colour the computer has used
 		if(!(red==suggestedRed*8 && blue==suggestedBlue*6 && green==suggestedGreen*4 && yellow==suggestedYellow*2)){
-
+			
 			return false;
 		}
-
-
+		
+		
 		return true;
 	}
 	
@@ -306,9 +306,9 @@ public class BlockControl : MonoBehaviour {
 			//shape4[i[0],i[1],i[2]] = i[3];
 		}		
 	}*/
-
+	
 	private void getRotationCentre(int[,,] shape, float halfLengthX, float halfLengthZ){
-
+		
 		float finalX, finalZ;
 		finalX = shape.GetLength(0)-1;
 		finalZ = shape.GetLength(2)-1;
@@ -357,11 +357,11 @@ public class BlockControl : MonoBehaviour {
 		}
 		return true;
 	}
-
+	
 	private bool checkArrayCollisions(){
 		return !checkMoveAllowed();
 	}
-
+	
 	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
 	**	 before next shape is triggered.
 	** The game is "paused" -- the shape doesn't descend but you can still
@@ -369,50 +369,50 @@ public class BlockControl : MonoBehaviour {
 	*/
 	IEnumerator Wait(int curTime){
 		gameBoard.pauseGame(Time.realtimeSinceStartup);
-        Debug.Log("Wait for " + 1 + "s");
-        waitActive = true;
-
+		Debug.Log("Wait for " + 1 + "s");
+		waitActive = true;
+		
 		xTime = curTime;
 		enterPressed = false;
 		Debug.Log ("Xtime = " + xTime);
-
+		
 		float startTimerr = Time.realtimeSinceStartup;
 		while (startTimerr > (Time.realtimeSinceStartup - timeGap) && enterPressed == false){
 			yield return new WaitForSeconds(0.01f);
 			if(enterPressed)
 				if(createShape())
 					break;
-				else
-					enterPressed = false;
+			else
+				enterPressed = false;
 			print ("still in loop");
-//			xTime++;
+			//			xTime++;
 		}
-
-        waitActive = false;
-        Debug.Log("After waiting for " + timeGap + "s");
+		
+		waitActive = false;
+		Debug.Log("After waiting for " + timeGap + "s");
 		shapeFalling = false;
 		gameBoard.unpauseGame();
-
-
-
+		
+		
+		
 		if(enterPressed){ //xTime < (timeGap / 0.01)){
-            Debug.Log("ENTER PRESSED!");
-            movingStopped = false;
-//			createShape ();
-
-        }
-        else if(startTimerr < (Time.realtimeSinceStartup - timeGap)){
-            Debug.Log("Enter not pressed?");
-            Time.timeScale = 0;
-            gameOver = true;
-            //Application.LoadLevel("GameOver");
-        }
-    }
-
+			Debug.Log("ENTER PRESSED!");
+			movingStopped = false;
+			//			createShape ();
+			
+		}
+		else if(startTimerr < (Time.realtimeSinceStartup - timeGap)){
+			Debug.Log("Enter not pressed?");
+			Time.timeScale = 0;
+			gameOver = true;
+			//Application.LoadLevel("GameOver");
+		}
+	}
+	
 	public void linkBlock(int time){
 		StartCoroutine(Wait (time));
 	}
-
+	
 	private void fillBoard(GameObject block){
 		for (int i = 0; i < Math.Pow(gameBoard.nx, 3); i++){
 			Transform childTransform = block.transform.FindChild("Current pin" + i.ToString());
@@ -420,7 +420,7 @@ public class BlockControl : MonoBehaviour {
 				//switch individual renderers back on as combined mesh is destroyed
 				childTransform.renderer.enabled = true;
 				childTransform.GetChild(0).renderer.enabled = true;
-
+				
 				int layer = (int)Math.Round(childTransform.position.y - 0.38);
 				gameBoard.FillPosition(layer, childTransform.gameObject); 
 			}
@@ -434,18 +434,18 @@ public class BlockControl : MonoBehaviour {
 		Destroy(block);
 		Destroy(shadow);
 	}
-
+	
 	/*private void triggerNextShape(GameObject block){
 		createShape();
 	}*/
-
-
+	
+	
 	//prints positions of all blocks in given gameObject
 	private void printShadow(GameObject shadow){
 		foreach (Transform child in shadow.transform){
 			Debug.Log("" + ((int)Math.Round(child.position.x) + 1) + " : " +
-			((int)Math.Round(child.position.y - 0.38)) + " : " +
-			((int)Math.Round(child.position.z) + 1));
+			          ((int)Math.Round(child.position.y - 0.38)) + " : " +
+			          ((int)Math.Round(child.position.z) + 1));
 		};	
 	}
 	// Update is called once per frame.
@@ -464,9 +464,9 @@ public class BlockControl : MonoBehaviour {
 		Vector3 translation = Vector3.zero;
 		Vector3 rotation = Vector3.zero;
 		int hasMoved = 0;
-
+		
 		if (!movingStopped){
-	        if (block == null || shadow == null) return;
+			if (block == null || shadow == null) return;
 		}
 		//This keeps track of how many seconds we wait between two pieces.
 		int x = 10;
@@ -502,7 +502,7 @@ public class BlockControl : MonoBehaviour {
 				block = GameObject.Find("ActiveBlock");*/
 			}
 		}
-
+		
 		if(Input.GetKeyDown("return")){
 			shapeFalling = true;
 			enterPressed = true;
@@ -519,9 +519,9 @@ public class BlockControl : MonoBehaviour {
 			rotation = new Vector3(0,-90,0);
 			hasMoved = 1;
 		}
-
+		
 		moveTime -= Time.deltaTime;
-
+		
 		//piece falls down further with space bar
 		if(Input.GetKey("space")){
 			//check every 4 frames
@@ -572,7 +572,7 @@ public class BlockControl : MonoBehaviour {
 			}
 		}
 		//MOVE right
-  		if (Input.GetKey("right")){
+		if (Input.GetKey("right")){
 			//check every 4 frames
 			if(moveTime <= 0){
 				if (cameraScript.rotationDir == 0){
@@ -589,9 +589,9 @@ public class BlockControl : MonoBehaviour {
 				}
 				hasMoved = 1;
 			}
-  		}
-  		//MOVE left
-  		if (Input.GetKey("left")){
+		}
+		//MOVE left
+		if (Input.GetKey("left")){
 			//check every 4 frames
 			if(moveTime <= 0){
 				if (cameraScript.rotationDir == 0){
@@ -609,11 +609,11 @@ public class BlockControl : MonoBehaviour {
 				hasMoved = 1;
 			}
 		}
-
+		
 		if(moveTime <= 0 && hasMoved == 1){
 			moveTime = 0.07f;
 		}
-
+		
 		if (!movingStopped){
 			Vector3 backupPos = shadow.transform.position;
 			Quaternion backupRot = shadow.transform.rotation;
@@ -628,7 +628,7 @@ public class BlockControl : MonoBehaviour {
 				posX += translation.x;
 				posZ += translation.z;
 			}
-
+			
 			if(hasMoved==1){
 				Destroy(highlight);
 				highlightLanding();
@@ -636,7 +636,7 @@ public class BlockControl : MonoBehaviour {
 			}
 			shapeMove++;
 		}
-  	}
+	}
 	
 	//creates and positions the highlighted landing for the shape
 	private void highlightLanding(){
@@ -657,7 +657,7 @@ public class BlockControl : MonoBehaviour {
 			//copy shadow
 			highlight = Instantiate(shadow, highlightPos, shadow.transform.rotation) as GameObject;
 			highlight.name = "activeHighlight";
-
+			
 			foreach (Transform child in highlight.transform){
 				//50% opacity on highlight pins
 				child.renderer.material = transparentMaterial;
@@ -683,8 +683,8 @@ public class BlockControl : MonoBehaviour {
 		cube.name = "Current pin" + pin.ToString();
 		//set starting position
 		cube.transform.position = new Vector3(globalX + x,
-											  startHeight + y,
-			  								  globalZ + z);
+		                                      startHeight + y,
+		                                      globalZ + z);
 		//cube.transform.localScale = new Vector3(1, 1, 1); //prob redundant
 		pin++;
 		return cube;
@@ -692,7 +692,7 @@ public class BlockControl : MonoBehaviour {
 	
 	//creates a shape out of array, consisting of 0s and 1s
 	public void createShape(int[,,] shape){
-	
+		
 		if (shape == null){
 			throw new Exception("shape is null!");
 		}
@@ -704,7 +704,7 @@ public class BlockControl : MonoBehaviour {
 		
 		globalX = 7;
 		globalZ = 7;
-
+		
 		GameObject shapeObj = new GameObject();
 		addComponents(shapeObj, shape.GetLength(0));		
 		float halfLengthX = shape.GetLength(0)/2;	
@@ -712,7 +712,7 @@ public class BlockControl : MonoBehaviour {
 		getRotationCentre(shape, halfLengthX, halfLengthZ);
 		
 		shapeObj.transform.position = new Vector3(globalX + posX, startHeight, globalZ + posZ);
-			
+		
 		for (int x=0; x < shape.GetLength(0); x++){
 			for (int y=0; y < shape.GetLength(1); y++){
 				for (int z=0; z < shape.GetLength(2); z++){
@@ -721,24 +721,24 @@ public class BlockControl : MonoBehaviour {
 						GameObject child = currentCube.transform.Find("pin").gameObject;
 						//Apply colour to each block
 						switch (shape[x,y,z]){
-						
-							case 1: currentCube.renderer.material = RedMaterial;
-									child.renderer.material = RedMaterial;
-									break;
-								
-							case 2: currentCube.renderer.material = GreenMaterial;
-									child.renderer.material = GreenMaterial;
-									break;
-								
-							case 3: currentCube.renderer.material = BlueMaterial;
-									child.renderer.material = BlueMaterial;
-									break;
-
-							case 4: currentCube.renderer.material = YellowMaterial;
-									child.renderer.material = YellowMaterial;
-									break;
 							
-							default : break;
+						case 1: currentCube.renderer.material = RedMaterial;
+							child.renderer.material = RedMaterial;
+							break;
+							
+						case 2: currentCube.renderer.material = GreenMaterial;
+							child.renderer.material = GreenMaterial;
+							break;
+							
+						case 3: currentCube.renderer.material = BlueMaterial;
+							child.renderer.material = BlueMaterial;
+							break;
+							
+						case 4: currentCube.renderer.material = YellowMaterial;
+							child.renderer.material = YellowMaterial;
+							break;
+							
+						default : break;
 						}
 						addToShape(shapeObj, currentCube);
 					}
@@ -766,7 +766,7 @@ public class BlockControl : MonoBehaviour {
 		globalX=globalX+3;
 		firstBlock = true;
 	}
-
+	
 	// TODO CHECK IF CAN DELETE THIS
 	// Adds necessary components and initialisation to a shape.
 	private void addComponents(GameObject shapeObj, int shapeLength){
@@ -780,12 +780,12 @@ public class BlockControl : MonoBehaviour {
 	public void assignTimeGap(int gap){
 		timeGap = gap;
 	}
-
+	
 	IEnumerator Wait2(int seconds){
 		gameBoard.pauseGame(Time.realtimeSinceStartup);
 		//legoCode = Marshal.PtrToStringAnsi(lego());
 		
-	//	Debug.Log("Wait for " + seconds + "s");
+		//	Debug.Log("Wait for " + seconds + "s");
 		waitActive = true;
 		yield return new WaitForSeconds(seconds);
 		waitActive = false;
@@ -808,13 +808,13 @@ public class BlockControl : MonoBehaviour {
 			// was saved as
 			StreamReader theReader = new StreamReader(fileName, Encoding.Default);
 			
-
+			
 			using (theReader)
 			{
 				// While there's lines left in the text file, do this:
 				line = theReader.ReadLine();
 				print ("line = " + line);
-
+				
 				
 				// Done reading, close the reader and return true to broadcast success    
 				theReader.Close();
@@ -834,7 +834,7 @@ public class BlockControl : MonoBehaviour {
 	
 	// For demonstration purposes.
 	public bool createShape(){
-
+		
 		// Add here shape creation code.
 		cam.takeSnap();
 		
@@ -844,9 +844,9 @@ public class BlockControl : MonoBehaviour {
 		string legoCode;
 		while (hello == 1 && count < 4){
 			print ("entering loop");
-
+			
 			cam.takeSnap();
-
+			
 			hello = main ();
 			legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
 			if(!checkString(legoCode)){
@@ -856,36 +856,36 @@ public class BlockControl : MonoBehaviour {
 				StartCoroutine(Wait2(1));
 			}else{
 				shape4 = getShapeArray(legoCode);
-
-//			shape4=getShapeArray("1.1.1.1.");
-//
+				
+				//			shape4=getShapeArray("1.1.1.1.");
+				//
 				if(!checkPieces(shape4) && hello == 0){
 					print ("wrong shape oops");
 					count ++;
 					hello = 1;
 					StartCoroutine(Wait2(1));
-
+					
 				}
 			}
-
-		
-
-
+			
+			
+			
+			
 		}
-
-
-
-	//	StartCoroutine(Wait2(3));
-	    legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
-
+		
+		
+		
+		//	StartCoroutine(Wait2(3));
+		legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+		
 		if(!checkString(legoCode)){
 			print ("format is wrong");
 			return false;
 		}else{
 			//	StartCoroutine(Wait2(1));
 			print (legoCode);
- 	   		shape4 = getShapeArray(legoCode);   //If you're using the webcams to get the shape
-
+			shape4 = getShapeArray(legoCode);   //If you're using the webcams to get the shape
+			
 			if(!checkPieces(shape4)){
 				print ("wrong shape");
 				print (xTime);
@@ -896,14 +896,14 @@ public class BlockControl : MonoBehaviour {
 				createShape(shape4);
 			}
 		}
-
+		
 		return true;
-
+		
 		//shape4 = getShapeArray();   //If your using a hardcoded shape
 		
-
+		
 	}
-
+	
 	
 	//Makes given cube a child of the current shape
 	private void addToShape(GameObject shape, GameObject cube){
