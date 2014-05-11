@@ -29,8 +29,8 @@ public class BlockControl : MonoBehaviour {
 	public bool gameOver = false;
 	
 	//sample shape, just fo shows
-	private int[,,] shape1 = new int[,,] {{{1,1,1},{1,1,0},{1,0,0}},
-		{{0,0,0},{0,0,0},{0,0,0}},
+	private int[,,] shape1 = new int[,,] {{{0,0,0},{0,0,0},{0,0,0}},
+		{{1,1,1},{1,1,1},{1,0,0}},
 		{{0,0,0},{0,0,0},{0,0,0}}};
 	
 	private int[,,] shape2 = new int[,,] {{{1,1,1},{1,1,1},{0,0,0}},
@@ -39,8 +39,8 @@ public class BlockControl : MonoBehaviour {
 	
 	//[,,]full outer number, middle inner, inside the smallest
 	private int[,,] shape3 = new int[,,] {{{1,1,1},{0,0,0},{0,0,0}},
-		{{1,1,1},{0,0,0},{0,0,0}},
-		{{1,1,1},{0,0,0},{0,0,0}}};
+										  {{1,1,1},{0,0,0},{0,0,0}},
+									      {{1,1,1},{0,0,0},{0,0,0}}};
 	
 	//private int[,,] shapeTemp = new int[20,20,20];
 	
@@ -117,8 +117,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		cam = new setUpWebcam();
-		cam.setUpCams();
+		/*cam = new setUpWebcam();
+		cam.setUpCams();*/
 		globalX = 0;
 		globalZ = 0;
 		
@@ -745,7 +745,14 @@ public class BlockControl : MonoBehaviour {
 				}
 			}
 		}
-		
+
+
+		GameObject b = GameObject.Find("base");
+		Vector3 t_s = new Vector3(-shapeObj.transform.position.x + b.transform.position.x, 0,
+		                          -shapeObj.transform.position.z + b.transform.position.z);
+
+		shapeObj.transform.Translate(t_s);
+
 		//Shadow block
 		shadow = Instantiate(shapeObj, shapeObj.transform.position, shapeObj.transform.rotation) as GameObject;
 		shadow.name = "ActiveShadow";
@@ -836,7 +843,7 @@ public class BlockControl : MonoBehaviour {
 	public bool createShape(){
 		
 		// Add here shape creation code.
-		cam.takeSnap();
+		/*cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();
@@ -895,8 +902,8 @@ public class BlockControl : MonoBehaviour {
 				xTime = 0;
 				createShape(shape4);
 			}
-		}
-		
+		}*/
+		createShape(shape2);
 		return true;
 		
 		//shape4 = getShapeArray();   //If your using a hardcoded shape
