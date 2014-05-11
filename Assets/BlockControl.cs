@@ -379,13 +379,19 @@ public class BlockControl : MonoBehaviour {
 		float startTimerr = Time.realtimeSinceStartup;
 		while (startTimerr > (Time.realtimeSinceStartup - timeGap) && enterPressed == false){
 			yield return new WaitForSeconds(0.01f);
-			if(enterPressed)
+			if(enterPressed){
+				float startTime = Time.realtimeSinceStartup;
 				if(createShape())
 					break;
-			else
-				enterPressed = false;
-			print ("still in loop");
-			//			xTime++;
+				else{
+					enterPressed = false;
+				}
+				startTimerr += (Time.realtimeSinceStartup - startTime);
+				print("start time = " + startTimerr);
+				print ("still in loop");
+				//			xTime++;
+			}
+
 		}
 		
 		waitActive = false;
