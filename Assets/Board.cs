@@ -517,7 +517,7 @@ public class Board : MonoBehaviour {
     IEnumerator InitCountdown(int x){
         yield return new WaitForSeconds(x);
         goText = false;
-        StartCoroutine(Wait());
+		blockCtrl.linkBlock(blockCtrl.xTime);
     }
 
 	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
@@ -525,7 +525,7 @@ public class Board : MonoBehaviour {
 	** The game is "paused" -- the shape doesn't descend but you can still
 	**   rotate the board, if you need to see where you'd place the blocks.
 	*/
-	IEnumerator Wait(){
+	/*IEnumerator Wait(){
         float time = Time.realtimeSinceStartup;
         if(time > 2)
         	pauseGame(Time.realtimeSinceStartup);
@@ -562,7 +562,7 @@ public class Board : MonoBehaviour {
             //Application.LoadLevel("GameOver");
         }		
     }
-
+*/
 	public void pauseGame(float start){
         if(!countdown){
             starttimer = start;
