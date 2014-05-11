@@ -16,7 +16,8 @@ public class Board : MonoBehaviour {
 	
 	private int flashPass;
 
-	int timeGap = 5; //default value. Change gap here!
+	int timeGap = 10; //default value. Change gap here!
+    private int time = 1000;
     int timer = 0;
     float starttimer = 0.0f;
     bool countdown = false;
@@ -333,11 +334,11 @@ public class Board : MonoBehaviour {
     */
     void scoring(int flag, int addScore){
         if(flag == 0){
-            score += 1000/timeGap * addScore;
+            score += time; //1000/timeGap * addScore;
             //score += addScore;
         }
         else
-        score += addScore * 10;
+            score += addScore * 10;
     }
 
 	// Clear the layer (i.e. reset the layer count to 0).
@@ -515,8 +516,9 @@ public class Board : MonoBehaviour {
 
     //set the timer to 0, stop the countdown and fetch next piece.
     public void unpauseGame(){
-        Debug.Log("Points? --------> " + timer);
-        scoring(0, (int)timer);
+        // Debug.Log("Points? --------> " + timer);
+        if(!blockCtrl.gameOver)
+            scoring(0, (int)timer);
         rounds++;
         timer = 0;
         countdown = false;
@@ -611,12 +613,14 @@ public class Board : MonoBehaviour {
         if(countdown){
             float timediff = Time.realtimeSinceStartup - starttimer;
             if(timediff < timeGap){
-                barDisplay = 0.01f;
                 //Debug.Log("timediff = " + timediff);
                 timer = (int)timediff;
                 //Debug.Log("Timer = " + timer);
                 timer = timeGap - timer;
-                barDisplay = 1 - timediff * 1.0f/timeGap;//0.1f;
+                if(!blockCtrl.gameOver){
+                    barDisplay = 0.01f;
+                    barDisplay = 1 - timediff * 1.0f/timeGap;//0.1f;
+                }
             }
         }else{
             timer = 0;
@@ -631,6 +635,12 @@ public class Board : MonoBehaviour {
 			GUI.BeginGroup(new Rect(5,31,140,39));
 				GUI.DrawTexture(new Rect(0,0,140*barDisplay,40), fullTex);//, ScaleMode.ScaleToFit, true, 10.0F);
 			GUI.EndGroup();
+
+            time = Convert.ToInt32(1000 * barDisplay);
+            time /= 10;
+            time *= 10;
+
+            GUI.Label(new Rect(60,50,70,20), "" + time);
 		GUI.EndGroup();
         //GUI.Box(new Rect((Screen.width - 200), 10, 150, 100), timer + "s left.");
         

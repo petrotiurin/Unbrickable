@@ -22,7 +22,7 @@ public class BlockControl : MonoBehaviour {
 	private int pass;
 
 	private bool firstBlock = true;
-	private int xTime;
+	public int xTime = 0;
 	private bool waitActive = false;
 	private bool shapeFalling = false;
 	public bool gameOver = false;
@@ -360,7 +360,6 @@ public class BlockControl : MonoBehaviour {
         waitActive = false;
         Debug.Log("After waiting for " + timeGap + "s");
 		shapeFalling = false;
-		gameBoard.unpauseGame();
 
         if(block == null)
         	Debug.Log("Block is null :S !!");
@@ -373,10 +372,12 @@ public class BlockControl : MonoBehaviour {
         }
         else{
             Debug.Log("Enter not pressed?");
-            Time.timeScale = 0;
             gameOver = true;
+            Time.timeScale = 0;
             //Application.LoadLevel("GameOver");
         }
+
+        gameBoard.unpauseGame();
     }
 
 
