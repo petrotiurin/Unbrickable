@@ -83,6 +83,7 @@ public class Board : MonoBehaviour {
     float startTime;
 	
 	public GameObject LBoard_BG;
+	public GameObject textbox;
 
 	// Initialization.
 	void Awake () {
@@ -144,11 +145,9 @@ public class Board : MonoBehaviour {
 		
 		flashPass = 0;
 		
+		grid = Resources.LoadAssetAtPath("Assets/Resources/grid_square.prefab", typeof(GameObject));
 		DrawBoard();
 		
-		grid = Resources.LoadAssetAtPath("Assets/Resources/grid_square.prefab", typeof(GameObject));
-        //boundaries for initial orientation
-        DrawBoundaries();
 		createTopCamera();
 
 //		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
@@ -252,55 +251,44 @@ public class Board : MonoBehaviour {
 			Destroy (child.gameObject);
 		}
 		
-		// Blocks fall from (0,0) into bottom corner.
-		//cube.transform.localScale = new Vector3(nx-2, 0.2F, nz-2);
-		//cube.transform.position = new Vector3(6.0F, -0.1F, 6.0F);
-	
-		//set the center to be the pivot
-//		centreRotation = new Vector3 ((float)cube.transform.position.x,cube.transform.position.y,(float)cube.transform.position.z);
-		
 		// Make the base a child of the scene
 		GameObject scene = GameObject.Find("Scene");
 		Transform t = legoBase.transform;
 		t.parent = scene.GetComponent<Transform>();
 		if (nx%2 == 0) legoBase.transform.Translate(-0.5f,0.0f,-0.5f,Space.World);
-		//cube.transform.Translate(0,-0.4f,0);
-		//-1.5 -1.5
-		/*Debug.Log(cube.renderer.bounds.min.x + " " + cube.renderer.bounds.min.z);
-		transx = (float) (-1.5 - cube.renderer.bounds.min.x);
-		transz = (float) (-1.5 - cube.renderer.bounds.min.z);*/
-		//float transx = (float)Math.Abs(1.5 - Math.Abs(cube.renderer.bounds.min.x));
-		//float transz = (float)Math.Abs(1.5 - Math.Abs(cube.renderer.bounds.min.z));
-		//cube.transform.Translate(transx,0,transz);
-		//cube.transform.localPosition = new Vector3(cube.transform.localPosition.x, -0.1f, cube.transform.localPosition.z);
-	}
-	
-	public void DrawBoundaries(){
 		
+		
+		//Create the board's boundries dynamically
 		A = new GameObject();
+		A.transform.position = new Vector3(legoBase.transform.position.x, ny/2 , legoBase.transform.position.z + nz/2);
 		A.name = "Wall A";
+		
 		B = new GameObject();
+		B.transform.position = new Vector3(legoBase.transform.position.x + nx/2, ny/2, legoBase.transform.position.z);
 		B.name = "Wall B";
+		
 		C = new GameObject();
+		C.transform.position = new Vector3(legoBase.transform.position.x, ny/2, legoBase.transform.position.z - nz/2);
 		C.name = "Wall C";
+		
 		D = new GameObject();
+		D.transform.position = new Vector3(legoBase.transform.position.x - nx/2, ny/2, legoBase.transform.position.z);
 		D.name = "Wall D";
-	
-        for(int i=0; i< ny;i++){
+		
+		for(int i=0; i< ny;i++){
             for(int j=-1;j < nx-3;j++){	
 			
-				GameObject A_square = GameObject.Instantiate(grid, new Vector3(j,i+0.5f,nz-3.5f), Quaternion.Euler(new Vector3(-90, 0, 0))) as GameObject;
+				GameObject A_square = GameObject.Instantiate(grid, new Vector3(j+3,i+0.5f,nz-0.5f), Quaternion.Euler(new Vector3(-90, 0, 0))) as GameObject;
 				A_square.transform.parent = A.GetComponent<Transform>();
 				
-				GameObject B_square = GameObject.Instantiate(grid, new Vector3(nx-3.5f,i+0.5f,j),Quaternion.Euler(new Vector3(0, 0, 90))) as GameObject;
+				GameObject B_square = GameObject.Instantiate(grid, new Vector3(nx-0.5f,i+0.5f,j+3),Quaternion.Euler(new Vector3(0, 0, 90))) as GameObject;
 				B_square.transform.parent = B.GetComponent<Transform>();
 				
-				GameObject C_square = GameObject.Instantiate(grid, new Vector3(-1.5f,i+0.5f,j),Quaternion.Euler(new Vector3(0, 0, -90))) as GameObject;
+				GameObject C_square = GameObject.Instantiate(grid, new Vector3(1.5f,i+0.5f,j+3),Quaternion.Euler(new Vector3(0, 0, -90))) as GameObject;
 				C_square.transform.parent = C.GetComponent<Transform>();
 				
-				GameObject D_square = GameObject.Instantiate(grid, new Vector3(j,i+0.5f,-1.5f),Quaternion.Euler(new Vector3(90, 0, 0))) as GameObject;
-				D_square.transform.parent = D.GetComponent<Transform>();
-				
+				GameObject D_square = GameObject.Instantiate(grid, new Vector3(j+3,i+0.5f,1.5f),Quaternion.Euler(new Vector3(90, 0, 0))) as GameObject;
+				D_square.transform.parent = D.GetComponent<Transform>();	
 			}	
 		}
 		
@@ -324,37 +312,6 @@ public class Board : MonoBehaviour {
 		    Destroy(child_D.gameObject);
 		}
 	}
-	
-    //Create visible boundary walls.
-    public void changeBoundaries(int rotDir){
-				/*
-                if(rotDir == 0){
-					A.renderer.enabled = true;
-					B.renderer.enabled = true;
-                    //A.gameObject.SetActive(true);
-					//B.gameObject.SetActive(true);
-                }
-                else if(rotDir == 1){
-					A.renderer.enabled = true;
-					C.renderer.enabled = true;
-                   	//A.gameObject.SetActive(true);
-                    //C.gameObject.SetActive(true);
-                }
-                else if(rotDir == 2){
-					C.renderer.enabled = true;
-					D.renderer.enabled = true;
-                    //C.gameObject.SetActive(true);
-                    //D.gameObject.SetActive(true);  
-                }
-                else{
-					D.renderer.enabled = true;
-					B.renderer.enabled = true;
-                	//D.gameObject.SetActive(true);
-                	//B.gameObject.SetActive(true);
-                }*/
-
-    }
-
 
 	// Add a pin object to its respective layer.
 	public void FillPosition(int layer, GameObject pin) {
@@ -687,9 +644,11 @@ public class Board : MonoBehaviour {
 		LBoard_header.fontStyle = FontStyle.Bold;
 		LBoard_header.normal.textColor = Color.white;
 		
-		
     	// The following line of code displays the current score.
         GUI.Box(new Rect (50,10,150,100), "Score: " + score, score_style);
+		
+		
+		
 
         // The following lines of code deals with the countdown timers.
         if(countdown){
@@ -739,13 +698,16 @@ public class Board : MonoBehaviour {
 
         //Game over overlay graphics
         if(blockCtrl.gameOver && !viewLBoard){
+			
+			textbox.SetActive(true);
+			
             Texture gameOverTexture = Resources.Load("gameover") as Texture2D;
             GUI.DrawTexture(new Rect(Screen.width/2-305.2f, 100, 610.4f, 297.6f), gameOverTexture);			
 			
             GUI.Label(new Rect(Screen.width/2-200,450,200,25), "Final score: " + score, gameover_message);
 
             if(!scoreSubmitted){
-                GUI.Label(new Rect(Screen.width/2-200,500,300,25), "Type your name to add your score to the leaderboard:", gameover_message);
+                GUI.Label(new Rect(Screen.width/2-200,500,300,25), "Enter your name:", gameover_message);
 				uname = GUI.TextField (new Rect (Screen.width/2-200,550,300,40), uname, input_text);
                 
                 if(GUI.Button(new Rect(Screen.width/2-150,600,300,25), "Submit Score")){
@@ -759,11 +721,13 @@ public class Board : MonoBehaviour {
 		
         //Leaderboard graphics
         if(viewLBoard){
+			
+			textbox.SetActive(false);
+			
             if(!receivedLboard){
                 dispScores = lboard.DisplayScores(5);
                 receivedLboard = true; //!receivedLboard;
             }
-			
 			
             GUI.Label(new Rect(Screen.width/2 - 250, 150, 400, 25), "Position", LBoard_header);
             GUI.Label(new Rect(Screen.width/2 - 75, 150, 100, 25), "Name", LBoard_header);
