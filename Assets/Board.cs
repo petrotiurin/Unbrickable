@@ -268,48 +268,74 @@ public class Board : MonoBehaviour {
 		B.name = "Wall B";
 		
 		C = new GameObject();
-		C.transform.position = new Vector3(legoBase.transform.position.x, ny/2, legoBase.transform.position.z - nz/2);
+		C.transform.position = new Vector3(legoBase.transform.position.x - nx/2, ny/2, legoBase.transform.position.z);
 		C.name = "Wall C";
 		
 		D = new GameObject();
-		D.transform.position = new Vector3(legoBase.transform.position.x - nx/2, ny/2, legoBase.transform.position.z);
+		D.transform.position = new Vector3(legoBase.transform.position.x, ny/2, legoBase.transform.position.z - nz/2);
 		D.name = "Wall D";
 		
 		for(int i=0; i< ny;i++){
-            for(int j=-1;j < nx-3;j++){	
-			
-				GameObject A_square = GameObject.Instantiate(grid, new Vector3(j+3,i+0.5f,nz-0.5f), Quaternion.Euler(new Vector3(-90, 0, 0))) as GameObject;
+			for(int j=1;j < nx-1;j++){
+				
+				float x;
+				float xB;
+				float xC;
+				
+				float z;
+				float zA;
+				float zD;
+				
+				if (nx%2==0){
+					x = legoBase.transform.position.x - (nx)/2 + j + 0.5f;
+					xB = legoBase.transform.position.x + (nx)/2-1;
+					xC = legoBase.transform.position.x - (nx)/2+1;
+					
+					z = legoBase.transform.position.z - (nz)/2 + j+ 0.5f;
+					zA = legoBase.transform.position.z + (nz)/2-1;
+					zD = legoBase.transform.position.z - (nz)/2+1;
+				}else{
+					x = legoBase.transform.position.x - (nx)/2 + j;
+					xB = legoBase.transform.position.x + (nx)/2 - 0.5f;
+					xC = legoBase.transform.position.x - (nx)/2 + 0.5f;
+					
+					z = legoBase.transform.position.z - (nz)/2 + j;
+					zA = legoBase.transform.position.z + (nz)/2 - 0.5f;
+					zD = legoBase.transform.position.z - (nz)/2 + 0.5f;
+				}
+				
+				GameObject A_square = GameObject.Instantiate(grid, new Vector3(x,i+0.5f,zA), Quaternion.Euler(new Vector3(-90, 0, 0))) as GameObject;
 				A_square.transform.parent = A.GetComponent<Transform>();
 				
-				GameObject B_square = GameObject.Instantiate(grid, new Vector3(nx-0.5f,i+0.5f,j+3),Quaternion.Euler(new Vector3(0, 0, 90))) as GameObject;
+				GameObject B_square = GameObject.Instantiate(grid, new Vector3(xB,i+0.5f,z),Quaternion.Euler(new Vector3(0, 0, 90))) as GameObject;
 				B_square.transform.parent = B.GetComponent<Transform>();
 				
-				GameObject C_square = GameObject.Instantiate(grid, new Vector3(1.5f,i+0.5f,j+3),Quaternion.Euler(new Vector3(0, 0, -90))) as GameObject;
+				GameObject C_square = GameObject.Instantiate(grid, new Vector3(xC,i+0.5f,z),Quaternion.Euler(new Vector3(0, 0, -90))) as GameObject;
 				C_square.transform.parent = C.GetComponent<Transform>();
 				
-				GameObject D_square = GameObject.Instantiate(grid, new Vector3(j+3,i+0.5f,1.5f),Quaternion.Euler(new Vector3(90, 0, 0))) as GameObject;
+				GameObject D_square = GameObject.Instantiate(grid, new Vector3(x,i+0.5f,zD),Quaternion.Euler(new Vector3(90, 0, 0))) as GameObject;
 				D_square.transform.parent = D.GetComponent<Transform>();	
 			}	
 		}
 		
 		A.AddComponent<CombineChildren>();
 		foreach(Transform child_A in A.transform){
-		    Destroy(child_A.gameObject);
+			Destroy(child_A.gameObject);
 		}
 		
 		B.AddComponent<CombineChildren>();
 		foreach(Transform child_B in B.transform){
-		    Destroy(child_B.gameObject);
+			Destroy(child_B.gameObject);
 		}
 		
 		C.AddComponent<CombineChildren>();
 		foreach(Transform child_C in C.transform){
-		    Destroy(child_C.gameObject);
+			Destroy(child_C.gameObject);
 		}
 		
 		D.AddComponent<CombineChildren>();
 		foreach(Transform child_D in D.transform){
-		    Destroy(child_D.gameObject);
+			Destroy(child_D.gameObject);
 		}
 	}
 
