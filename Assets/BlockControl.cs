@@ -116,8 +116,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		cam = new setUpWebcam();
-		cam.setUpCams();
+		/*cam = new setUpWebcam();
+		cam.setUpCams();*/
 		globalX = 0;
 		globalZ = 0;
 		
@@ -462,6 +462,7 @@ public class BlockControl : MonoBehaviour {
 		if(gameBoard.isGameOver()){
 			gameOver = true;
 			Time.timeScale = 0;
+			gameBoard.setMaxVolume();
 			//Application.LoadLevel("GameOver");
 			// Debug.Log("BYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEEEEE");
 		}
@@ -896,7 +897,7 @@ public class BlockControl : MonoBehaviour {
 	public bool createShape(){
 		
 		// Add here shape creation code.
-		cam.takeSnap();
+		/*cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();
@@ -913,6 +914,9 @@ public class BlockControl : MonoBehaviour {
 				print ("format is wrong");
 				count ++;
 				hello = 1;
+
+				//waring SOUND plays when the piece is missread
+				gameBoard.playWarningSound();
 				StartCoroutine(Wait2(1));
 			}else{
 				shape4 = getShapeArray(legoCode);
@@ -927,10 +931,7 @@ public class BlockControl : MonoBehaviour {
 					
 				}
 			}
-			
-			
-			
-			
+
 		}
 		
 		
@@ -958,10 +959,10 @@ public class BlockControl : MonoBehaviour {
 		}
 		
 		return true;
-
-		//shape4 = getShapeArray();   //If your using a hardcoded shape
-		//createShape(shape4);
-		//return true;
+		*/
+		shape4 = getShapeArray();   //If your using a hardcoded shape
+		createShape(shape4);
+		return true;
 	}
 	
 	
