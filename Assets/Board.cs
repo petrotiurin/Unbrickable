@@ -67,8 +67,8 @@ public class Board : MonoBehaviour {
 	private Vector3 centreRotation = new Vector3 (2,1,2);
 
 	//Audio stuff
-	public AudioSource audio_source;
-	public AudioSource layer_clear_sound;
+	private AudioSource audio_source;
+	private AudioSource wrong_piece_sound;
 	
 	// Four boundary walls
 	private GameObject A,B,C,D;
@@ -153,8 +153,9 @@ public class Board : MonoBehaviour {
 		
 		createTopCamera();
 
-//		layer_clear_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
-//		layer_clear_sound.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/Triumph.wav", typeof(AudioClip));
+		audio_source = GameObject.Find("Main Camera").GetComponent<AudioSource>();
+		wrong_piece_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
+		wrong_piece_sound.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/error.wav", typeof(AudioClip));
 
 		// Only uncomment if you want to *change* the music
 		//		startMusic("Theme1");
@@ -209,14 +210,18 @@ public class Board : MonoBehaviour {
 		audio_source.Play();
 	}
 
-	private void setMaxVolume(){
+	public void setMaxVolume(){
 		audio_source.volume = 1.0f;
 	}
 
-	public void playLayerClearSound(){
-		//if (audio_source != null) audio_source.volume = 0.1f;
-		//layer_clear_sound.Play();
-		//if (audio_source != null) Invoke( "setMaxVolume", layer_clear_sound.clip.length );
+	public void playWarningSound(){
+		if (wrong_piece_sound == null){
+			throw new Exception("wrong_piece_sound is null!");
+			return;
+		}
+		if (audio_source != null) audio_source.volume = 0.1f;
+		wrong_piece_sound.Play();
+		if (audio_source != null) Invoke( "setMaxVolume", wrong_piece_sound.clip.length );
 	}
 	
 	// Create the base of the game board.
@@ -381,7 +386,7 @@ public class Board : MonoBehaviour {
 
 	// Clear the layer (i.e. reset the layer count to 0).
 	public void clearLayer(int y) {
-		playLayerClearSound();
+		//playLayerClearSound();
 
 		foreach (Transform childTransform in blocksLayer[y].transform) {
 		    Destroy(childTransform.gameObject);
@@ -612,6 +617,11 @@ public class Board : MonoBehaviour {
 		score_style.fontSize = 40;
 		score_style.fontStyle = FontStyle.Bold;
 		score_style.normal.textColor = Color.white;
+
+        GUIStyle scoreText_style = new GUIStyle();
+        scoreText_style.fontSize = 20;
+        scoreText_style.fontStyle = FontStyle.Bold;
+        scoreText_style.normal.textColor = Color.white;
 		
 		GUIStyle gameover_message = new GUIStyle();
 		gameover_message.fontSize = 25;
@@ -633,8 +643,10 @@ public class Board : MonoBehaviour {
 		LBoard_header.normal.textColor = Color.white;
 		
     	// The following line of code displays the current score.
-        GUI.Box(new Rect (50,10,150,100), "Score: " + score, score_style);
-		
+        GUI.Box(new Rect (80,40,100,40), "Score: ", scoreText_style);
+        GUI.Box(new Rect (35,40,150,100), "" + score, score_style);
+        if(countdown)
+            GUI.Label(new Rect(130,110,70,20), "+ " + time + " ", scoreText_style);
 		
 		
 
@@ -668,8 +680,6 @@ public class Board : MonoBehaviour {
             time = Convert.ToInt32(1000 * barDisplay);
             time /= 10;
             time *= 10;
-
-            GUI.Label(new Rect(60,50,70,20), "" + time);
 		GUI.EndGroup();
         
         // The next bit of the code deals with piece suggestions and displaying them.

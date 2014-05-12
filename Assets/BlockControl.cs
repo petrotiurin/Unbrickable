@@ -166,9 +166,9 @@ public class BlockControl : MonoBehaviour {
 		
 		
 		int[,,] shapeTemp = new int[20,20,20];
-		string data =  ".13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1";
+		string data =  ".13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
 		string[] dA = data.Split('.');
-		for (int i = 0; i < dA.Length - 1; i+=4){
+		for (int i = 1; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
 			int y = Int32.Parse(dA[i+1]);
 			int z = Int32.Parse(dA[i+2]);
@@ -473,6 +473,7 @@ public class BlockControl : MonoBehaviour {
 		if(gameBoard.isGameOver()){
 			gameOver = true;
 			Time.timeScale = 0;
+			gameBoard.setMaxVolume();
 			//Application.LoadLevel("GameOver");
 			// Debug.Log("BYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEEEEE");
 		}
@@ -927,6 +928,9 @@ public class BlockControl : MonoBehaviour {
 				print ("format is wrong");
 				count ++;
 				hello = 1;
+
+				//waring SOUND plays when the piece is missread
+				gameBoard.playWarningSound();
 				StartCoroutine(Wait2(1));
 			}else{
 				shape4 = getShapeArray(legoCode);
@@ -941,10 +945,7 @@ public class BlockControl : MonoBehaviour {
 					
 				}
 			}
-			
-			
-			
-			
+
 		}
 		
 		
