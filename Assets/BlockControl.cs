@@ -394,21 +394,16 @@ public class BlockControl : MonoBehaviour {
 				print ("still in loop");
 				//			xTime++;
 			}
-
 		}
 		
 		waitActive = false;
 		Debug.Log("After waiting for " + timeGap + "s");
 		shapeFalling = false;
-		gameBoard.unpauseGame();
-		
-		
 		
 		if(enterPressed){ //xTime < (timeGap / 0.01)){
 			Debug.Log("ENTER PRESSED!");
 			movingStopped = false;
-			//			createShape ();
-			
+			//			createShape ();	
 		}
 		else if(startTimerr < (Time.realtimeSinceStartup - timeGap)){
 			Debug.Log("Enter not pressed?");
@@ -416,6 +411,8 @@ public class BlockControl : MonoBehaviour {
 			gameOver = true;
 			//Application.LoadLevel("GameOver");
 		}
+
+		gameBoard.unpauseGame();
 	}
 	
 	public void linkBlock(int time){
@@ -466,7 +463,7 @@ public class BlockControl : MonoBehaviour {
 			gameOver = true;
 			Time.timeScale = 0;
 			//Application.LoadLevel("GameOver");
-			Debug.Log("BYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEEEEE");
+			// Debug.Log("BYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYEEEEEEEEEEEEEEEEEEE");
 		}
 		if (gameOver == true) return;
 		GameObject block = GameObject.Find("ActiveBlock");

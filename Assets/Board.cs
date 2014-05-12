@@ -17,7 +17,8 @@ public class Board : MonoBehaviour {
 	
 	private int flashPass;
 
-	public int timeGap = 10; //default value. Change gap here!
+	int timeGap = 10; //default value. Change gap here!
+    private int time = 1000;
     int timer = 0;
     float starttimer = 0.0f;
     bool countdown = false;
@@ -28,7 +29,10 @@ public class Board : MonoBehaviour {
     private bool viewLBoard = false;
     private bool scoreSubmitted = false;
     private bool receivedLboard = false;
+    private bool rcvdPartScoreboard = false;
     ArrayList dispScores = new ArrayList();
+    ArrayList dispPartScores = new ArrayList();
+    private int lboardPosition = 0;
 	
     private string uname = "Voldemort";
 
@@ -87,7 +91,6 @@ public class Board : MonoBehaviour {
 
 	// Initialization.
 	void Awake () {
-
         Debug.Log("Initialisation");
         startTime = Time.realtimeSinceStartup;
         Debug.Log("Awake Time ---> " + startTime);
@@ -173,9 +176,7 @@ public class Board : MonoBehaviour {
 
     // Update is called once per frame.
     void Update (){
-	
         if(countdown){
-
             if(Input.GetKeyDown("return")){
 				blockCtrl.enterPressed = true;
                 shapeFalling = true;
@@ -370,12 +371,13 @@ public class Board : MonoBehaviour {
     */
     void scoring(int flag, int addScore){
         if(flag == 0){
-            score += 500/timeGap * addScore;
+            score += time; //1000/timeGap * addScore;
             //score += addScore;
         }
         else
-        score += addScore * 10;
+            score += addScore * 10;
     }
+
 
 	// Clear the layer (i.e. reset the layer count to 0).
 	public void clearLayer(int y) {
@@ -487,6 +489,7 @@ public class Board : MonoBehaviour {
 		}
 	}
 	
+
 	// Make an object a child of the Scene.
 	private void addToScene(GameObject o){
 		GameObject scene = GameObject.Find("Scene");
@@ -503,49 +506,7 @@ public class Board : MonoBehaviour {
 		blockCtrl.linkBlock(blockCtrl.xTime);
     }
 
-	/* Creates a gap of x (currently 10 for initial testing purposes) seconds
-	**	 before the first shape is triggered.
-	** The game is "paused" -- the shape doesn't descend but you can still
-	**   rotate the board, if you need to see where you'd place the blocks.
-	*/
-	/*IEnumerator Wait(){
-        float time = Time.realtimeSinceStartup;
-        if(time > 2)
-        	pauseGame(Time.realtimeSinceStartup);
-        else
-            pauseGame(0f);
-
-        xTime = 0;
-
-        float startTimerr = Time.realtimeSinceStartup;
-        while(xTime < (timeGap / 0.01) &&
-            startTimerr > (Time.realtimeSinceStartup - timeGap) && blockCtrl.enterPressed == false){
-            yield return new WaitForSeconds(0.01f);
-			//Debug.Log(blockCtrl.enterPressed);
-			xTime++;
-        }
-
-        Debug.Log("2");
-
-        Debug.Log("xTime = " + xTime);
-        unpauseGame();
-            
-        //game over mechanism
-		if(blockCtrl.enterPressed == true){ //xTime < (timeGap / 0.01)){
-            //Debug.Log("ENTER PRESSED!");
-			blockCtrl.enterPressed = false;
-            blockCtrl.createShape();
-
-
-        }
-        else{
-            Debug.Log("Enter not pressed?");
-            Time.timeScale = 0;
-            blockCtrl.gameOver = true;
-            //Application.LoadLevel("GameOver");
-        }		
-    }
-*/
+	
 	public void pauseGame(float start){
         if(!countdown){
             starttimer = start;
@@ -555,14 +516,18 @@ public class Board : MonoBehaviour {
         }
     }
 
+
     //set the timer to 0, stop the countdown and fetch next piece.
     public void unpauseGame(){
-        Debug.Log("Points? --------> " + timer);
-        scoring(0, (int)timer);
+        // Debug.Log("Points? --------> " + timer);
+        //prevent increase in score if game ends.
+        if(!blockCtrl.gameOver)
+            scoring(0, (int)timer);
         rounds++;
         timer = 0;
         countdown = false;
     }
+
 
 	public void createMesh(){
 		for (int i = 0; i < ny; i++){
@@ -620,19 +585,16 @@ public class Board : MonoBehaviour {
     void OnGUI () {
         //display start timer
         if((Time.realtimeSinceStartup - startTime) < 1){
-            Texture count = Resources.Load("3") as Texture2D;//(Texture)Resources.LoadAssetAtPath /////
-            //GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "READY");
+            Texture count = Resources.Load("3") as Texture2D;
             GUI.DrawTexture(new Rect(Screen.width/2-215.5f, Screen.height/2-225, 431, 450), count);
         }
         else if((Time.realtimeSinceStartup - startTime) > 1 &&
             (Time.realtimeSinceStartup - startTime) < 2){
-            //GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "SET");
             Texture count = Resources.Load("2") as Texture2D;
             GUI.DrawTexture(new Rect(Screen.width/2-218.5f, Screen.height/2-225, 437, 450), count);
         }
         else if((Time.realtimeSinceStartup - startTime) > 2 &&
-            (Time.realtimeSinceStartup - startTime) < 3){// && goText == true){
-            //GUI.Label(new Rect(Screen.width/2-50, Screen.height/2-25, 100, 50), "GO");
+            (Time.realtimeSinceStartup - startTime) < 3){
             Texture count = Resources.Load("1") as Texture2D;
             GUI.DrawTexture(new Rect(Screen.width/2-115.5f, Screen.height/2-225, 231, 450), count);
         }
@@ -680,12 +642,14 @@ public class Board : MonoBehaviour {
         if(countdown){
             float timediff = Time.realtimeSinceStartup - starttimer;
             if(timediff < timeGap){
-                barDisplay = 0.01f;
                 //Debug.Log("timediff = " + timediff);
                 timer = (int)timediff;
                 //Debug.Log("Timer = " + timer);
                 timer = timeGap - timer;
-                barDisplay = 1 - timediff * 1.0f/timeGap;//0.1f;
+                if(!blockCtrl.gameOver){
+                    barDisplay = 0.01f;
+                    barDisplay = 1 - timediff * 1.0f/timeGap;//0.1f;
+                }
             }
         }else{
             timer = 0;
@@ -694,14 +658,19 @@ public class Board : MonoBehaviour {
         //timer progress bar.
         //draw the background
 		GUI.BeginGroup(new Rect((Screen.width - 200), 10, 150, 100));
-			//GUI.Box(new Rect(0,25,150,50), timer + "s left.");
 			GUI.DrawTexture(new Rect(0,25,150,50), emptyTex);
 			//draw the ticker
 			GUI.BeginGroup(new Rect(5,31,140,39));
 				GUI.DrawTexture(new Rect(0,0,140*barDisplay,40), fullTex);//, ScaleMode.ScaleToFit, true, 10.0F);
 			GUI.EndGroup();
+
+            //TODO: needs to be styled & re-positioned
+            time = Convert.ToInt32(1000 * barDisplay);
+            time /= 10;
+            time *= 10;
+
+            GUI.Label(new Rect(60,50,70,20), "" + time);
 		GUI.EndGroup();
-        //GUI.Box(new Rect((Screen.width - 200), 10, 150, 100), timer + "s left.");
         
         // The next bit of the code deals with piece suggestions and displaying them.
         if(pieceSuggestor){
@@ -723,56 +692,118 @@ public class Board : MonoBehaviour {
 //        GUI.Box(new Rect((Screen.width - 260), 350, 405, 270), lego[legoSuggestions[2]],suggest_style);
 
         //Game over overlay graphics
-        if(blockCtrl.gameOver && !viewLBoard){
+        if(blockCtrl.gameOver){
+            if(!viewLBoard){
+			    textbox.SetActive(true);
 			
-			textbox.SetActive(true);
-			
-            Texture gameOverTexture = Resources.Load("gameover") as Texture2D;
-            GUI.DrawTexture(new Rect(Screen.width/2-305.2f, 100, 610.4f, 297.6f), gameOverTexture);			
-			
-            GUI.Label(new Rect(Screen.width/2-200,450,200,25), "Final score: " + score, gameover_message);
+                Texture gameOverTexture = Resources.Load("gameover") as Texture2D;
+                GUI.DrawTexture(new Rect(Screen.width/2-305.2f, 100, 610.4f, 297.6f), gameOverTexture);			
+    			
+                GUI.Label(new Rect(Screen.width/2-200,450,200,25), "Final score: " + score, gameover_message);
 
-            if(!scoreSubmitted){
-                GUI.Label(new Rect(Screen.width/2-200,500,300,25), "Enter your name:", gameover_message);
-				uname = GUI.TextField (new Rect (Screen.width/2-200,550,300,40), uname, input_text);
-                
-                if(GUI.Button(new Rect(Screen.width/2-150,600,300,25), "Submit Score")){
-                    lboard.AddScore(uname, score);
-                    scoreSubmitted = true;
+                if(!scoreSubmitted){
+                    GUI.Label(new Rect(Screen.width/2-200,500,300,25), "Enter your name:", gameover_message);
+    				uname = GUI.TextField (new Rect (Screen.width/2-200,550,300,40), uname, input_text);
+                    
+                    if(GUI.Button(new Rect(Screen.width/2-150,Screen.height-300,300,25), "Submit Score")){
+                        lboardPosition = lboard.AddScore(uname, score);
+                        scoreSubmitted = true;
+                        // Debug.Log("Score submitted = " + scoreSubmitted);
+                        viewLBoard = true;
+                    }
                 }
-            }else{
-				viewLBoard = true;
             }
-        }
+			/*
+            //Display the player's score and the two higher & lower than his/hers.
+            if(viewPartLBoard && !viewLBoard){
+                if(!rcvdPartScoreboard){
+                    dispPartScores = lboard.DisplayScores();
+                    receivedLboard = true;
+                }
+
+                //when score is submitted, we want the small leaderboard to be displayed.
+
+                GUI.Label(new Rect(Screen.width/2 - 200, 100, 400, 25), "Position");
+                GUI.Label(new Rect(Screen.width/2 - 50, 100, 100, 25), "Name");
+                GUI.Label(new Rect(Screen.width/2 + 200, 100, 400, 25), "Scores");
+             
+                Debug.Log("lboardPosition = " + lboardPosition + ";;;;" + dispPartScores.Count);
+
+                int iStart = (lboardPosition-3)*2 > 0? (lboardPosition-3)*2 : 0;
+                int iFinish = ((lboardPosition+2)*2) < dispPartScores.Count ? (lboardPosition+2)*2 : dispPartScores.Count;
+
+                //Deals with special circumstances to show 5 entries,
+                //  unless there is less than 5 entries present.
+                //if the person's position is 1 or 2.
+                if(iStart == 0)
+                    iFinish = 10 < (dispPartScores.Count)? 10 : dispPartScores.Count;
+
+                //if the player is in the bottom 2.
+                if(iFinish == (dispPartScores.Count))
+                    iStart = ((iFinish - 10) > 0) ? (iFinish - 10) : 0;
+
+
+                int c = 0;
+                for(int i = iStart; i < iFinish; i+=2){
+                    GUI.Label(new Rect(Screen.width/2 - 200, 150 + c*35, 400, 25), "" + (i/2 + 1));
+                    GUI.Label(new Rect(Screen.width/2 - 50, 150 + c*35, 400, 25), "" + dispPartScores[i]);
+                    GUI.Label(new Rect(Screen.width/2 + 200, 150 + c*35, 400, 25), "" + dispPartScores[i+1]);
+                    Debug.Log("data = " + dispPartScores[i] + "   score = " + dispPartScores[i+1]);
+                    c++;
+                }
+
+                GUI.Box(new Rect(Screen.width/2 - 300, 40, 600, Screen.height-150), "LEADERBOARD OF SHAME AND FAME");
+
+                if(GUI.Button(new Rect(Screen.width/2-200, Screen.height - 100, 150, 75), "View top 10 scores")){
+                    viewLBoard = true;
+                    viewPartLBoard = false;
+                }
+            }*/
 		
-        //Leaderboard graphics
-        if(viewLBoard){
-			
-			textbox.SetActive(false);
-			
-            if(!receivedLboard){
-                dispScores = lboard.DisplayScores(5);
-                receivedLboard = true; //!receivedLboard;
-            }
-			
-            GUI.Label(new Rect(Screen.width/2 - 250, 150, 400, 25), "Position", LBoard_header);
-            GUI.Label(new Rect(Screen.width/2 - 75, 150, 100, 25), "Name", LBoard_header);
-            GUI.Label(new Rect(Screen.width/2 + 150, 150, 400, 25), "Scores", LBoard_header);
-            
-            for(int i = 0; i < 5; i++){
-                // Debug.Log("TEST -------- " + dispScores[i]);
-                GUI.Label(new Rect(Screen.width/2 - 200, 200 + i*50, 400, 25), ""+(i+1), gameover_message);
-                GUI.Label(new Rect(Screen.width/2 - 75, 200 + i*50, 400, 25), "" + dispScores[2*i], gameover_message);
-                GUI.Label(new Rect(Screen.width/2 + 150, 200 + i*50, 400, 25), "" + dispScores[2*i+1], gameover_message);
-            }
+            //Leaderboard graphics
+            if(viewLBoard){
+    			
+    			textbox.SetActive(false);
+    			
+                if(!receivedLboard){
+                    dispPartScores = lboard.DisplayScores();
+                    receivedLboard = true; //!receivedLboard;
+                }
+    			
+                GUI.Label(new Rect(Screen.width/2 - 250, 150, 400, 25), "Position", LBoard_header);
+                GUI.Label(new Rect(Screen.width/2 - 75, 150, 100, 25), "Name", LBoard_header);
+                GUI.Label(new Rect(Screen.width/2 + 150, 150, 400, 25), "Scores", LBoard_header);
 
-            GUI.Box(new Rect(Screen.width/2 - 250, 75, 600, Screen.height-200), "Leaderboard Position", LBoard_title);
+				int iStart = (lboardPosition-3)*2 > 0? (lboardPosition-3)*2 : 0;
+				int iFinish = ((lboardPosition+2)*2) < dispPartScores.Count ? (lboardPosition+2)*2 : dispPartScores.Count;
+				
+				//Deals with special circumstances to show 5 entries,
+				//  unless there is less than 5 entries present.
+				//if the person's position is 1 or 2.
+				if(iStart == 0)
+					iFinish = 10 < (dispPartScores.Count)? 10 : dispPartScores.Count;
+				
+				//if the player is in the bottom 2.
+				if(iFinish == (dispPartScores.Count))
+					iStart = ((iFinish - 10) > 0) ? (iFinish - 10) : 0;
 
-            if(GUI.Button(new Rect(Screen.width/2-75,Screen.height - 200,150,75), "Continue")){
-                Time.timeScale = 1;
-                Application.LoadLevel("MainMenu");
-            }
-        }
-    }
-}
+				int c = 0;
+				for(int i = iStart; i < iFinish; i+=2){
+                    // Debug.Log("TEST -------- " + dispScores[i]);
+                    GUI.Label(new Rect(Screen.width/2 - 200, 200 + c*50, 400, 25), ""+(i/2+1), gameover_message);
+                    GUI.Label(new Rect(Screen.width/2 - 75, 200 + c*50, 400, 25), "" + dispPartScores[i], gameover_message);
+                    GUI.Label(new Rect(Screen.width/2 + 150, 200 + c*50, 400, 25), "" + dispPartScores[i+1], gameover_message);
+					c++;
+                }
+
+                GUI.Box(new Rect(Screen.width/2 - 250, 75, 600, Screen.height-200), "Leaderboard Position", LBoard_title);
+
+                if(GUI.Button(new Rect(Screen.width/2-75,Screen.height - 200,150,75), "Continue")){
+                    Time.timeScale = 1;
+                    Application.LoadLevel("MainMenu");
+                }
+            }//end of leaderboard
+        }//end of gameover display
+    }//end of OnGUI
+}//end of class
 

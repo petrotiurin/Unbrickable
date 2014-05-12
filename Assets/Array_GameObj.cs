@@ -31,5 +31,6 @@ public class Array_GameObj : MonoBehaviour {
 				suggestedPieces[1] = Random.Range(0, piecesNum);
 			}
 		}
+
 	}
 }
