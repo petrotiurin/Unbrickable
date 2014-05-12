@@ -589,6 +589,12 @@ public class Board : MonoBehaviour {
 		score_style.fontStyle = FontStyle.Bold;
 		score_style.normal.textColor = Color.white;
 		
+        GUIStyle scoreText_style = new GUIStyle();
+        scoreText_style.fontSize = 20;
+        scoreText_style.fontStyle = FontStyle.Bold;
+        scoreText_style.normal.textColor = Color.white;
+
+
 		GUIStyle gameover_message = new GUIStyle();
 		gameover_message.fontSize = 25;
 		gameover_message.normal.textColor = Color.white;
@@ -609,9 +615,10 @@ public class Board : MonoBehaviour {
 		LBoard_header.normal.textColor = Color.white;
 		
     	// The following line of code displays the current score.
-        GUI.Box(new Rect (50,10,150,100), "Score: " + score, score_style);
-		
-		
+        GUI.Box(new Rect (80,40,100,40), "Score: ", scoreText_style);
+        GUI.Box(new Rect (35,40,150,100), "" + score, score_style);
+        if(countdown)
+            GUI.Label(new Rect(130,110,70,20), "+ " + time + " ", scoreText_style);
 		
 
         // The following lines of code deals with the countdown timers.
@@ -644,8 +651,6 @@ public class Board : MonoBehaviour {
             time = Convert.ToInt32(1000 * barDisplay);
             time /= 10;
             time *= 10;
-
-            GUI.Label(new Rect(60,50,70,20), "" + time);
 		GUI.EndGroup();
         
         // The next bit of the code deals with piece suggestions and displaying them.
