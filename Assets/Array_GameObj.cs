@@ -32,6 +32,5 @@ public class Array_GameObj : MonoBehaviour {
 			}
 		}
 		
-		suggestedPieces[0] = 0;
 	}
 }
