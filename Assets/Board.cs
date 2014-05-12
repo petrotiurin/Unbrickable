@@ -681,7 +681,7 @@ public class Board : MonoBehaviour {
                     GUI.Label(new Rect(Screen.width/2-200,500,300,25), "Enter your name:", gameover_message);
     				uname = GUI.TextField (new Rect (Screen.width/2-200,550,300,40), uname, input_text);
                     
-                    if(GUI.Button(new Rect(Screen.width/2-150,600,300,25), "Submit Score")){
+                    if(GUI.Button(new Rect(Screen.width/2-150,Screen.height-300,300,25), "Submit Score")){
                         lboardPosition = lboard.AddScore(uname, score);
                         scoreSubmitted = true;
                         // Debug.Log("Score submitted = " + scoreSubmitted);
@@ -712,7 +712,7 @@ public class Board : MonoBehaviour {
                 //  unless there is less than 5 entries present.
                 //if the person's position is 1 or 2.
                 if(iStart == 0)
-                    iFinish = 10 < (dispPartScores.Count/2)? 10 : dispPartScores.Count;
+                    iFinish = 10 < (dispPartScores.Count)? 10 : dispPartScores.Count;
 
                 //if the player is in the bottom 2.
                 if(iFinish == (dispPartScores.Count))
@@ -724,7 +724,7 @@ public class Board : MonoBehaviour {
                     GUI.Label(new Rect(Screen.width/2 - 200, 150 + c*35, 400, 25), "" + (i/2 + 1));
                     GUI.Label(new Rect(Screen.width/2 - 50, 150 + c*35, 400, 25), "" + dispPartScores[i]);
                     GUI.Label(new Rect(Screen.width/2 + 200, 150 + c*35, 400, 25), "" + dispPartScores[i+1]);
-                    Debug.Log("data = " + dispScores[i] + "   score = " + dispPartScores[i+1]);
+                    Debug.Log("data = " + dispPartScores[i] + "   score = " + dispPartScores[i+1]);
                     c++;
                 }
 

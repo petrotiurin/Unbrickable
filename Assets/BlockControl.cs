@@ -69,8 +69,8 @@ public class BlockControl : MonoBehaviour {
 	
 	private GameObject FragmentCube;
 	
-	[DllImport ("make2")]
-	private static extern int main();
+	// [DllImport ("make2")]
+	// private static extern int main();
 	
 	//for moving the shapes need to know the centre of shape
 	private float posX,posZ;	
@@ -117,8 +117,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		cam = new setUpWebcam();
-		cam.setUpCams();
+		// cam = new setUpWebcam();
+		// cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 		
@@ -839,7 +839,7 @@ public class BlockControl : MonoBehaviour {
 	public bool createShape(){
 		
 		// Add here shape creation code.
-		cam.takeSnap();
+		/*cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();
@@ -898,8 +898,10 @@ public class BlockControl : MonoBehaviour {
 				xTime = 0;
 				createShape(shape4);
 			}
-		}
-		
+		}*/
+		shape4 = getShapeArray();
+		createShape(shape4);
+
 		return true;
 		
 		//shape4 = getShapeArray();   //If your using a hardcoded shape
