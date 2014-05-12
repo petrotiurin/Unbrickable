@@ -17,7 +17,7 @@ public class Board : MonoBehaviour {
 	
 	private int flashPass;
 
-	int timeGap = 10; //default value. Change gap here!
+	public int timeGap = 10; //default value. Change gap here!
     int timer = 0;
     float starttimer = 0.0f;
     bool countdown = false;
@@ -275,7 +275,7 @@ public class Board : MonoBehaviour {
 		D.transform.position = new Vector3(legoBase.transform.position.x, ny/2, legoBase.transform.position.z - nz/2);
 		D.name = "Wall D";
 		
-		for(int i=0; i< ny;i++){
+		for(int i=0; i< ny - 2;i++){
 			for(int j=1;j < nx-1;j++){
 				
 				float x;
@@ -370,7 +370,7 @@ public class Board : MonoBehaviour {
     */
     void scoring(int flag, int addScore){
         if(flag == 0){
-            score += 1000/timeGap * addScore;
+            score += 500/timeGap * addScore;
             //score += addScore;
         }
         else
@@ -469,7 +469,7 @@ public class Board : MonoBehaviour {
     //    Debug.Log("checking if game over");
         for(int i = 1; i < nx-1; i++)
             for(int j = 1; j < nz-1; j++)
-                if(boardArray[i,ny-1,j])
+                if(boardArray[i,ny-3,j])
                     return true;
         return false;
     }

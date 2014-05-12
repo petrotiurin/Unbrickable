@@ -117,8 +117,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		cam = new setUpWebcam();
-		cam.setUpCams();
+		//cam = new setUpWebcam();
+		//cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 		
@@ -127,6 +127,10 @@ public class BlockControl : MonoBehaviour {
 	
 	// Initialization.
 	void Start () {
+
+		if (gameBoard.ny <= startHeight){
+			throw new Exception("Start height has to be ny - 1");
+		}
 		
 		pass = 0;	
 		timer = 1;
@@ -490,7 +494,7 @@ public class BlockControl : MonoBehaviour {
 				block.transform.Translate(0,-1,0);
 				//if sitting on top of highlight - disable its rendering
 				if (highlight.transform.position.y == block.transform.position.y){
-					highlight.renderer.enabled = false;
+					if (highlight.renderer != null) highlight.renderer.enabled = false;
 				}
 			} else {
 				//Pauses game for 10 secs before the next piece is triggered
@@ -759,12 +763,13 @@ public class BlockControl : MonoBehaviour {
 		
 		if (gameBoard.nx%2 == 0){
 			if ((shape.GetLength(0)%2 == 0 && shape.GetLength(2)%2 != 0) ||
-			    (shape.GetLength(0)%2 != 0 && shape.GetLength(2)%2 == 0)){
+			    (shape.GetLength(0)%2 != 0 && shape.GetLength(2)%2 == 0) ||
+			    (shape.GetLength(0)%2 != 0 && shape.GetLength(2)%2 != 0)){
 				shapeObj.transform.Translate(0.5f,0,0.5f);
 			}
 		} else {
-			if ((shape.GetLength(0)%2 == 0 && shape.GetLength(2)%2 == 0) ||
-				(shape.GetLength(0)%2 != 0 && shape.GetLength(2)%2 != 0)){
+			if (shape.GetLength(0)%2 == 0 && shape.GetLength(2)%2 == 0){
+				//(shape.GetLength(0)%2 != 0 && shape.GetLength(2)%2 != 0)){
 				shapeObj.transform.Translate(0.5f,0,0.5f);
 			}
 		}
@@ -894,7 +899,7 @@ public class BlockControl : MonoBehaviour {
 	// For demonstration purposes.
 	public bool createShape(){
 		
-		// Add here shape creation code.
+	/*	// Add here shape creation code.
 		cam.takeSnap();
 		
 		//call c++ code
@@ -957,10 +962,10 @@ public class BlockControl : MonoBehaviour {
 		}
 		
 		return true;
-		
-		//shape4 = getShapeArray();   //If your using a hardcoded shape
-		
-		
+		*/
+		shape4 = getShapeArray();   //If your using a hardcoded shape
+		createShape(shape4);
+		return true;
 	}
 	
 	

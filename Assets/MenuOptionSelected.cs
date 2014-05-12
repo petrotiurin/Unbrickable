@@ -13,7 +13,7 @@ public class MenuOptionSelected : MonoBehaviour
 			else if(tag == "Medium")
 				Application.LoadLevel("pirate");
 			else if(tag == "Hard")
-				Application.LoadLevel("space");
+				Application.LoadLevel("wildwest");
 			else if(tag == "Finish")
 				Application.Quit();
 		}
