@@ -145,9 +145,18 @@ public class BlockControl : MonoBehaviour {
 	}
 	
 	public bool checkString(string data){
-		if(data == null) return false;
-		if(Regex.IsMatch(data, @"^(\d+\.\d+\.\d+\.\d+\.)+$"))return true;
-		
+
+		if(data == null){ 
+			print ("data = nulll");
+			return false;
+		}
+		///"9.1.7.2.9.1.8.2.9.2.8.4.10.1.7.2.10.1.8.2.10.2.8.4."
+		if(Regex.IsMatch(data, @"^(\.\d+\.\d+\.\d+\.\d+\.*)+$")){
+			print ("string matched");
+			return true;
+		}
+
+		print ("string didnt match");
 		return false;
 	}
 	
@@ -157,7 +166,7 @@ public class BlockControl : MonoBehaviour {
 		
 		
 		int[,,] shapeTemp = new int[20,20,20];
-		string data =  "13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1.";
+		string data =  ".13.1.11.1.13.1.10.1.12.1.10.1.11.1.10.1.10.1.10.1.10.2.10.1.10.3.10.1.11.2.10.1";
 		string[] dA = data.Split('.');
 		for (int i = 0; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
@@ -171,13 +180,15 @@ public class BlockControl : MonoBehaviour {
 	// Get the shape from the computer vision stuff and puts in to the shape array
 	public int[,,] getShapeArray(string data){
 		
-		print ("checking the string: "+checkString("1.1.1.1."));
+		print ("checking the string: "+checkString(".1.1.1.1"));
 		
 		if(!checkString(data))print("bad string");
 		
 		int[,,] shapeTemp = new int[20,20,20];
 		string[] dA = data.Split('.');
-		for (int i = 0; i < dA.Length - 1; i+=4){
+
+
+		for (int i = 1; i < dA.Length - 1; i+=4){
 			int x = Int32.Parse(dA[i]);
 			int y = Int32.Parse(dA[i+1]);
 			int z = Int32.Parse(dA[i+2]);
@@ -878,6 +889,8 @@ public class BlockControl : MonoBehaviour {
 				
 				// Done reading, close the reader and return true to broadcast success    
 				theReader.Close();
+				//if(!line.EndsWith("."))
+				//	line = line + ".";
 				return line;
 			}
 		}
@@ -909,6 +922,7 @@ public class BlockControl : MonoBehaviour {
 			
 			hello = main ();
 			legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
+
 			if(!checkString(legoCode)){
 				print ("format is wrong");
 				count ++;
@@ -937,8 +951,10 @@ public class BlockControl : MonoBehaviour {
 		
 		//	StartCoroutine(Wait2(3));
 		legoCode = Load("/Users/guyhowcroft/Documents/gameImages/result.txt");
-		
+
+
 		if(!checkString(legoCode)){
+			print ("lego code before wrong = " + legoCode);
 			print ("format is wrong");
 			return false;
 		}else{
