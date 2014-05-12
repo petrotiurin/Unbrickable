@@ -27,7 +27,6 @@ public class Board : MonoBehaviour {
     //scoring stuff
     public int score = 0;
     private bool viewLBoard = false;
-    private bool viewPartLBoard = false;
     private bool scoreSubmitted = false;
     private bool receivedLboard = false;
     private bool rcvdPartScoreboard = false;
@@ -441,7 +440,7 @@ public class Board : MonoBehaviour {
 
     //Called from BlockControl to check if the top layer has been filled.
     public bool isGameOver(){
-        Debug.Log("checking if game over");
+      //  Debug.Log("checking if game over");
         if(!blockCtrl.gameOver){
             for(int i = 1; i < nx-1; i++)
                 for(int j = 1; j < nz-1; j++)
@@ -674,7 +673,7 @@ public class Board : MonoBehaviour {
 
         //Game over overlay graphics
         if(blockCtrl.gameOver){
-            if(!viewLBoard && !viewPartLBoard){
+            if(!viewLBoard){
 			    textbox.SetActive(true);
 			
                 Texture gameOverTexture = Resources.Load("gameover") as Texture2D;
@@ -690,11 +689,11 @@ public class Board : MonoBehaviour {
                         lboardPosition = lboard.AddScore(uname, score);
                         scoreSubmitted = true;
                         // Debug.Log("Score submitted = " + scoreSubmitted);
-                        viewPartLBoard = true;
+                        viewLBoard = true;
                     }
                 }
             }
-
+			/*
             //Display the player's score and the two higher & lower than his/hers.
             if(viewPartLBoard && !viewLBoard){
                 if(!rcvdPartScoreboard){
@@ -739,7 +738,7 @@ public class Board : MonoBehaviour {
                     viewLBoard = true;
                     viewPartLBoard = false;
                 }
-            }
+            }*/
 		
             //Leaderboard graphics
             if(viewLBoard){
@@ -747,19 +746,34 @@ public class Board : MonoBehaviour {
     			textbox.SetActive(false);
     			
                 if(!receivedLboard){
-                    dispScores = lboard.DisplayScores(5);
+                    dispPartScores = lboard.DisplayScores();
                     receivedLboard = true; //!receivedLboard;
                 }
     			
                 GUI.Label(new Rect(Screen.width/2 - 250, 150, 400, 25), "Position", LBoard_header);
                 GUI.Label(new Rect(Screen.width/2 - 75, 150, 100, 25), "Name", LBoard_header);
                 GUI.Label(new Rect(Screen.width/2 + 150, 150, 400, 25), "Scores", LBoard_header);
-                
-                for(int i = 0; i < 5; i++){
+
+				int iStart = (lboardPosition-3)*2 > 0? (lboardPosition-3)*2 : 0;
+				int iFinish = ((lboardPosition+2)*2) < dispPartScores.Count ? (lboardPosition+2)*2 : dispPartScores.Count;
+				
+				//Deals with special circumstances to show 5 entries,
+				//  unless there is less than 5 entries present.
+				//if the person's position is 1 or 2.
+				if(iStart == 0)
+					iFinish = 10 < (dispPartScores.Count)? 10 : dispPartScores.Count;
+				
+				//if the player is in the bottom 2.
+				if(iFinish == (dispPartScores.Count))
+					iStart = ((iFinish - 10) > 0) ? (iFinish - 10) : 0;
+
+				int c = 0;
+				for(int i = iStart; i < iFinish; i+=2){
                     // Debug.Log("TEST -------- " + dispScores[i]);
-                    GUI.Label(new Rect(Screen.width/2 - 200, 200 + i*50, 400, 25), ""+(i+1), gameover_message);
-                    GUI.Label(new Rect(Screen.width/2 - 75, 200 + i*50, 400, 25), "" + dispScores[2*i], gameover_message);
-                    GUI.Label(new Rect(Screen.width/2 + 150, 200 + i*50, 400, 25), "" + dispScores[2*i+1], gameover_message);
+                    GUI.Label(new Rect(Screen.width/2 - 200, 200 + c*50, 400, 25), ""+(i/2+1), gameover_message);
+                    GUI.Label(new Rect(Screen.width/2 - 75, 200 + c*50, 400, 25), "" + dispPartScores[i], gameover_message);
+                    GUI.Label(new Rect(Screen.width/2 + 150, 200 + c*50, 400, 25), "" + dispPartScores[i+1], gameover_message);
+					c++;
                 }
 
                 GUI.Box(new Rect(Screen.width/2 - 250, 75, 600, Screen.height-200), "Leaderboard Position", LBoard_title);
