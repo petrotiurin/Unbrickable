@@ -21,9 +21,9 @@ public class MenuOptionSelected : MonoBehaviour
 		if(Input.GetMouseButtonDown(0)){
 			
 			if(tag == "Easy")
-				Application.LoadLevel("space");
-			else if(tag == "Medium")
 				Application.LoadLevel("pirate");
+			else if(tag == "Medium")
+				Application.LoadLevel("space");
 			else if(tag == "Hard")
 				Application.LoadLevel("wildwest");
 			else if(tag == "Finish")

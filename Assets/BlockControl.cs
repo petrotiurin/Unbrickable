@@ -62,6 +62,7 @@ public class BlockControl : MonoBehaviour {
 	private int pin = 0;
 	
 	private float timer;
+	public float startTimer;
 	
 	public float moveTime = 0.07f;
 	
@@ -116,8 +117,8 @@ public class BlockControl : MonoBehaviour {
 	// Pre-Initialization.
 	void Awake(){
 		Debug.Log("initialise cam");
-		//cam = new setUpWebcam();
-		//cam.setUpCams();
+		cam = new setUpWebcam();
+		cam.setUpCams();
 		globalX = 0;
 		globalZ = 0;
 		
@@ -132,7 +133,7 @@ public class BlockControl : MonoBehaviour {
 		}
 		
 		pass = 0;	
-		timer = 1;
+		timer = startTimer;
 		shapeMove=0;
 		
 		transparentMaterial = (Material)Resources.LoadAssetAtPath("Assets/Materials/ShadowMaterial.mat", typeof(Material));
@@ -497,7 +498,7 @@ public class BlockControl : MonoBehaviour {
 		}
 		timer -= Time.deltaTime;
 		if(timer<=0 && !movingStopped){
-			timer=1;
+			timer=startTimer;
 			shadow.transform.Translate(0,-1,0);
 			if (checkMoveAllowed()){
 				block.transform.Translate(0,-1,0);
@@ -529,12 +530,12 @@ public class BlockControl : MonoBehaviour {
 		}
 		
 		//ROTATE right
-		if (Input.GetKeyDown("v")){		
+		if (Input.GetKeyDown("x")){		
 			rotation = new Vector3(0,90,0);
 			hasMoved = 1;
 		}		
 		//ROTATE left
-		if (Input.GetKeyDown("c")){
+		if (Input.GetKeyDown("z")){
 			rotation = new Vector3(0,-90,0);
 			hasMoved = 1;
 		}
@@ -911,7 +912,7 @@ public class BlockControl : MonoBehaviour {
 	public bool createShape(){
 		
 		// Add here shape creation code.
-	/*	cam.takeSnap();
+		cam.takeSnap();
 		
 		//call c++ code
 		int hello = main ();
@@ -975,10 +976,10 @@ public class BlockControl : MonoBehaviour {
 		}
 		
 		return true;
-	*/
-		shape4 = getShapeArray();   //If your using a hardcoded shape
-		createShape(shape4);
-		return true;
+
+	//	shape4 = getShapeArray();   //If your using a hardcoded shape
+    //		createShape(shape4);
+	//	return true;
 	}
 	
 	
