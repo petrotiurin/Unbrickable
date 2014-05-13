@@ -40,7 +40,7 @@ public class Board : MonoBehaviour {
     public int level = 1; 
     //stores number of times the player has constructed a piece
     public int rounds = 0; 
-
+	private bool first = true;
     //Make shape fall when enter is pressed
     bool shapeFalling = false;
     int xTime = 0;
@@ -152,7 +152,7 @@ public class Board : MonoBehaviour {
 		DrawBoard();
 		
 		createTopCamera();
-
+		//first = true;
 		audio_source = GameObject.Find("Main Camera").GetComponent<AudioSource>();
 		wrong_piece_sound = GameObject.Find("Main Camera").AddComponent<AudioSource>();
 		wrong_piece_sound.clip = (AudioClip) Resources.LoadAssetAtPath("Assets/Music/error.wav", typeof(AudioClip));
@@ -697,8 +697,11 @@ public class Board : MonoBehaviour {
         }
 		
 		GUIStyle suggest_style = new GUIStyle();
+
         GUI.Box(new Rect((Screen.width - 260), 50, 405, 270), lego[legoSuggestions[0]],suggest_style);
         GUI.Box(new Rect((Screen.width - 260), 200, 405, 270), lego[legoSuggestions[1]],suggest_style);
+		first = false;
+
 //        GUI.Box(new Rect((Screen.width - 260), 350, 405, 270), lego[legoSuggestions[2]],suggest_style);
 
         //Game over overlay graphics

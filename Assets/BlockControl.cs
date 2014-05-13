@@ -778,7 +778,9 @@ public class BlockControl : MonoBehaviour {
 				shapeObj.transform.Translate(0.5f,0,0.5f);
 			}
 		} else {
-			if (shape.GetLength(0)%2 == 0 && shape.GetLength(2)%2 == 0){
+			if ((shape.GetLength(0)%2 == 0 && shape.GetLength(2)%2 != 0) ||
+			    (shape.GetLength(0)%2 != 0 && shape.GetLength(2)%2 == 0) ||
+			    (shape.GetLength(0)%2 == 0 && shape.GetLength(2)%2 == 0)){
 				//(shape.GetLength(0)%2 != 0 && shape.GetLength(2)%2 != 0)){
 				shapeObj.transform.Translate(0.5f,0,0.5f);
 			}
