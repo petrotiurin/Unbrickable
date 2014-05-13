@@ -281,7 +281,7 @@ public class Board : MonoBehaviour {
 		D.transform.position = new Vector3(legoBase.transform.position.x, ny/2, legoBase.transform.position.z - nz/2);
 		D.name = "Wall D";
 		
-		for(int i=0; i< ny - 2;i++){
+		for(int i=0; i< ny - 3;i++){
 			for(int j=1;j < nx-1;j++){
 				
 				float x;
@@ -808,7 +808,7 @@ public class Board : MonoBehaviour {
 
                 GUI.Box(new Rect(Screen.width/2 - 250, 75, 600, Screen.height-200), "Leaderboard Position", LBoard_title);
 
-                if(GUI.Button(new Rect(Screen.width/2-75,Screen.height - 200,150,75), "Continue")){
+                if(GUI.Button(new Rect(Screen.width/2-75,Screen.height - 500,150,75), "Continue")){
                     Time.timeScale = 1;
                     Application.LoadLevel("MainMenu");
                 }
